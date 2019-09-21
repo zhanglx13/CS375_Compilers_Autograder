@@ -1,0 +1,7 @@
+Started scanner test.
+tokentype:  3  value:                 x
+tokentype:  0  which:    5           :=
+tokentype:  5  type:     0          123
+tokentype:  0  which:    1            +
+tokentype:  5  type:     0    123456789
+tokentype:  1  which:    2            ;
