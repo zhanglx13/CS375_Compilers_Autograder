@@ -1,0 +1,7 @@
+Started scanner test.
+yylex() =  258   tokentype:  3  value:                 u
+yylex() =  258   tokentype:  3  value:                 v
+yylex() =  258   tokentype:  3  value:                 w
+yylex() =  258   tokentype:  3  value:                 x
+yylex() =  258   tokentype:  3  value:                 y
+yylex() =  258   tokentype:  3  value:                 z

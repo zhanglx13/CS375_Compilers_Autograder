@@ -1,0 +1,3 @@
+Started scanner test.
+yylex() =  258   tokentype:  3  value:   thisisanunusual
+yylex() =  281   tokentype:  1  which:    2            ;

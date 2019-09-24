@@ -42,25 +42,49 @@
 #     ./lexanc < $entry > "./sample_p1/$xpref.sample"
 # done
 
+##
+## Generate one possible set of samples using the solution
+##
+## The samples are saved in sample_p2/
+##
+
+# for entry in ./test_p1/*
+# do
+#     ##
+#     ## Get file name only without path nor extension
+#     ## https://stackoverflow.com/questions/3362920/get-just-the-filename-from-a-path-in-a-bash-script
+#     ##
+#     xpath=${entry%/*}
+#     xbase=${entry##*/}
+#     xfext=${xbase##*.}
+#     xpref=${xbase%.*}
+#     ./lexer < $entry > "./sample_p2/$xpref.sample"
+# done
+
 TOP_DIR=$(pwd)
 CS375DIR=~/Dropbox/CS375_Compilers
 AUTOGRADERDIR=$CS375DIR/autograder
 TESTS=$AUTOGRADERDIR/test_p1/*
-SAMPLEDIR=$AUTOGRADERDIR/sample_p1
-SUBDIR=$AUTOGRADERDIR/p1_gradingDir/*
+SAMPLEDIR=$AUTOGRADERDIR/sample_$1
+SUBDIR=$AUTOGRADERDIR/$1_gradingDir/*
+if [[ $1 == "p1" ]];then
+    EXE=lexanc
+elif [[ $1 == "p2" ]];then
+    EXE=lexer
+fi
 
 gradeSingleStudent()
 {
 
     echo "############  $WHO  ###############"
     wronglines=0
-    make lexanc &> dump
-    if [[ -f "lexanc" ]];then
+    make $EXE &> dump
+    if [[ -f "$EXE" ]];then
         for testInput in $TESTS
         do
             xbase=${testInput##*/}
             xpref=${xbase%.*}
-            ./lexanc < $testInput &> result
+            ./$EXE < $testInput &> result
             DIFF=$(diff result $SAMPLEDIR/$xpref.sample)
             if [ "$DIFF" != "" ]
             then
@@ -72,9 +96,13 @@ gradeSingleStudent()
         echo "Wrong lines: $wronglines"
         ## Test graph1.pas
         echo "graph1:"
-	    ./lexanc < $TOP_DIR/graph1.pas &> result
-        diff result $TOP_DIR/graph1.lex
-        rm *.o result  lexanc
+	    ./$EXE < $TOP_DIR/graph1.pas &> result
+        if [[ $1 == "p1" ]]; then
+            diff result $TOP_DIR/graph1.lex
+        elif [[ $1 == "p2" ]]; then
+            diff result $TOP_DIR/graph1.lexer
+        fi
+        rm *.o result $EXE
     else
         echo "Does not compile"
     fi
@@ -83,14 +111,14 @@ gradeSingleStudent()
 ##
 ## Run tests for one student
 ##
-if [[ $# -eq 1 ]]; then
-    cd $1
-    WHO=$1
+if [[ $# -eq 2 ]]; then
+    cd $2
+    WHO=$2
     gradeSingleStudent
     cd $TOP_DIR
-else
+elif [[ $# -eq 1 ]];then
 ##
-## Run tests for all students in p1_gradingDir/
+## Run tests for all students in $1_gradingDir/
 ##
     for student in $SUBDIR
     do
@@ -99,6 +127,8 @@ else
         gradeSingleStudent
         cd $TOP_DIR
     done
+else
+    echo "Usage: ./autograder.sh px [studentDir]"
 fi
 
 
