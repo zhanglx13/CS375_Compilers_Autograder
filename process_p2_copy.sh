@@ -23,6 +23,18 @@ do
         if [[ $subentry == *lex2*.l ]]; then
             mv $subentry lexan.l
         fi
+        if [[ $subentry == *lexan*.h ]];then
+            mv $subentry lexan.h
+        fi
+        if [[ $subentry == *lexanl*.c ]]; then
+            mv $subentry lexanl.c
+        fi
+        if [[ $subentry == *printtoken*.c ]];then
+            mv $subentry printtoken.c
+        fi
+        if [[ $subentry == *token*.h ]]; then
+            mv $subentry token.h
+        fi
     done
     cp $AUTOGRADERDIR/makefile ./
     copyifnotexist lexandr.c
