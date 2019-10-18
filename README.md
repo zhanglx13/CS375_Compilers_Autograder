@@ -14,3 +14,8 @@
 ## Project 2 Lexer
 
 same as project 1 except p1 should be replaced with p2
+
+## Project 3 Parsing trivb.pas
+
+1. ./prepare.sh p3
+2. ./parser_autograder.sh p3
