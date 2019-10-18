@@ -67,6 +67,7 @@ AUTOGRADERDIR=$CS375DIR/autograder
 TESTS=$AUTOGRADERDIR/test_p1/*
 SAMPLEDIR=$AUTOGRADERDIR/sample_$1
 SUBDIR=$AUTOGRADERDIR/$1_gradingDir/*
+FILEDIR=$AUTOGRADERDIR/cs375_minimal
 if [[ $1 == "p1" ]];then
     EXE=lexanc
 elif [[ $1 == "p2" ]];then
@@ -96,11 +97,11 @@ gradeSingleStudent()
         echo "Wrong lines: $wronglines"
         ## Test graph1.pas
         echo "graph1:"
-	    ./$EXE < $TOP_DIR/graph1.pas &> result
+	    ./$EXE < $FILEDIR/graph1.pas &> result
         if [[ $1 == "p1" ]]; then
-            diff result $TOP_DIR/graph1.lex
+            diff result $FILEDIR/graph1.lex
         elif [[ $1 == "p2" ]]; then
-            diff result $TOP_DIR/graph1.lexer
+            diff result $FILEDIR/graph1.lexer
         fi
         rm *.o result $EXE
     else

@@ -1,6 +1,6 @@
 #! /bin/bash
 
-cd p2_gradingDir
+cd "$1_gradingDir"
 
 for entry in ./*
 do
