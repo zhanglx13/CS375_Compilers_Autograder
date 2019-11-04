@@ -42,11 +42,19 @@ static char *resprnt[] = { " ", "array", "begin", "case", "const", "do",
 		           "until", "var", "while", "with" };
 
 TOKEN talloc()           /* allocate a new token record */
-  { TOKEN tok;
+{ 
+    TOKEN tok;
     tok = (TOKEN) calloc(1,sizeof(struct tokn));
-    if ( tok != NULL ) return (tok);
-       else printf("talloc failed.");
-  }
+    if ( tok != NULL ){
+        tok->tokentype = 9999;
+        tok->basicdt = 9999;
+        tok->intval = 9999;
+        return (tok);
+    }
+    else {
+        printf("talloc failed."); return 0;
+    }
+}
 
 void printtoken(TOKEN tok)
   {
