@@ -1,0 +1,11 @@
+c  16
+d  16
+i  4
+sum  4
+ac  16
+aco  16
+john  8
+mary  8
+fred  8
+ptr  8
+people  16

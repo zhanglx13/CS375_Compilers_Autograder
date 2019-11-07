@@ -9,3 +9,5 @@ p*_gradingDir
 
 *.zip
 
+symTable/bin
+symTable/build
