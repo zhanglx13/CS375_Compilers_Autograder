@@ -313,7 +313,7 @@ bool SymbolTable::isEqual(SymbolTable &correctST)
          * Note that we do NOT need to check types
          * if no user defined types are found
          */
-        if (typeDedined){
+        if (typeDefined){
             auto tmi = tMap.find(vName);
             if (tmi != tMap.end()){
                 // vi.getName()
