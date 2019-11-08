@@ -5,53 +5,18 @@ TOP_DIR=$(pwd)
 CS375DIR=~/Dropbox/CS375_Compilers
 AUTOGRADERDIR=$CS375DIR/autograder
 SUBDIR=$AUTOGRADERDIR/$1_gradingDir/*
-SAMPLE=$AUTOGRADERDIR/trivb.sample
-
-
-checkField()
-{
-    ##
-    ## $1: input string
-    ## $2: desired string
-    ## $3: field name
-    ## $4: symbol name
-    ##
-    ## checkField checks if $1 == $2 and
-    ## output error message when necessary
-    if [[ $1 != $2 ]]; then
-        echo "Error: $3 of $4 should be $2, but input is $1"
-    fi
-}
-
-checkVAR()
-{
-    ##
-    ## $1 is the symbol table entry
-    ## in the following format:
-    ##
-    ## 999929292 lim VAR    0 typ integer  lvl  1  siz     4  off     0
-    ##
-    ## $2 is the correct offset
-    ##
-    ## checkVAR checks each field of the entry using checkField
-
-    ## Note that the following command can split space delimited string
-    ## into an array
-    symEntry=( $1 )
-    echo "    Checking ${symEntry[1]}"
-    ## SYMTYPE should be VAR
-    checkField "${symEntry[2]}" "VAR" "symtype" "${symEntry[1]}"
-    ## basicdt should be 0
-    checkField "${symEntry[3]}" "0" "basicdt" "${symEntry[1]}"
-    ## symtype should point to integer
-    checkField "${symEntry[5]}" "integer" "symtype" "${symEntry[1]}"
-    ## symbol table level should be 1
-    checkField "${symEntry[7]}" "1" "symTable Level" "${symEntry[1]}"
-    ## size of var should be 4
-    checkField "${symEntry[9]}" "4" "size" "${symEntry[1]}"
-    ## offset should be $2
-    checkField "${symEntry[11]}" "$2" "offset" "${symEntry[1]}"
-}
+SYMTABCHECKER=$AUTOGRADERDIR/symTable/bin/check_symtab
+if [[ $1 == "p3" ]]; then
+    INPUT=trivb.pas
+    SAMPLE=$AUTOGRADERDIR/sample_trees/trivb.sample
+    SAMPLEST=$AUTOGRADERDIR/symTable/sample/table/trivb_table.txt
+    ALIGN=$AUTOGRADERDIR/symTable/sample/align/trivb_align.txt
+elif [[ $1 == "p4" ]]; then
+    INPUT=graph1i.pas
+    SAMPLE=$AUTOGRADERDIR/sample_trees/graph1i.sample
+    SAMPLEST=$AUTOGRADERDIR/symTable/sample/table/graph1_table.txt
+    ALIGN=$AUTOGRADERDIR/symTable/sample/align/graph1_align.txt
+fi
 
 processResult()
 {
@@ -60,26 +25,28 @@ processResult()
     ##
 
     ##
-    ## Ignore everything before symbol table level 1
+    ## Obtain the symbol table between
+    ##   Symbol table level 1 
+    ## and
+    ##   yyparse result
     ##
-    sed -n "/Symbol table level 1/,//p" $1 > symtab_result
+    tac $1 | sed '/^Symbol table level 1/q' | tac  > clean_file
+    if grep -Fxq "yyparse result =        0" clean_file
+    then
+        tac $1 | sed '/^Symbol table level 1/q' | tac | sed '/Symbol table level 1/,/yyparse result/!d;//d' > symtab_result
+    else
+        tac $1 | sed '/^Symbol table level 1/q' | tac | sed '/Symbol table level 1/,/(program graph1/!d;//d' > symtab_result
+    fi
     ##
-    ## Get the first and second symbol table entries
-    ##
-    firstSym=$(sed '2q;d' symtab_result)
-    secondSym=$(sed '3q;d' symtab_result)
-    ##
-    ## Check the first and second entries
+    ## Check the symbol table using the C++ checker
     ##
     echo "Checking symbol table"
-    checkVAR "$firstSym" "0"
-    checkVAR "$secondSym" "4"
-
-    rm -f symtab_result
+    $SYMTABCHECKER $SAMPLEST symtab_result $ALIGN
+    rm -f symtab_result clean_file
     ##
     ## Extract the parse tree
     ##
-    sed -n "/(program graph1 (progn output)/,//p" $1 > tree_result
+    sed -n "/(program graph1/,//p" $1 > tree_result
     echo "Checking parsing tree"
     diff -w $SAMPLE tree_result
 
@@ -99,18 +66,20 @@ gradeSingleStudent()
         if [[ -f "lexan.l" ]]; then
             make parser &> dump
             if [[ -f "parser" ]]; then
-                ./parser < trivb.pas > result
+                ./parser < $INPUT > result
                 processResult result
             else
                 echo "Compilation error, parser not found!"
             fi
         else
-            echo "lexan.l not found!"
+            echo "lexan.l not found! Copying from p2 ... "
+            cp $AUTOGRADERDIR/p2_gradingDir/$WHO/lexan.l ./
+            gradeSingleStudent
         fi
     elif [[ -f "parsc.c" ]]; then
         make parsec &> dump
         if [[ -f "parsec" ]]; then
-            ./parsec < trivb.pas > result
+            ./parsec < $INPUT > result
             processResult result
         else
             echo "Compilation error, parsec not found!"
@@ -122,6 +91,16 @@ gradeSingleStudent()
     rm -f result dump
 }
 
+
+##
+## Start the autograder
+##
+## Compile the C++ symbol table checker
+##
+cd symTable
+make clean
+make
+cd $TOP_DIR
 ##
 ## Run tests for one student
 ##
