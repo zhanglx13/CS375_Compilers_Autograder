@@ -1,4 +1,5 @@
-(program graph1 (progn output)
+(program graph1
+(progn output)
 (progn (:= lim 7)
 (progn (:= i 0)
 (label 0)

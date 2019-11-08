@@ -49,5 +49,10 @@ do
         mv $submittedFile $fwithoutV
     done
     copyifnotexist
+    ##
+    ## Overwrite pprint.c even if student uploads his
+    ## own version
+    ##
+    cp $FILEDIR/pprint.c ./
     cd ..
 done
