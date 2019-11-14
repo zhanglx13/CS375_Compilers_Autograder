@@ -160,6 +160,8 @@ void printexpr(TOKEN tok, int col)     /* print an expression in prefix form */
                 start = 0;
             if (tok->whichval < 12)
                 start = 0;
+            if (tok->whichval == AREFOP)
+                start = 0;
             if ((opnds->tokentype == OPERATOR) && (opnds->whichval == FUNCALLOP)){
                 start = 1;
             }
