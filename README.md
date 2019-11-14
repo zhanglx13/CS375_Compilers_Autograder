@@ -24,3 +24,7 @@ Same as project 3 except p3 should be replaced with p4.
 
 Note that the c++ symbol table checker is in the symTable dir.
 The autograder will compile the checker before grading. 
+
+## Project 5 Parsing pasrec.pas and graph1i.pas
+
+Same as project 3 except p3 should be replaced with p5
