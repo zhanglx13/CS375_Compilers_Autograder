@@ -1,0 +1,8 @@
+(program graph1
+(progn output)
+(progn (progn (label 0)
+(:= (aref (^ john) 8) mary))
+(progn (label 1)
+(:= (aref (^ fred) 0) 20))
+(if (< sum 3)
+(goto 1))))

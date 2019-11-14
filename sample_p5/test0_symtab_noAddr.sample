@@ -1,0 +1,46 @@
+Symbol table level 1
+ 9999     complex  TYPE   typ 9999  lvl  1  siz    16  off     0
+(RECORD (re real)
+        (im real))
+ 9999         red  CONST  typ INTEGER  val  0
+ 9999       white  CONST  typ INTEGER  val  1
+ 9999        blue  CONST  typ INTEGER  val  2
+ 9999       color  TYPE   typ 9999  lvl  1  siz     4  off     0
+  0 ..   2
+ 9999      person  TYPE   typ 9999  lvl  1  siz    48  off     0
+(RECORD (age integer)
+        (friend (^ person))
+        (location (RECORD (re real)
+                          (im real)))
+        (favorite   0 ..   2)
+        (salary real))
+ 9999          pp  TYPE   typ 9999  lvl  1  siz     8  off     0
+(^ person)
+ 9999           c  VAR    0 typ 9999  lvl  1  siz    16  off     0
+(RECORD (re real)
+        (im real))
+ 9999           d  VAR    0 typ 9999  lvl  1  siz    16  off    16
+(RECORD (re real)
+        (im real))
+ 9999           i  VAR    0 typ integer  lvl  1  siz     4  off    32
+ 9999         sum  VAR    0 typ integer  lvl  1  siz     4  off    36
+ 9999          ac  VAR    0 typ 9999  lvl  1  siz   160  off    48
+(ARRAY   1 ..  10 (RECORD (re real)
+                          (im real)))
+ 9999         aco  VAR    0 typ 9999  lvl  1  siz   120  off   208
+(ARRAY   1 ..  10 (ARRAY   0 ..   2   0 ..   2))
+ 9999        john  VAR    4 typ 9999  lvl  1  siz     8  off   328
+(^ person)
+ 9999        mary  VAR    4 typ 9999  lvl  1  siz     8  off   336
+(^ person)
+ 9999        fred  VAR    4 typ 9999  lvl  1  siz     8  off   344
+(^ person)
+ 9999         ptr  VAR    4 typ 9999  lvl  1  siz     8  off   352
+(^ person)
+ 9999      people  VAR    0 typ 9999  lvl  1  siz   960  off   368
+(ARRAY   1 ..  20 (RECORD (age integer)
+                          (friend (^ person))
+                          (location (RECORD (re real)
+                                            (im real)))
+                          (favorite   0 ..   2)
+                          (salary real)))

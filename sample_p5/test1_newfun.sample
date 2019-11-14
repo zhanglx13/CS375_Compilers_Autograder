@@ -1,0 +1,5 @@
+(program graph1 
+(progn output)
+(progn (:= john (funcall new 48))
+(:= mary (funcall new 48))
+(:= fred (funcall new 48))))

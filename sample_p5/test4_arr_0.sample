@@ -1,0 +1,3 @@
+(program graph1
+(progn output)
+(progn (:= (aref ac 72) (aref (^ john) 24))))

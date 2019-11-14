@@ -1,0 +1,5 @@
+(program graph1
+(progn output)
+(progn (:= (aref ac 96) (aref (^ john) 40))
+(:= (aref people (+ -48 (* 48 i))) (aref (^ ptr) 0))
+(:= (aref aco (+ -8 (* 12 i))) (aref (^ john) 32))))

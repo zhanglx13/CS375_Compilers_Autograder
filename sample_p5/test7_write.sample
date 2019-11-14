@@ -1,0 +1,8 @@
+(program graph1
+(progn output)
+(progn (funcall write 'i = ')
+(funcall writelni i)
+(funcall write 'Sum of ages = ')
+(funcall writelni sum)
+(funcall write 'Fred loc im = ')
+(funcall writelnf (aref (^ fred) 24))))

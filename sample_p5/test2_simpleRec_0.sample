@@ -1,0 +1,8 @@
+(program graph1
+(progn output)
+(progn (:= (aref (^ jhn) 32) 0)
+(:= (aref (^ jhn) 0) 29)
+(:= (aref (^ jhn) 8) mry)
+(:= (aref (^ jhn) 40) 2.340000e+02)
+(:= sum (+ sum (aref (^ ptr) 0)))
+(:= ptr (aref (^ ptr) 8))))

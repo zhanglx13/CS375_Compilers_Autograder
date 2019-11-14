@@ -1,0 +1,3 @@
+(program graph1
+(progn output)
+(progn (:= (aref people (+ -8 (* 32 i))) (aref (^ ptr) 24))))
