@@ -1,0 +1,4 @@
+(program graph1
+(progn output)
+(progn (:= (aref aco (+ (* 12 i) -8)) 
+(aref (^ john) 16))))

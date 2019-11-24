@@ -155,13 +155,13 @@ gradePasrec()
     echo "@@@ TEST 3_1 pointer and rec reference (hard) @@@"
     checkUnittest test3_hardRec_1
     echo "@@@ TEST 4 array access @@@"
-    checkUnittest test4_arr
+    checkUnittest test4_arr 4
     echo "@@@ TEST 4_0 array access @@@"
     checkUnittest test4_arr_0
     echo "@@@ TEST 4_1 array access @@@"
-    checkUnittest test4_arr_1
+    checkUnittest test4_arr_1 4
     echo "@@@ TEST 4_2 array access @@@"
-    checkUnittest test4_arr_2
+    checkUnittest test4_arr_2 4
     echo "@@@ test5 while loop @@@"
     checkUnittest test5_while 4
     echo "@@@ test6 label/goto stmt @@@"
