@@ -131,7 +131,9 @@ void dbugprinttok(TOKEN tok)  /* print a token in 'nice' debugging form */
 
 void printexpr(TOKEN tok, int col)     /* print an expression in prefix form */
 {
-    TOKEN opnds; int nextcol, start;
+    TOKEN opnds;
+    int nextcol, start;
+    int lhsIsAref = 0;
     if (PRINTEXPRDEBUG != 0)
     {
         printf ("printexpr: col %d\n", col);
@@ -166,8 +168,12 @@ void printexpr(TOKEN tok, int col)     /* print an expression in prefix form */
             }
             if ( opnds->tokentype == IDENTIFIERTOK)
                 nextcol += 1 + strlength(opnds->stringval);
+            if ((opnds->tokentype == OPERATOR) && (opnds->whichval == AREFOP))
+                lhsIsAref = 1;
+            else
+                lhsIsAref = 0;
             opnds = opnds->link;
-            if (opnds != NULL && (opnds->tokentype == OPERATOR) && (opnds->whichval == AREFOP))
+            if (opnds != NULL && (opnds->tokentype == OPERATOR) && (opnds->whichval == AREFOP) && (lhsIsAref))
                 start = 1;
         }
         printf (")");
