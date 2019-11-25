@@ -1,0 +1,23 @@
+# ------------------------- begin Your code -----------------------------
+	movsd	-48(%rbp),%xmm0     	#  x -> %xmm0
+	movsd	.LC666(%rip),%xmm1   	#  0.000000 -> %xmm1
+	xorpd	%xmm1,%xmm0           	#  negate %xmm0
+	call	exp@PLT              	#  exp()
+	movsd	%xmm0,-40(%rbp)     	#  %xmm0 -> y
+# ----------------------- begin Epilogue code ---------------------------
+	movq	%r9, %rbx        # restore %rbx (callee-saved) from %r9
+        leave
+        ret
+        .cfi_endproc
+.LFE0:
+        .size   graph1, .-graph1
+# ----------------- end Epilogue; Literal data follows ------------------
+        .section        .rodata
+	.align 16
+.LC666:                    # constant for floating negation
+	.long	0
+	.long	-2147483648
+	.long	0
+	.long	0
+
+        .ident  "CS 375 Compiler - Fall 2019"

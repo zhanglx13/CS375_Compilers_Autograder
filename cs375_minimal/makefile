@@ -1,5 +1,16 @@
 ## CC=clang -fPIC
-CC=cc
+CC=gcc
+compiler: y.tab.o lex.yy.o printtoken.o pprint.o symtab.o codegen.o genasm.o
+	$(CC) -o compiler y.tab.o lex.yy.o printtoken.o pprint.o symtab.o codegen.o genasm.o
+
+compc: parsc.o lexanc.o scanner.o printtoken.o pprint.o symtab.o codegen.o genasm.o
+	$(CC) -o compc parsc.o lexanc.o scanner.o printtoken.o pprint.o symtab.o codegen.o genasm.o
+
+codegen.o: codegen.c token.h symtab.h genasm.h
+	$(CC) -c codegen.c -Wall
+
+genasm.o: genasm.c token.h symtab.h genasm.h
+	$(CC) -c genasm.c
 
 parser: y.tab.o lex.yy.o printtoken.o pprint.o symtab.o
 	$(CC) -o parser y.tab.o lex.yy.o printtoken.o pprint.o symtab.o -ll

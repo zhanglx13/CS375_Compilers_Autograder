@@ -28,3 +28,7 @@ The autograder will compile the checker before grading.
 ## Project 5 Parsing pasrec.pas and graph1i.pas
 
 Same as project 3 except p3 should be replaced with p5
+
+## Project 6 Code generation for graph1.pas and pasrec.pas
+
+Same as the above projects except that the autograder is now codegen_autograder.sh

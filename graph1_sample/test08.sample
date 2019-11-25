@@ -1,0 +1,17 @@
+# ------------------------- begin Your code -----------------------------
+	leaq	.LC1(%rip),%rdi       	#  addr of literal .LC1
+	call	writeln@PLT             #  writeln()
+# ----------------------- begin Epilogue code ---------------------------
+	movq	%r9, %rbx        # restore %rbx (callee-saved) from %r9
+        leave
+        ret
+        .cfi_endproc
+.LFE0:
+        .size   graph1, .-graph1
+# ----------------- end Epilogue; Literal data follows ------------------
+        .section        .rodata
+	.align  4
+.LC1:
+	.string	"*"
+
+        .ident  "CS 375 Compiler - Fall 2019"

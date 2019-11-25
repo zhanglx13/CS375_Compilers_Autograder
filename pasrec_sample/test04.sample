@@ -1,0 +1,15 @@
+# ------------------------- begin Your code -----------------------------
+	movl	$19,%eax         	#  19 -> %eax
+	movq	-1016(%rbp),%rcx     	#  john -> %rcx
+	movl	%eax,0(%rcx)         	#  %eax -> ^. [0+%rcx]
+# ----------------------- begin Epilogue code ---------------------------
+	movq	%r9, %rbx        # restore %rbx (callee-saved) from %r9
+        leave
+        ret
+        .cfi_endproc
+.LFE0:
+        .size   graph1, .-graph1
+# ----------------- end Epilogue; Literal data follows ------------------
+        .section        .rodata
+
+        .ident  "CS 375 Compiler - Fall 2019"

@@ -1,0 +1,21 @@
+# ------------------------- begin Your code -----------------------------
+	movsd	.LC1(%rip),%xmm0   	#  32.000000 -> %xmm0
+	movsd	-40(%rbp),%xmm1     	#  y -> %xmm1
+	mulsd	%xmm1,%xmm0         	#  %xmm0 * %xmm1 -> %xmm0
+	call	iround@PLT              #  iround()
+	movl	%eax,-28(%rbp)     	#  %eax -> n
+# ----------------------- begin Epilogue code ---------------------------
+	movq	%r9, %rbx        # restore %rbx (callee-saved) from %r9
+        leave
+        ret
+        .cfi_endproc
+.LFE0:
+        .size   graph1, .-graph1
+# ----------------- end Epilogue; Literal data follows ------------------
+        .section        .rodata
+	.align  8
+.LC1:
+	.long	0   	#  32.000000
+	.long	1077936128
+
+        .ident  "CS 375 Compiler - Fall 2019"
