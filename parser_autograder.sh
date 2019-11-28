@@ -220,16 +220,27 @@ gradeSingleStudent()
 ##
 ## Compile the C++ symbol table checker
 ##
-cd symTable
-make clean
-make
-cd $TOP_DIR
+## Note that the checker only needs to be recompiled
+## when it is changed or move between Linux and Mac
+##
+#cd symTable
+#make clean
+#make
+#cd $TOP_DIR
 ##
 ## Run tests for one student
 ##
 if [[ $# -eq 2 ]]; then
     cd $2
     WHO=$2
+    ##
+    ## $WHO will be used to copy lexan.l if it is not
+    ## found in the current folder
+    ## Before processing, $WHO contains px_gradingDir
+    ## The following line deletes everything until it
+    ## matches the first '/'
+    ##
+    WHO=${WHO#*/}
     gradeSingleStudent
     cd $TOP_DIR
 elif [[ $# -eq 1 ]];then
