@@ -44,7 +44,10 @@ do
         ## Step 1: extract the filename with version number
         fwithV=$(echo ${submittedFile##*_})
         ## Step 2: replace version number (-[1-9]) with nothing
-        fwithoutV=$(echo ${fwithV/-[1-9]})
+        ##         Need to do it twice because version number
+        ##         can have two digits
+        fwithoutV=$(echo ${fwithV/-[0-9]})
+        fwithoutV=$(echo ${fwithoutV/[0-9]})
         ## Step 3: rename the file
         mv $submittedFile $fwithoutV
     done
