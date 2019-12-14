@@ -199,11 +199,11 @@ gradeSingleStudent()
             if [ -s result ]
             then 
                 processResult result
-                if [[ $LEVEL == 2 ]]; then
-                    gradePasrec ./parser
-                fi
             else
                 echo "Seg Fault!!"
+            fi
+            if [[ $LEVEL == 2 ]]; then
+                gradePasrec ./parser
             fi
         else
             echo "Compilation error, parser not found!"
