@@ -1,7 +1,7 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
-CS375DIR=~/Dropbox/CS375_Compilers
-AUTOGRADERDIR=$CS375DIR/autograder
+TOP_DIR=$(pwd)
+AUTOGRADERDIR=$TOP_DIR
 FILEDIR=$AUTOGRADERDIR/cs375_minimal
 
 ##
