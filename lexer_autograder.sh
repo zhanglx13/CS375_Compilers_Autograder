@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 ##
 ## Read scantst.pas and write each line
@@ -61,12 +61,10 @@
 #     ./lexer < $entry > "./sample_p2/$xpref.sample"
 # done
 
-TOP_DIR=$(pwd)
-CS375DIR=~/Dropbox/CS375_Compilers
-AUTOGRADERDIR=$CS375DIR/autograder
+AUTOGRADERDIR=$(pwd)
 TESTS=$AUTOGRADERDIR/test_p1/*
 SAMPLEDIR=$AUTOGRADERDIR/sample_$1
-SUBDIR=$AUTOGRADERDIR/$1_gradingDir/*
+SUBDIR=~/CS375_gradingDir/*
 FILEDIR=$AUTOGRADERDIR/cs375_minimal
 if [[ $1 == "p1" ]];then
     EXE=lexanc
@@ -76,11 +74,11 @@ fi
 
 gradeSingleStudent()
 {
-
-    echo "############  $WHO  ###############"
+    echo "######################  $WHO  #########################"
     wronglines=0
-    make $EXE &> dump
+    make $EXE &> compilation_dump
     if [[ -f "$EXE" ]];then
+        echo "scantst:"
         for testInput in $TESTS
         do
             xbase=${testInput##*/}
@@ -94,14 +92,24 @@ gradeSingleStudent()
                 ((wronglines++))
             fi
         done
-        echo "Wrong lines: $wronglines"
+        if [[ $wronglines -eq 0 ]]; then
+            echo -e "\xE2\x9C\x94"
+        else
+            echo "Wrong lines: $wronglines"
+        fi
         ## Test graph1.pas
         echo "graph1:"
 	    ./$EXE < $FILEDIR/graph1.pas &> result
         if [[ $1 == "p1" ]]; then
-            diff result $FILEDIR/graph1.lex
+            DIFF=$(diff result graph1.lex)
         elif [[ $1 == "p2" ]]; then
-            diff result $FILEDIR/graph1.lexer
+            DIFF=$(diff result graph1.lexer)
+        fi
+        if [ "$DIFF" != "" ]
+        then
+            echo "$DIFF"
+        else
+            echo -e "\xE2\x9C\x94"
         fi
         rm *.o result $EXE
     else
@@ -109,30 +117,46 @@ gradeSingleStudent()
     fi
 }
 
+
 ##
-## Run tests for one student
+## Start the autograder
 ##
-if [[ $# -eq 2 ]]; then
-    cd $2
-    WHO=$2
-    gradeSingleStudent
-    cd $TOP_DIR
-elif [[ $# -eq 1 ]];then
-##
-## Run tests for all students in $1_gradingDir/
-##
-    for student in $SUBDIR
-    do
-        cd $student
-        WHO=${student##*/}
-        gradeSingleStudent
-        cd $TOP_DIR
-    done
+declare -A pArray
+pArray=(
+    [p1]=1
+    [p2]=1
+)
+
+if [[ $# -eq 0 ]] || [[ $# -gt 2 ]];
+then
+    echo "Must specify one or two args"
+    echo "Usage: ./lexer_autograder.sh px [studentDir]"
 else
-    echo "Usage: ./autograder.sh px [studentDir]"
+    ##
+    ## First check if the first arg is p1 or p2
+    ##
+    if [[ ${pArray[$1]} ]];
+    then
+        if [[ $# -eq 2 ]];
+        then
+            ##
+            ## single mode
+            ##
+            cd $2
+            WHO=$2
+            gradeSingleStudent
+        else
+            ##
+            ## all mode
+            ##
+            for student in $SUBDIR
+            do
+                cd $student
+                WHO=${student##*/}
+                gradeSingleStudent
+            done
+        fi
+    else
+        echo "The first arg of ./parser_autograder.sh should only be p1 or p2"
+    fi
 fi
-
-
-
-
-

@@ -39,13 +39,18 @@ checkSymbolTable()
     ## Check the symbol table using the C++ checker
     ##
     echo "------------- Checking symbol table ----------"
-    $SYMTABCHECKER $SAMPLEST symtab_result $ALIGN > msg
-    lines=$(cat msg | wc -l)
-    if [ $lines == "0" ]
+    if [ -s symtab_result ]
     then
-        echo -e "\xE2\x9C\x94"
+        $SYMTABCHECKER $SAMPLEST symtab_result $ALIGN > msg
+        lines=$(cat msg | wc -l)
+        if [ $lines == "0" ]
+        then
+            echo -e "\xE2\x9C\x94"
+        else
+            cat msg
+        fi
     else
-        cat msg
+        echo "Empty Output. Maybe syntax error!!"
     fi
     rm -f symtab_result clean_file msg
 }
@@ -62,12 +67,17 @@ processResult()
     ##
     sed -n "/(program graph1/,//p" $1 > tree_result
     echo "------------- Checking parsing tree ----------"
-    DIFF=$(diff -w $SAMPLE tree_result)
-    if [ "$DIFF" != "" ]
+    if [ -s tree_result ]
     then
-        diff -w $SAMPLE tree_result
+        DIFF=$(diff -w $SAMPLE tree_result)
+        if [ "$DIFF" != "" ]
+        then
+            diff -w $SAMPLE tree_result
+        else
+            echo -e "\xE2\x9C\x94"
+        fi
     else
-        echo -e "\xE2\x9C\x94"
+        echo "Empty Output. Maybe syntax error!!"
     fi
 
     rm -f tree_result
@@ -80,42 +90,47 @@ checkUnittest()
     ##
     pass=0
     $PARSER < $TESTDIR/$1.pas | sed -n "/(program/,//p" > result
-    DIFF=$(diff -w $SAMPLEDIR/$1.sample result)
-    if [ "$DIFF" != "" ]
+    if [ -s result ]
     then
-        pass=0
-    else
-        pass=1
-    fi
-    ##
-    ## When the second argument is provided
-    ## $2 is the number of possible samples that
-    ## can be matched
-    ##
-    ## The logic is that we test the next sample
-    ## only when none of the previous samples are
-    ## passed
-    ##
-    if [[ $# -eq 2 ]]; then
-        START=0
-        i=$2
-        ((END=i-1))
-        for (( c=$START; c<$END; c++ ))
-        do
-            if [[ $pass == 0 ]]; then
-                temDIFF=$(diff -w $SAMPLEDIR/$1$c.sample result)
-                if [ "$temDIFF" == "" ]
-                then
-                    pass=1
+        DIFF=$(diff -w $SAMPLEDIR/$1.sample result)
+        if [ "$DIFF" != "" ]
+        then
+            pass=0
+        else
+            pass=1
+        fi
+        ##
+        ## When the second argument is provided
+        ## $2 is the number of possible samples that
+        ## can be matched
+        ##
+        ## The logic is that we test the next sample
+        ## only when none of the previous samples are
+        ## passed
+        ##
+        if [[ $# -eq 2 ]]; then
+            START=0
+            i=$2
+            ((END=i-1))
+            for (( c=$START; c<$END; c++ ))
+            do
+                if [[ $pass == 0 ]]; then
+                    temDIFF=$(diff -w $SAMPLEDIR/$1$c.sample result)
+                    if [ "$temDIFF" == "" ]
+                    then
+                        pass=1
+                    fi
                 fi
-            fi
-        done
-    fi
-    if [ $pass == 0 ]
-    then
-        diff -w $SAMPLEDIR/$1.sample result
+            done
+        fi
+        if [ $pass == 0 ]
+        then
+            diff -w $SAMPLEDIR/$1.sample result
+        else
+            echo -e "\xE2\x9C\x94"
+        fi
     else
-        echo -e "\xE2\x9C\x94"
+        echo "Empty Output. Maybe syntax error or seg fault!!"
     fi
 }
 
@@ -135,7 +150,12 @@ gradePasrec()
     # test0: symbol table
     echo "@@@@@@@@@@ TEST 0 symbol table @@@@@@@@@@"
     $PARSER < $TESTDIR/test0_symtab.pas > test0_result
-    checkSymbolTable test0_result
+    if [ -s test0_result ]
+    then
+        checkSymbolTable test0_result
+    else
+        echo "Seg Fault!!"
+    fi
     echo "@@@@@@@@@@ TEST 1 funcall new() @@@@@@@@@@"
     checkUnittest test1_newfun
     echo "@@@@@@@@@@ TEST 1_0 funcall new() @@@@@@@@@@"
@@ -171,26 +191,22 @@ gradeSingleStudent()
     echo "######################  $WHO  #########################"
     ##
     ## Compile student's code according to the submisions
-    ##
-    ## Then run the parser/parsec on trivb.pas
-    ## Direct the result into a file to be processed
-    
+    ##    
     if [[ -f "parse.y" ]]; then
-        if [[ -f "lexan.l" ]]; then
-            make parser &> dump
-            if [[ -f "parser" ]]; then
-                ./parser < $INPUT > result
+        make parser &> dump
+        if [[ -f "parser" ]]; then
+            ./parser < $INPUT > result
+            if [ -s result ]
+            then 
                 processResult result
                 if [[ $LEVEL == 2 ]]; then
                     gradePasrec ./parser
                 fi
             else
-                echo "Compilation error, parser not found!"
+                echo "Seg Fault!!"
             fi
         else
-            echo "lexan.l not found! Copying from p2 ... "
-            cp $AUTOGRADERDIR/p2_gradingDir/$WHO/lexan.l ./
-            gradeSingleStudent
+            echo "Compilation error, parser not found!"
         fi
     elif [[ -f "parsc.c" ]]; then
         make parsec &> dump
@@ -280,18 +296,16 @@ else
             ##
             WHO=${WHO#*/}
             gradeSingleStudent
-            cd $TOP_DIR
         else
             ##
-            ## Run tests for all students in $1_gradingDir/
+            ## Run tests for all students in ~/CS375_gradingDir/
             ##
-            SUBDIR=$AUTOGRADERDIR/$1_gradingDir/*
+            SUBDIR=~/CS375_gradingDir/*
             for student in $SUBDIR
             do
                 cd $student
                 WHO=${student##*/}
                 gradeSingleStudent
-                cd $TOP_DIR
             done
         fi
     else

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+AUTOGRADER=$(pwd)
+
 declare -A pArray
 pArray=(
     [p1]=1
@@ -22,15 +24,18 @@ else
     then
         echo "Preparing for project $1"
         ##
-        ## If the gradingDir exists, remove it first
+        ## Extract the zip in the home dir
         ##
-        if [ -d "$1_gradingDir" ];
+        cd ~/
+        if [ -d "submissions_$1" ];
         then
-            rm -r "$1_gradingDir"
+            rm -r submissions_$1
         fi
-        dtrx "submissions_$1.zip"
-        mv "submissions_$1" "$1_gradingDir"
-        ./mkdir.sh $1
+        dtrx "$AUTOGRADER/submissions_$1.zip"
+        ##
+        ## We need to go back to the autograder_dir
+        ##
+        cd $AUTOGRADER
         ./copy.sh $1
     else
         echo "Please specify project as one of (p1,p2,p3,p4,p5,p6)"

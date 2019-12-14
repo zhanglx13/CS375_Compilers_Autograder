@@ -249,7 +249,7 @@ then
         ## $1 is one of project number
         ## invoke the all mode
         ##
-        SUBDIR=$AUTOGRADERDIR/$1_gradingDir/*
+        SUBDIR=~/CS375_gradingDir/*
         for student in $SUBDIR
         do
             cd $student
