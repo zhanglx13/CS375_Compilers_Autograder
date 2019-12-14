@@ -25,7 +25,12 @@ if [[ $# -eq 2 ]]; then
     done
     cp moss.sh moss_checkDir/
     cd moss_checkDir
-    ./moss.sh *.y
+    ##
+    ## Get the file extension from $2
+    ##
+    filename=$2
+    ext="${filename##*.}"
+    ./moss.sh *.$ext
 else
     echo "Usage: ./check_moss.sh dir filename"
 fi
