@@ -23,7 +23,8 @@ Same as project 1 except p1 should be replaced with p2.
 Same as project 3 except p3 should be replaced with p4.
 
 Note that the c++ symbol table checker is in the symTable dir.
-The autograder will compile the checker before grading. 
+For portability issues, the autograder will NOT compile the checker automatically.
+Therefore, before running the autograder, do make clean && make in the symTable dir.
 
 ## Project 5 Parsing pasrec.pas and graph1i.pas
 
@@ -31,4 +32,4 @@ Same as project 3 except p3 should be replaced with p5
 
 ## Project 6 Code generation for graph1.pas and pasrec.pas
 
-Same as the above projects except that the autograder is now codegen_autograder.sh
+Same as the above projects except that the autograder is now codegen_autograder.sh and the project dir is always p6.
