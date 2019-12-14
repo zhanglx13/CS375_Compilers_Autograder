@@ -1,32 +1,15 @@
-#! /bin/bash
+#!/usr/bin/env bash
+
+##
+## To use associative array declaration, must use bash version
+## >= 4. The above line makes sure to always use the newest bash
+##
 
 
 TOP_DIR=$(pwd)
-CS375DIR=~/Dropbox/CS375_Compilers
-AUTOGRADERDIR=$CS375DIR/autograder
-SUBDIR=$AUTOGRADERDIR/$1_gradingDir/*
+AUTOGRADERDIR=$TOP_DIR
 SYMTABCHECKER=$AUTOGRADERDIR/symTable/bin/check_symtab
-if [[ $1 == "p3" ]]; then
-    LEVEL=0
-    INPUT=trivb.pas
-    SAMPLE=$AUTOGRADERDIR/sample_trees/trivb.sample
-    SAMPLEST=$AUTOGRADERDIR/symTable/sample/table/trivb_table.txt
-    ALIGN=$AUTOGRADERDIR/symTable/sample/align/trivb_align.txt
-elif [[ $1 == "p4" ]]; then
-    LEVEL=1
-    INPUT=graph1i.pas
-    SAMPLE=$AUTOGRADERDIR/sample_trees/graph1i.sample
-    SAMPLEST=$AUTOGRADERDIR/symTable/sample/table/graph1_table.txt
-    ALIGN=$AUTOGRADERDIR/symTable/sample/align/graph1_align.txt
-elif [[ $1 == "p5" ]]; then
-    LEVEL=2
-    INPUT=graph1i.pas
-    SAMPLE=$AUTOGRADERDIR/sample_trees/graph1i.sample
-    SAMPLEST=$AUTOGRADERDIR/symTable/sample/table/graph1_table.txt
-    ALIGN=$AUTOGRADERDIR/symTable/sample/align/graph1_align.txt
-    TESTDIR=$AUTOGRADERDIR/test_p5
-    SAMPLEDIR=$AUTOGRADERDIR/sample_p5
-fi
+
 
 checkSymbolTable()
 {
@@ -43,7 +26,7 @@ checkSymbolTable()
     ## Obtain the symbol table between
     ##   Symbol table level 1 
     ## and
-    ##   yyparse result
+    ##   yyparse result or (program graph1
     ##
     tac $1 | sed '/^Symbol table level 1/q' | tac  > clean_file
     if grep -Fxq "yyparse result =        0" clean_file
@@ -55,9 +38,16 @@ checkSymbolTable()
     ##
     ## Check the symbol table using the C++ checker
     ##
-    echo "Checking symbol table"
-    $SYMTABCHECKER $SAMPLEST symtab_result $ALIGN
-    rm -f symtab_result clean_file
+    echo "------------- Checking symbol table ----------"
+    $SYMTABCHECKER $SAMPLEST symtab_result $ALIGN > msg
+    lines=$(cat msg | wc -l)
+    if [ $lines == "0" ]
+    then
+        echo -e "\xE2\x9C\x94"
+    else
+        cat msg
+    fi
+    rm -f symtab_result clean_file msg
 }
 
 processResult()
@@ -71,8 +61,14 @@ processResult()
     ## Extract the parse tree
     ##
     sed -n "/(program graph1/,//p" $1 > tree_result
-    echo "Checking parsing tree"
-    diff -w $SAMPLE tree_result
+    echo "------------- Checking parsing tree ----------"
+    DIFF=$(diff -w $SAMPLE tree_result)
+    if [ "$DIFF" != "" ]
+    then
+        diff -w $SAMPLE tree_result
+    else
+        echo -e "\xE2\x9C\x94"
+    fi
 
     rm -f tree_result
 }
@@ -119,7 +115,7 @@ checkUnittest()
     then
         diff -w $SAMPLEDIR/$1.sample result
     else
-        echo "PASS!"
+        echo -e "\xE2\x9C\x94"
     fi
 }
 
@@ -137,36 +133,36 @@ gradePasrec()
     ##
     PARSER=$1
     # test0: symbol table
-    echo "@@@ TEST 0 symbol table @@@"
+    echo "@@@@@@@@@@ TEST 0 symbol table @@@@@@@@@@"
     $PARSER < $TESTDIR/test0_symtab.pas > test0_result
     checkSymbolTable test0_result
-    echo "@@@ TEST 1 funcall new() @@@"
+    echo "@@@@@@@@@@ TEST 1 funcall new() @@@@@@@@@@"
     checkUnittest test1_newfun
-    echo "@@@ TEST 1_0 funcall new() @@@"
+    echo "@@@@@@@@@@ TEST 1_0 funcall new() @@@@@@@@@@"
     checkUnittest test1_newfun_0
-    echo "@@@ TEST 2 pointer and rec reference (simple) @@@"
+    echo "@@@@@@@@@@ TEST 2 pointer and rec reference (simple) @@@@@@@@@@"
     checkUnittest test2_simpleRec
-    echo "@@@ TEST 2_0 pointer and rec reference (simple) @@@"
+    echo "@@@@@@@@@@ TEST 2_0 pointer and rec reference (simple) @@@@@@@@@@"
     checkUnittest test2_simpleRec_0
-    echo "@@@ TEST 3 pointer and rec reference (hard) @@@"
+    echo "@@@@@@@@@@ TEST 3 pointer and rec reference (hard) @@@@@@@@@@"
     checkUnittest test3_hardRec
-    echo "@@@ TEST 3_0 pointer and rec reference (hard) @@@"
+    echo "@@@@@@@@@@ TEST 3_0 pointer and rec reference (hard) @@@@@@@@@@"
     checkUnittest test3_hardRec_0
-    echo "@@@ TEST 3_1 pointer and rec reference (hard) @@@"
+    echo "@@@@@@@@@@ TEST 3_1 pointer and rec reference (hard) @@@@@@@@@@"
     checkUnittest test3_hardRec_1
-    echo "@@@ TEST 4 array access @@@"
+    echo "@@@@@@@@@@ TEST 4 array access @@@@@@@@@@"
     checkUnittest test4_arr 4
-    echo "@@@ TEST 4_0 array access @@@"
+    echo "@@@@@@@@@@ TEST 4_0 array access @@@@@@@@@@"
     checkUnittest test4_arr_0
-    echo "@@@ TEST 4_1 array access @@@"
+    echo "@@@@@@@@@@ TEST 4_1 array access @@@@@@@@@@"
     checkUnittest test4_arr_1 4
-    echo "@@@ TEST 4_2 array access @@@"
+    echo "@@@@@@@@@@ TEST 4_2 array access @@@@@@@@@@"
     checkUnittest test4_arr_2 4
-    echo "@@@ test5 while loop @@@"
+    echo "@@@@@@@@@@ test5 while loop @@@@@@@@@@"
     checkUnittest test5_while 4
-    echo "@@@ test6 label/goto stmt @@@"
+    echo "@@@@@@@@@@ test6 label/goto stmt @@@@@@@@@@"
     checkUnittest test6_label 4
-    echo "@@@ test7 write funcall @@@"
+    echo "@@@@@@@@@@ test7 write funcall @@@@@@@@@@"
     checkUnittest test7_write
 }
 
@@ -227,33 +223,78 @@ gradeSingleStudent()
 #make clean
 #make
 #cd $TOP_DIR
-##
-## Run tests for one student
-##
-if [[ $# -eq 2 ]]; then
-    cd $2
-    WHO=$2
-    ##
-    ## $WHO will be used to copy lexan.l if it is not
-    ## found in the current folder
-    ## Before processing, $WHO contains px_gradingDir
-    ## The following line deletes everything until it
-    ## matches the first '/'
-    ##
-    WHO=${WHO#*/}
-    gradeSingleStudent
-    cd $TOP_DIR
-elif [[ $# -eq 1 ]];then
-    ##
-    ## Run tests for all students in $1_gradingDir/
-    ##
-    for student in $SUBDIR
-    do
-        cd $student
-        WHO=${student##*/}
-        gradeSingleStudent
-        cd $TOP_DIR
-    done
-else
+
+declare -A pArray
+pArray=(
+    [p3]=1
+    [p4]=1
+    [p5]=1
+)
+
+if [[ $# -eq 0 ]] || [[ $# -gt 2 ]];
+then
+    echo "Must specify one or two args"
     echo "Usage: ./parser_autograder.sh px [studentDir]"
+else
+    ##
+    ## First check if the first arg is p3,p4,or p5
+    ##
+    if [[ ${pArray[$1]} ]];
+    then
+        ##
+        ## Set globals first
+        ##
+        if [[ $1 == "p3" ]]; then
+            LEVEL=0
+            INPUT=trivb.pas
+            SAMPLE=$AUTOGRADERDIR/sample_trees/trivb.sample
+            SAMPLEST=$AUTOGRADERDIR/symTable/sample/table/trivb_table.txt
+            ALIGN=$AUTOGRADERDIR/symTable/sample/align/trivb_align.txt
+        elif [[ $1 == "p4" ]]; then
+            LEVEL=1
+            INPUT=graph1i.pas
+            SAMPLE=$AUTOGRADERDIR/sample_trees/graph1i.sample
+            SAMPLEST=$AUTOGRADERDIR/symTable/sample/table/graph1_table.txt
+            ALIGN=$AUTOGRADERDIR/symTable/sample/align/graph1_align.txt
+        elif [[ $1 == "p5" ]]; then
+            LEVEL=2
+            INPUT=graph1i.pas
+            SAMPLE=$AUTOGRADERDIR/sample_trees/graph1i.sample
+            SAMPLEST=$AUTOGRADERDIR/symTable/sample/table/graph1_table.txt
+            ALIGN=$AUTOGRADERDIR/symTable/sample/align/graph1_align.txt
+            TESTDIR=$AUTOGRADERDIR/test_p5
+            SAMPLEDIR=$AUTOGRADERDIR/sample_p5
+        fi
+        if [[ $# -eq 2 ]]; then
+            ##
+            ## single mode
+            ##
+            cd $2
+            WHO=$2
+            ##
+            ## $WHO will be used to copy lexan.l if it is not
+            ## found in the current folder
+            ## Before processing, $WHO contains px_gradingDir
+            ## The following line deletes everything until it
+            ## matches the first '/'
+            ##
+            WHO=${WHO#*/}
+            gradeSingleStudent
+            cd $TOP_DIR
+        else
+            ##
+            ## Run tests for all students in $1_gradingDir/
+            ##
+            SUBDIR=$AUTOGRADERDIR/$1_gradingDir/*
+            for student in $SUBDIR
+            do
+                cd $student
+                WHO=${student##*/}
+                gradeSingleStudent
+                cd $TOP_DIR
+            done
+        fi
+    else
+        echo "The first arg of ./parser_autograder.sh should only be p3, p4, or p5"
+    fi
 fi
