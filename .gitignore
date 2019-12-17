@@ -6,10 +6,12 @@ scantst.lex
 scantst.lexer
 p*_gradingDir
 
-
 *.zip
+*.tar.gz
 
 symTable/bin
 symTable/build
 
 moss_checkDir
+
+compiler_issue
