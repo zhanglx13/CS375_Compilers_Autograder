@@ -92,12 +92,27 @@ gradeSingleStudent()
                 ((wronglines++))
             fi
         done
+        ##
+        ## The wronglines variable makes little sense because it contains several
+        ## false alert:
+        ## 1. overflow message
+        ## 2. the 6th digit in the mantissa
+        ##
+        ## I do not have plans to exclude these false alert in the near future.
+        ## 
         if [[ $wronglines -eq 0 ]]; then
             echo -e "\xE2\x9C\x94"
         else
             echo "Wrong lines: $wronglines"
         fi
         ## Test graph1.pas
+        ##
+        ## Note that we need to empty DIFF before using it for testing graph1.pas
+        ## because DIFF=$(diff x y) will not update DIFF's content if x and y is
+        ## the same. In this case, the DIFF for the graph1.pas test will be the same
+        ## as the DIFF for the last test case of scantst.pas, which is scantst_9
+        ##
+        DIFF=""
         echo "graph1:"
 	    ./$EXE < $FILEDIR/graph1.pas &> result
         if [[ $1 == "p1" ]]; then
