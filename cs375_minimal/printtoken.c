@@ -48,7 +48,20 @@ TOKEN talloc()           /* allocate a new token record */
     if ( tok != NULL ){
         tok->tokentype = 9999;
         tok->basicdt = 9999;
-        tok->intval = 9999;
+        /*
+         * In this way, the initial value of the union becomes
+         *
+         * string: ################
+         * int/which: 589505315
+         * real:   0.00000
+         *
+         * The point of doing so is that now the string
+         * does not have any '\0' initially. Therefore,
+         * if '\0' is not explicitly placed in the string.
+         * the string won't stop when being printed.
+         */
+        for (int i=0; i<16; i++)
+            tok->stringval[i]=35;
         return (tok);
     }
     else {
