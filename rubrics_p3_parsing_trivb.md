@@ -11,8 +11,13 @@ Your parsing output will be compared with `trivb.sample`. However, your parser's
 - You may use `printf()` to debug your parser. Please make sure you turn off all debugging info in parse.y before submitting it.
 
 I will use the files in the `/cs375_minimal` folder for grading your parser. 
-I made some changes in pprint.c and printtoken.c to facilitate the grading process. 
-If you submit pprint.c or printtoken.c, they are not used for grading. 
+Here are the notes you might want to keep in mind:
+
+- I made some changes in pprint.c and printtoken.c to facilitate the grading process. If you submit pprint.c or printtoken.c, they are not used for grading. 
+- I will use clang to compile your code.
+- I will run your parser on the cs machine.
+
+
  
 ## Rubrics
 
