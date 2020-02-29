@@ -51,6 +51,8 @@ which is what you should do to compile your parser for the following three proje
 
 ### Debugging
 
+#### Using `printf`
+
 Unfortunately, the most efficient debugging mechanism is to use printf for this class. 
 You might also want to use those functions defined in pprint.c to help you print token information. 
 There is one thing about using printf to locate a seg fault. See the following example:
@@ -67,14 +69,50 @@ fflush(stdout);
 xxx //<--- statement that causes a seg fault
 ```
 
-There is another way to see how your parser works.
-If you add `-t` flag to yacc in line 139-140 in the original makefile or line 17-18 in the compacted makefile I provided as follows
+#### Enabling the parser-trace feature of YACC 
+I know, I know, I know that seeing a **syntax error** is the most frustrated thing when you do your projects. 
+A syntax error means that your grammar does not match the input Pascal code.
+(Yes, you need to make your grammar match the input program, not the other way around when you develop applications.)
+The usually way to debug a syntax error is to look at the grammar very carefully, which is time consuming.
+
+Alternatively, YACC can generate parsing information, from which it is much easier to find out what causes the syntax error. 
+Here is what you need to do to print out trace information.
+
+1. Compile your parser with trace information.
+You can add `-t` flag to yacc in line 139-140 in the original makefile or line 17-18 in the compacted makefile I provided as follows
 ```
 y.tab.c: parse.y token.h parse.h symtab.h lexan.h
     yacc -t parse.y
 ```
-and add `yydebug=1` in the beginning of the `main()` function in parse.y, you can see the steps (reduce and shift) your parser performs on the input when you run your parser in the
-normal way.
+2. Request a trace when your parser parses an input program.
+You can request a trace by setting `yydebug` to a non-zero value.
+You can simply do it in the beginning of the `main()` function in parse.y as follows
+```c
+int main(void)
+{
+    yydebug=1;
+    int res;
+    initsyms();
+    res = yyparse();
+    // printst();
+    printstlevel(1);
+    printf("yyparse result = %8d\n", res);
+    if (DEBUG & DB_PARSERES) dbugprinttok(parseresult);
+    ppexpr(parseresult);           /* Pretty-print the result tree */
+    /* uncomment following to call code generator. */
+    //gencode(parseresult, blockoffs[blocknumber], labelnumber);
+}
+```
+
+When you run your parser with the input program, trace messages will be printed out before the symbol table information.
+The trace messages tell you these things:
+
+1. Each time the parser calls yylex, what kind of token was read.
+2. Each time a token is shifted, the depth and complete contents of the state stack.
+3. Each time a rule is reduced, which rule it is, and the complete contents of the state
+stack afterward.
+
+
 
 ### Bad Programming Styles
 
