@@ -18,13 +18,13 @@ Same as project 1 except p1 should be replaced with p2.
 2. `./parser_autograder.sh p3` to grade all students.
 3. Or `./parser_autograder.sh p3 studentDir` to grade a single student.
 
+Note that the c++ symbol table checker is in the symTable dir.
+For portability issues, the autograder will NOT compile the checker automatically.
+Therefore, before running the autograder, do `make clean && make` in the symTable dir. 
+
 ## Project 4 Parsing graph1.pas (graph1i.pas)
 
 Same as project 3 except p3 should be replaced with p4.
-
-Note that the c++ symbol table checker is in the symTable dir.
-For portability issues, the autograder will NOT compile the checker automatically.
-Therefore, before running the autograder, do make clean && make in the symTable dir.
 
 ## Project 5 Parsing pasrec.pas and graph1i.pas
 
