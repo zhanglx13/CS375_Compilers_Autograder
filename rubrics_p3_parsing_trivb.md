@@ -112,6 +112,7 @@ The trace messages tell you these things:
 3. Each time a rule is reduced, which rule it is, and the complete contents of the state
 stack afterward.
 
+Read the [Bison manual](https://www.gnu.org/software/bison/manual/) chapter 8.4 for more details.
 
 
 ### Bad Programming Styles
