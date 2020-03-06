@@ -9,6 +9,10 @@ Your parsing output will be compared with `trivb.sample`. However, your parser's
 - For the result tree, you can have extra `progns` but the parenthesis should always match.
 - Extra newlines or different indentation is also acceptable, you can change the layout of your tree by modifying pprint.c.
 - You may use `printf()` to debug your parser. Please make sure you turn off all debugging info in parse.y before submitting it.
+- The following line in trivb.sample does not matter. You can control whether to print it by setting `DB_PARSERES`.
+```
+token 25592784  OP       program  dtype  0  link 0  operands 25589968
+```
 
 I will use the files in the `/cs375_minimal` folder for grading your parser. 
 Here are the notes you might want to keep in mind:
