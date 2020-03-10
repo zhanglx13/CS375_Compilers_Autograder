@@ -5,7 +5,15 @@
 Same as the [grading section of project 3](https://github.com/zhanglx13/CS375_Compilers_Autograder/blob/master/rubrics_p3_parsing_trivb.md#grading) except that the parsing output will be compared with `graph1.sample`. 
 I will use `graph1i.pas` as input for grading. 
 
-# Rubrics
+### One note about symbol table level 1
+
+- `d`, `s`, `h`, `c`, `lim` are constants, which should appear in the symbol table as CONSTSYM.
+  You should set their types and values properly but their order in the symbol table does not matter.
+  Note that you do not need to compute their offset as you do for the variables.
+- `x`, `y`, `i`, `n` are variables, which should appear in the symbol table as VARSYM.
+  You should set their types, sizes, and offsets properly. Their order in the symbol table does not matter.
+
+## Rubrics
 
 - 2 points for each constant in the symbol table, 10 points in total.
 - 2 points for each constant (which should be replaced by its literal value) in the output tree, 10 points in total.
@@ -16,7 +24,7 @@ I will use `graph1i.pas` as input for grading.
 - -2 points for each token whose basicdt is incorrectly assigned (see details below).
 - -5 for each bug caused by bad programming style. (see [details in the rubrics of project 3](https://github.com/zhanglx13/CS375_Compilers_Autograder/blob/master/rubrics_p3_parsing_trivb.md#bad-programming-styles))
 
-# Submissions
+## Submissions
 
 Same as the [submissions section of project 3](https://github.com/zhanglx13/CS375_Compilers_Autograder/blob/master/rubrics_p3_parsing_trivb.md#submissions).
 
