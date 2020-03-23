@@ -266,17 +266,6 @@ gradeSingleStudent()
                 fi
             fi
         done
-        ##
-        ## The wronglines variable makes little sense because it contains several
-        ## false alert:
-        ## 1. overflow message
-        ##    scantst 20, 21 (int overflow) 50, 52, 53 (floating overflow)
-        ##    case a: number value does not match
-        ##    case b: error message does not match
-        ## 2. the 6th digit in the mantissa
-        ##
-        ## I do not have plans to exclude these false alert in the near future.
-        ## 
         if [[ $wronglines -eq 0 ]]; then
             echo -e "\xE2\x9C\x94"
         else
