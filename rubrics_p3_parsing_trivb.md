@@ -166,15 +166,14 @@ Then run your parser with graph1.pas using `r < graph1.pas` as follows
 ```
 (gdb) r < graph1.pas
 Starting program: /u/lxzhang/parser < graph1.pas
-```
-```
+
 Program received signal SIGSEGV, Segmentation fault.
 0x0000555555559031 in makerepeat (tok=0x55555576c310, statements=0x55555576c390, 
     tokb=0x55555576c5d0, expr=0x55555576c650) at parse.y:1114
 1114	printf("%d\n", *ptr);
 (gdb) 
 ```
-The output tells that the segmentation fault is caused as line 1114 in parse.y and it 
+The output tells that the segmentation fault is caused by line 1114 in parse.y and it 
 even prints that line for you to investigate.
 
 
