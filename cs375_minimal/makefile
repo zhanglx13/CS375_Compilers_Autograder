@@ -18,7 +18,7 @@ y.tab.c: parse.y token.h parse.h symtab.h lexan.h
 	yacc parse.y
 
 y.tab.o: y.tab.c
-	$(CC) -c y.tab.c -Wall
+	$(CC) -c -g y.tab.c -Wall
 
 pprint.o: pprint.c token.h
 	$(CC) -c pprint.c -Wall

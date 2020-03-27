@@ -118,6 +118,66 @@ stack afterward.
 
 Read the [Bison manual](https://www.gnu.org/software/bison/manual/) chapter 8.4 for more details.
 
+#### Using gdb to locate segmentation fault
+Besides **syntax error**, another frustrating error of your parser must be the **segmentation fault**,
+which is usually caused by dereferencing a pointer that is not properly set.
+See the example below
+```
+TOKEN makerepeat(TOKEN tok, TOKEN statements, TOKEN tokb, TOKEN expr)
+{
+  int *ptr = NULL;
+  printf("%d\n", *ptr);
+  ......
+}
+```
+When I run the parser with graph1.pas, it receives a segfault signal. 
+To locate the bug, you can use gdb as follows
+
+1. Compile your parser with `-g` flag so that gdb can have source code information.
+The `-g` flag should be added to the following command in the makefile
+```
+y.tab.o: y.tab.c
+        $(CC) -c -g y.tab.c -Wall
+```
+2. run gdb with your parser as follows
+```
+gdb parser
+```
+And this is what you see on the CS machine
+```
+GNU gdb (Ubuntu 8.1-0ubuntu3.2) 8.1.0.20180409-git
+Copyright (C) 2018 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+<http://www.gnu.org/software/gdb/documentation/>.
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from parser...done.
+(gdb)
+```
+Then run your parser with graph1.pas using `r < graph1.pas` as follows
+```
+(gdb) r < graph1.pas
+Starting program: /u/lxzhang/parser < graph1.pas
+```
+```
+Program received signal SIGSEGV, Segmentation fault.
+0x0000555555559031 in makerepeat (tok=0x55555576c310, statements=0x55555576c390, 
+    tokb=0x55555576c5d0, expr=0x55555576c650) at parse.y:1114
+1114	printf("%d\n", *ptr);
+(gdb) 
+```
+The output tells that the segmentation fault is caused as line 1114 in parse.y and it 
+even prints that line for you to investigate.
+
+
 
 ### Bad Programming Styles
 
