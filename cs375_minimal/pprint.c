@@ -134,6 +134,7 @@ void printexpr(TOKEN tok, int col)     /* print an expression in prefix form */
     TOKEN opnds;
     int nextcol, start;
     int lhsIsAref = 0;
+    int extraProgn = 0;
     if (PRINTEXPRDEBUG != 0)
     {
         printf ("printexpr: col %d\n", col);
@@ -141,21 +142,44 @@ void printexpr(TOKEN tok, int col)     /* print an expression in prefix form */
     };
     if (tok->tokentype == OPERATOR)
     {
-        nextcol = col + 2 + opsize[tok->whichval];
-
-        printf ("(%s", opprint[tok->whichval]);
+        /*
+         * try to remove extra progn here
+         */
         opnds = tok->operands;
+        if ((tok->whichval == PROGNOP) &&
+            opnds &&
+            (opnds->tokentype == OPERATOR) &&
+            (opnds->whichval == PROGNOP))
+        {
+            /*
+             * Here we have the case that the current tok
+             * is progn and its operands is also progn.
+             * In this case, we simply skip this tok
+             * and set a flag so that we can also skip
+             * printing the closing ')' for this progn
+             */
+            nextcol = col;
+            extraProgn = 1;
+        }
+        else
+        {
+            nextcol = col + 2 + opsize[tok->whichval];
+            printf ("(%s", opprint[tok->whichval]);
+        }
         start = 0;
         while (opnds != NULL)
         {
-            if (start == 0)
+            if ((start == 0) && (extraProgn == 0))
                 printf(" ");
-            else
+            else if (start == 1)
             {
                 printf("\n");
-                //for (i = 0; i < nextcol; i++) printf(" ");
+                //for (int i = 0; i < nextcol; i++) printf(" ");
             }
             printexpr(opnds, nextcol);
+            /*
+             * Other formats for better visualization
+             */
             start = 1;
             if (tok->whichval == FUNCALLOP)
                 start = 0;
@@ -163,9 +187,8 @@ void printexpr(TOKEN tok, int col)     /* print an expression in prefix form */
                 start = 0;
             if (tok->whichval == AREFOP)
                 start = 0;
-            if ((opnds->tokentype == OPERATOR) && (opnds->whichval == FUNCALLOP)){
+            if ((opnds->tokentype == OPERATOR) && (opnds->whichval == FUNCALLOP))
                 start = 1;
-            }
             if ( opnds->tokentype == IDENTIFIERTOK)
                 nextcol += 1 + strlength(opnds->stringval);
             if ((opnds->tokentype == OPERATOR) && (opnds->whichval == AREFOP))
@@ -176,8 +199,9 @@ void printexpr(TOKEN tok, int col)     /* print an expression in prefix form */
             if (opnds != NULL && (opnds->tokentype == OPERATOR) && (opnds->whichval == AREFOP) && (lhsIsAref))
                 start = 1;
         }
-        printf (")");
-    }
+        if (extraProgn != 1)
+            printf (")");
+        }
     else printtok(tok);
 }
 
