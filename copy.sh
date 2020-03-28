@@ -32,9 +32,9 @@ do
         ##
         ## Create the folder
         mkdir $LOCAL_DIR/$sname
-        ## Copy all utility files into the folder
-        cp $FILEDIR/* $LOCAL_DIR/$sname
     fi
+    ## Copy all utility files into the folder
+    cp $FILEDIR/* $LOCAL_DIR/$sname
     ##
     ## Now the student's folder is guaranteed to exist
     ## Next we need to copy student's submitted files
