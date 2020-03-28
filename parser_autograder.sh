@@ -26,15 +26,12 @@ checkSymbolTable()
     ## Obtain the symbol table between
     ##   Symbol table level 1 
     ## and
-    ##   yyparse result or (program graph1
+    ##   yyparse result or (program graph1 or token xxxxx OP program
     ##
-    tac $1 | sed '/^Symbol table level 1/q' | tac  > clean_file
-    if grep -Fxq "yyparse result =        0" clean_file
-    then
-        tac $1 | sed '/^Symbol table level 1/q' | tac | sed '/Symbol table level 1/,/yyparse result/!d;//d' > symtab_result
-    else
-        tac $1 | sed '/^Symbol table level 1/q' | tac | sed '/Symbol table level 1/,/(program graph1/!d;//d' > symtab_result
-    fi
+    ## The following script is extracting anything between "Symbol table level 1"
+    ## and "(program graph1" that starts with either a digit or '('
+    tac $1 | sed '/^Symbol table level 1/q' | tac | sed '/Symbol table level 1/,/(program graph1/!d;//d' > newfile
+    cat newfile | awk '$1 ~ /^([0-9]+|\()/' > symtab_result
     ##
     ## Check the symbol table using the C++ checker
     ##
@@ -50,36 +47,42 @@ checkSymbolTable()
             cat msg
         fi
     else
-        echo "Empty Output. Maybe syntax error!!"
+        echo "Symbol table not found. Maybe syntax error!!"
     fi
-    rm -f symtab_result clean_file msg
+    rm -f symtab_result clean_file msg newfile
 }
 
+##
+## This script grades parser output from p3 and p4
+##
+## $1 parser output file
+##
 processResult()
 {
     echo ">>>>>>>>>>>>> Grading $INPUT >>>>>>>>>>>>>"
-    ##
-    ## $1 is the result file to be processed
-    ##
     checkSymbolTable $1
-    ##
-    ## Extract the parse tree
-    ##
-    sed -n "/(program graph1/,//p" $1 > tree_result
-    echo "------------- Checking parsing tree ----------"
-    if [ -s tree_result ]
-    then
-        DIFF=$(diff -w $SAMPLE tree_result)
-        if [ "$DIFF" != "" ]
-        then
-            diff -w $SAMPLE tree_result
-        else
-            echo -e "\xE2\x9C\x94"
-        fi
+    syntaxErr=$(grep "syntax error" $1)
+    if [[ $syntaxErr ]]; then
+        echo "found syntax error"
     else
-        echo "Empty Output. Maybe syntax error!!"
+        ##
+        ## Extract the parse tree
+        ##
+        sed -n "/(program graph1/,//p" $1 > tree_result
+        echo "------------- Checking parsing tree ----------"
+        if [ -s tree_result ]
+        then
+            DIFF=$(diff -w $SAMPLE tree_result)
+            if [ "$DIFF" != "" ]
+            then
+                diff -w $SAMPLE tree_result
+            else
+                echo -e "\xE2\x9C\x94"
+            fi
+        else
+            echo "Output tree not found. Maybe syntax error!!"
+        fi
     fi
-
     rm -f tree_result
 }
 
@@ -195,13 +198,13 @@ gradeSingleStudent()
     if [[ -f "parse.y" ]]; then
         make parser &> dump
         if [[ -f "parser" ]]; then
-            ./parser < $INPUT > result
-            if [ -s result ]
-            then 
-                processResult result
-            else
+            Msg=$(./parser < $INPUT &> result)
+            if [[ $? -eq 139 ]];then
                 echo "Seg Fault!!"
+            else
+                processResult result
             fi
+
             if [[ $LEVEL == 2 ]]; then
                 gradePasrec ./parser
             fi
@@ -211,8 +214,12 @@ gradeSingleStudent()
     elif [[ -f "parsc.c" ]]; then
         make parsec &> dump
         if [[ -f "parsec" ]]; then
-            ./parsec < $INPUT > result
-            processResult result
+            Msg=$(./parsec < $INPUT &> result)
+            if [[ $? -eq 139 ]]; then
+                echo "Seg Fault!!"
+            else
+                processResult result
+            fi
             if [[ $LEVEL == 2 ]]; then
                 gradePasrec ./parsec
             fi
