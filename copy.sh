@@ -9,6 +9,15 @@ then
 fi
 
 ##
+## These files will be overwritten by the version in the utility folder
+## if students also submit their own version
+##
+declare -A banArray
+banArray=(
+    [pprint.c]=1
+    [printtoken.c]=1
+)
+##
 ## Algorithm:
 ##
 ##   1. Cd into the submission dir. Each file in the dir has the following form:
@@ -32,9 +41,16 @@ do
         ##
         ## Create the folder
         mkdir $LOCAL_DIR/$sname
+        ## Copy all utility files into the folder
+        ##
+        ## Note that this is done iff the student dir does not exist
+        ## before. Since student might submit multiple files for
+        ## for any project, their submitted files will be overwritten
+        ## if the utility files are copied after student's file is
+        ## converted and copied.
+        ##
+        cp $FILEDIR/* $LOCAL_DIR/$sname
     fi
-    ## Copy all utility files into the folder
-    cp $FILEDIR/* $LOCAL_DIR/$sname
     ##
     ## Now the student's folder is guaranteed to exist
     ## Next we need to copy student's submitted files
@@ -54,6 +70,8 @@ do
     ##         can have two digits
     fwithoutV=$(echo ${fwithV/-[0-9]})
     fwithoutV=$(echo ${fwithoutV/[0-9]})
-    ## Step 3: copy and rename the file
-    cp $submittedFile $LOCAL_DIR/$sname/$fwithoutV
+    ## Step 3: copy and rename the file if it's not in the banArray
+    if [[ ${banArray[$fwithoutV]} -eq 0 ]]; then
+        cp $submittedFile $LOCAL_DIR/$sname/$fwithoutV
+    fi
 done
