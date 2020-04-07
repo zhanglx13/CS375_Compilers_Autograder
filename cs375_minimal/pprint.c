@@ -129,6 +129,26 @@ void dbugprinttok(TOKEN tok)  /* print a token in 'nice' debugging form */
 	 }
   }
 
+/*
+ * Traverse the statements inside a progn. If any statement is a progn,
+ * set its basicdt to 99, which means it will be skipped when printexpr()
+ * is called on it.
+ *
+ * @param tok a progn token
+ */
+void markSkippedProgn(TOKEN tok)
+{
+    if ( (tok->tokentype != OPERATOR) || (tok->whichval != PROGNOP))
+        return;
+    TOKEN stmt = tok->operands;
+    while (stmt)
+    {
+        if ( (stmt->tokentype == OPERATOR) && (stmt->whichval == PROGNOP))
+            stmt->basicdt = 99;
+        stmt = stmt->link;
+    }
+}
+
 void printexpr(TOKEN tok, int col)     /* print an expression in prefix form */
 {
     TOKEN opnds;
@@ -142,22 +162,20 @@ void printexpr(TOKEN tok, int col)     /* print an expression in prefix form */
     };
     if (tok->tokentype == OPERATOR)
     {
-        /*
-         * try to remove extra progn here
-         */
         opnds = tok->operands;
-        if ((tok->whichval == PROGNOP) &&
-            opnds &&
-            (opnds->tokentype == OPERATOR) &&
-            (opnds->whichval == PROGNOP))
+        /*
+         * When we meet a progn, we first need to call markSkippedProgn()
+         * to mark all progn's inside the current progn. Those marked
+         * progn will be skipped when printexpr is called later.
+         *
+         * If the tok is not progn, the following function does nothing
+         */
+        markSkippedProgn(tok);
+        /*
+         * We only skip marked progn tokens
+         */
+        if ( (tok->whichval == PROGNOP) && (tok->basicdt == 99))
         {
-            /*
-             * Here we have the case that the current tok
-             * is progn and its operands is also progn.
-             * In this case, we simply skip this tok
-             * and set a flag so that we can also skip
-             * printing the closing ')' for this progn
-             */
             nextcol = col;
             extraProgn = 1;
         }
