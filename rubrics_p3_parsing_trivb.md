@@ -53,6 +53,42 @@ make parser
 ```
 which is what you should do to compile your parser for the following three projects.
 
+### Unnecessary `progn`'s will be eliminated when printing out the parse tree
+
+When you are building the parse tree, you might create unnecessary `progn`'s
+such as in the following example
+
+```lisp
+(progn stmt0
+       stmt1
+       (progn stmt2
+              stmt3)
+       (if condition
+           (progn stmt4
+                  stmt5)
+           stmt6))
+```
+`progn`'s make the structure of the parse tree more readable. However, they are
+not friendly to grading. 
+Therefore, all unnecessary `progn`'s will be eliminated so that the result parse
+tree will have only one form.
+
+For example, the above parse tree will become the following when grading
+```lisp
+(progn stmt0
+       stmt1
+       stmt2
+       stmt3
+       (if condition
+           (progn stmt4
+                  stmt5)
+           stmt6))
+```
+Note that the `progn` inside the if structure should not be removed since it
+packages all statements for the then-part of the if structure.
+
+You can check `printexpr()` in `pprint.c` in cs375_minimal.
+
 ### Debugging
 
 #### Using `printf`
