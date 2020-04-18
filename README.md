@@ -32,7 +32,7 @@ Same as project 3 except p3 should be replaced with p5
 
 ## Project 6 Code generation for graph1.pas and pasrec.pas
 
-Same as the above projects except that the autograder is now codegen_autograder.sh and the project dir is always p6.
+Same as the above projects except that the autograder is now **codegen_autograder.sh** and the project dir is always p6.
 
 # File Structures
 
@@ -49,9 +49,8 @@ Same as the above projects except that the autograder is now codegen_autograder.
 3. sample_p2: sample output for each test in test_p1 using lex. This is used as the sample for project 2
 4. test_p5: unit tests extracted from pasrec.pasrec
 5. sample_p5: samples for each test in test_p5. Note that if one test has multiple samples, the alternative samples should have the same name as the test with a number appended.
-   E.g. test4_arr.pas can have multiple samples: test4_arr.sample, test4_arr0.sample, test4_arr1.sample, etc.
-   test4_arr_1.pas can have multiple samples: test4_arr_1.sample, test4_arr_10.sample, test4_arr_11.sample, etc
-6. graph1_test, graph1_sample, pasrec_test, pasrec_sample: unit tests and samples for the codegen project. Similary, multiple samples for the same test are distinguished by the appended number to the sample name.
+   E.g. test5_while.pas can have multiple samples: test5_while.sample and test5_while0.sample.
+6. graph1_test, graph1_sample, pasrec_test, pasrec_sample: unit tests and samples for the codegen project. Similarly, multiple samples for the same test are distinguished by the appended number to the sample name.
 7. sample_trees: contains trivb.sample and graph1i.sample. These outputs are generated using the modified pprint.c, therefore, the layout and indentation of the output is different.
 
 ## Symbol Table Checker
@@ -64,8 +63,10 @@ Same as the above projects except that the autograder is now codegen_autograder.
 2. ./copy.sh: used by ./prepare.sh to copy useful files from cs375_minimal into student's folder
 3. cs375_minimal: contains all other files that are necessary to build each project. Changes are made to makefile, pprint.c, and printtoken.c
 4. ./check_moss.sh: copy all students' code into a folder and use moss.sh to check plagiarism
-5. ./toServer.sh: copy a file or a folder to lxzhang@linux.cs.utexas.edu:/u/lxzhang/CS375_auto/
+5. ./test_p5_hints.sh: hints about each unit test of project 5.
 
-## Experiment on compiler issues
+## Project Rubrics
 
-1. compiler_issue
+`rubrics_px_xxx.md` contains the rubrics for project `px`. Note that later
+rubrics always refer to earlier rubrics. Therefore, the best practice is to
+read from the first rubrics every time.
