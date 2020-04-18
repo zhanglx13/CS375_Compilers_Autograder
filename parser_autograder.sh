@@ -47,7 +47,7 @@ checkSymbolTable()
             cat msg
         fi
     else
-        echo "Symbol table not found. Maybe syntax error!!"
+        echo "Symbol table not found!!"
     fi
     rm -f symtab_result clean_file msg newfile
 }
@@ -63,7 +63,7 @@ processResult()
     checkSymbolTable $1
     syntaxErr=$(grep "syntax error" $1)
     if [[ $syntaxErr ]]; then
-        echo "found syntax error"
+        echo "found syntax error!!"
     else
         ##
         ## Extract the parse tree
@@ -80,7 +80,7 @@ processResult()
                 echo -e "\xE2\x9C\x94"
             fi
         else
-            echo "Output tree not found. Maybe syntax error!!"
+            echo "Output tree not found!!"
         fi
     fi
     rm -f tree_result
@@ -92,48 +92,66 @@ checkUnittest()
     ## $1 is the filename (w/out ext) of each unittest
     ##
     pass=0
-    $PARSER < $TESTDIR/$1.pas | sed -n "/(program/,//p" > result
-    if [ -s result ]
-    then
-        DIFF=$(diff -w $SAMPLEDIR/$1.sample result)
-        if [ "$DIFF" != "" ]
-        then
-            pass=0
-        else
-            pass=1
-        fi
-        ##
-        ## When the second argument is provided
-        ## $2 is the number of possible samples that
-        ## can be matched
-        ##
-        ## The logic is that we test the next sample
-        ## only when none of the previous samples are
-        ## passed
-        ##
-        if [[ $# -eq 2 ]]; then
-            START=0
-            i=$2
-            ((END=i-1))
-            for (( c=$START; c<$END; c++ ))
-            do
-                if [[ $pass == 0 ]]; then
-                    temDIFF=$(diff -w $SAMPLEDIR/$1$c.sample result)
-                    if [ "$temDIFF" == "" ]
-                    then
-                        pass=1
-                    fi
-                fi
-            done
-        fi
-        if [ $pass == 0 ]
-        then
-            diff -w $SAMPLEDIR/$1.sample result
-        else
-            echo -e "\xE2\x9C\x94"
-        fi
+    Msg=$($PARSER < $TESTDIR/$1.pas | sed -n "/(program/,//p" > result)
+    ##
+    ## Check seg fault 
+    ##
+    if [[ $? -eq 139 ]];then
+        echo "Seg Fault!!"
     else
-        echo "Empty Output. Maybe syntax error or seg fault!!"
+        ##
+        ## If no seg fault, check syntax error
+        ##
+        syntaxErr=$(grep "syntax error" result)
+        if [[ $syntaxErr ]]; then
+            echo "found syntax error!!"
+        else
+            ##
+            ## If no syntax error, check empty output
+            ##
+            if [ -s result ]
+            then
+                DIFF=$(diff -w $SAMPLEDIR/$1.sample result)
+                if [ "$DIFF" != "" ]
+                then
+                    pass=0
+                else
+                    pass=1
+                fi
+                ##
+                ## When the second argument is provided
+                ## $2 is the number of possible samples that
+                ## can be matched
+                ##
+                ## The logic is that we test the next sample
+                ## only when none of the previous samples are
+                ## passed
+                ##
+                if [[ $# -eq 2 ]]; then
+                    START=0
+                    i=$2
+                    ((END=i-1))
+                    for (( c=$START; c<$END; c++ ))
+                    do
+                        if [[ $pass == 0 ]]; then
+                            temDIFF=$(diff -w $SAMPLEDIR/$1$c.sample result)
+                            if [ "$temDIFF" == "" ]
+                            then
+                                pass=1
+                            fi
+                        fi
+                    done
+                fi
+                if [ $pass == 0 ]
+                then
+                    diff -w $SAMPLEDIR/$1.sample result
+                else
+                    echo -e "\xE2\x9C\x94"
+                fi
+            else
+                echo "Empty Output!!"
+            fi
+        fi
     fi
 }
 
@@ -152,13 +170,17 @@ gradePasrec()
     PARSER=$1
     # test0: symbol table
     echo "@@@@@@@@@@ TEST 0 symbol table @@@@@@@@@@"
-    $PARSER < $TESTDIR/test0_symtab.pas > test0_result
-    if [ -s test0_result ]
-    then
-        checkSymbolTable test0_result
-    else
+    Msg=$($PARSER < $TESTDIR/test0_symtab.pas > test0_result)
+    if [[ $? -eq 139 ]];then
         echo "Seg Fault!!"
+    else
+        checkSymbolTable test0_result
+        syntaxErr=$(grep "syntax error" test0_result)
+        if [[ $syntaxErr ]]; then
+            echo "found syntax error after symbol table!!"
+        fi
     fi
+    rm -f test0_result
     echo "@@@@@@@@@@ TEST 1 funcall new() @@@@@@@@@@"
     checkUnittest test1_newfun
     echo "@@@@@@@@@@ TEST 1_0 funcall new() @@@@@@@@@@"
@@ -174,17 +196,23 @@ gradePasrec()
     echo "@@@@@@@@@@ TEST 3_1 pointer and rec reference (hard) @@@@@@@@@@"
     checkUnittest test3_hardRec_1
     echo "@@@@@@@@@@ TEST 4 array access @@@@@@@@@@"
-    checkUnittest test4_arr 4
+    checkUnittest test4_arr
     echo "@@@@@@@@@@ TEST 4_0 array access @@@@@@@@@@"
     checkUnittest test4_arr_0
     echo "@@@@@@@@@@ TEST 4_1 array access @@@@@@@@@@"
-    checkUnittest test4_arr_1 4
+    checkUnittest test4_arr_1
     echo "@@@@@@@@@@ TEST 4_2 array access @@@@@@@@@@"
-    checkUnittest test4_arr_2 4
+    checkUnittest test4_arr_2
     echo "@@@@@@@@@@ test5 while loop @@@@@@@@@@"
-    checkUnittest test5_while 4
+    ##
+    ## Multiple samples due to label numbers
+    ##
+    checkUnittest test5_while 2
     echo "@@@@@@@@@@ test6 label/goto stmt @@@@@@@@@@"
-    checkUnittest test6_label 4
+    ##
+    ## Multiple samples due to label numbers
+    ##
+    checkUnittest test6_label 2
     echo "@@@@@@@@@@ test7 write funcall @@@@@@@@@@"
     checkUnittest test7_write
 }
@@ -196,10 +224,13 @@ gradeSingleStudent()
     ## Compile student's code according to the submisions
     ##    
     if [[ -f "parse.y" ]]; then
+        ## disable parser-tracing function
+        sed -i 's/yydebug/\/\/yydebug/g' parse.y
         make parser &> dump
         if [[ -f "parser" ]]; then
             Msg=$(./parser < $INPUT &> result)
             if [[ $? -eq 139 ]];then
+                echo ">>>>>>>>>>>>> Grading $INPUT >>>>>>>>>>>>>"
                 echo "Seg Fault!!"
             else
                 processResult result
