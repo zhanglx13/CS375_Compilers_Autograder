@@ -2,5 +2,5 @@
 (progn output)
 (progn (label 2)
 (if (<> ptr 0)
-(progn (progn (:= i (+ i 1)))
+(progn (:= i (+ i 1))
 (goto 2)))))
