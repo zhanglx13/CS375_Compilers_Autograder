@@ -118,25 +118,40 @@ gradeUnittest()
     ## $3 folder (full path) containing samples
     ##
     zero=0
+    pass=0
     for entry in $2/*
     do
         testN=$(basename "$entry")
         testN="${testN%.*}"
         echo "@@@@@@@@@@@@@@@@@@@@ testing $testN: @@@@@@@@@@@@@@@@@@@"
-        $1 < $entry | sed -n "/begin Your code/,//p" > tmp_result
-        pass=2
-
-        if [ -s tmp_result ]
-        then
+        Msg=$($1 < $entry | sed -n "/begin Your code/,//p" > tmp_result)
+        ##
+        ## Check seg fault 
+        ##
+        if [[ $? -eq 139 ]];then
+            echo "Seg Fault!!"
+        else
             ##
-            ## First we check if the output is empty between the markers
+            ## If no seg fault, check syntax error
             ##
-            nL=$(countLines tmp_result)
-            if [ $nL == "2" ]
-            then
-                echo "Empty Output!!"
+            syntaxErr=$(grep "syntax error" tmp_result)
+            if [[ $syntaxErr ]]; then
+                echo "found syntax error!!"
             else
                 ##
+                ## If no syntax error, check empty output
+                ##
+                if [ -s tmp_result ]
+                then
+                    ##
+                    ## First we check if the output is empty between the markers
+                    ##
+                    nL=$(countLines tmp_result)
+                    if [ $nL == "2" ]
+                    then
+                        echo "No Code Generated!!"
+                    else
+                        ##
                 ## When diffing, we want to ignore comments
                 ##
                 sed '/^[[:blank:]]*#/d;s/#.*//' tmp_result > output
@@ -163,9 +178,11 @@ gradeUnittest()
                 else
                     pass=1
                 fi
+                    fi
+                else
+                    echo "Empty Output!!"
+                fi
             fi
-        else
-            echo "Seg Fault!!"
         fi
 
         if [ $pass == 0 ]
@@ -210,17 +227,13 @@ gradeSingleStudent()
     echo "######################  $WHO  #########################"
 
     if [[ -f "parse.y" ]]; then
-        if [[ -f "lexan.l" ]]; then
-            make compiler &> dump
-            if [[ -f "compiler" ]]; then
-                gradeCodegen ./compiler 
-            else
-                echo "Compilation error, compiler not found!"
-            fi
+        ## disable parser-tracing function
+        sed -i 's/yydebug/\/\/yydebug/g' parse.y
+        make compiler &> dump
+        if [[ -f "compiler" ]]; then
+            gradeCodegen ./compiler 
         else
-            echo "lexan.l not found! Copying from p2 ... "
-            cp $AUTOGRADERDIR/p2_gradingDir/$WHO/lexan.l ./
-            gradeSingleStudent
+            echo "Compilation error, compiler not found!"
         fi
     elif [[ -f "parsc.c" ]]; then
         make compc &> dump
