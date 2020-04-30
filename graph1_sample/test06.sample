@@ -1,6 +1,6 @@
 # ------------------------- begin Your code -----------------------------
-	movsd	.LC1(%rip),%xmm0   	#  32.000000 -> %xmm0
-	movsd	-40(%rbp),%xmm1     	#  y -> %xmm1
+	movsd	-40(%rbp),%xmm0     	#  y -> %xmm0
+	movsd	.LC1(%rip),%xmm1   	#  32.000000 -> %xmm1
 	mulsd	%xmm1,%xmm0         	#  %xmm0 * %xmm1 -> %xmm0
 	call	iround@PLT              #  iround()
 	movl	$34,%ecx         	#  34 -> %ecx

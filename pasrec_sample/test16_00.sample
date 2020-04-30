@@ -1,10 +1,10 @@
 # ------------------------- begin Your code -----------------------------
 	movq	-992(%rbp),%rax     	#  ptr -> %rax
 	movsd	40(%rax),%xmm0         	#  ^.[40+%rax] -> %xmm0
-	movl	$-8,%eax         	#  -8 -> %eax
-	movl	$48,%ecx		#  48 -> %ecx
-	movl	-1312(%rbp),%edx     	#  i -> %edx
-	imull	%edx,%ecx         	#  %ecx * %edx -> %ecx
+	movl	-1312(%rbp),%eax     	#  i -> %eax
+	movl	$48,%ecx         	#  48 -> %ecx
+	imull	%ecx,%eax         	#  %eax * %ecx -> %eax
+	movl	$-8,%ecx         	#  -8 -> %ecx
 	addl	%ecx,%eax         	#  %eax + %ecx -> %eax
 	cltq	                  	#  sign-extend
 	movsd	%xmm0,-976(%rbp,%rax)	#  %xmm0 -> people[%rax]

@@ -1,6 +1,6 @@
 # ------------------------- begin Your code -----------------------------
-	movsd	.LC1(%rip),%xmm0   	#  6.283180 -> %xmm0
-	movsd	-48(%rbp),%xmm1     	#  x -> %xmm1
+	movsd	-48(%rbp),%xmm0   	#  x -> %xmm0
+	movsd	.LC1(%rip),%xmm1     	#  6.283180 -> %xmm1
 	mulsd	%xmm1,%xmm0         	#  %xmm0 * %xmm1 -> %xmm0
 	call	sin@PLT              	#  sin()
 	movsd	%xmm0,-40(%rbp)     	#  %xmm0 -> y
