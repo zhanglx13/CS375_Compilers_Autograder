@@ -5,95 +5,94 @@
 ## >= 4. The above line makes sure to always use the newest bash
 ##
 
-#############################################################
-##
-## Autograder for project 6 --- codegen,c
-##
-## The autograder can be used for grading all students' code
-## (all mode) or a single student's code (single mode)
-## according to the first argument
-##
-## Usage: ./codegen_autograder.sh p6|studentDir
-##
-## gradeSingleStudent
-##
-##   Both all mode and single mode will call gradeSingleStudent,
-##   in which one student's code is compiled according to the
-##   files submitted. Then the executable will be passed as
-##   the only argument to gradeCodegen.
-##
-##   Arg:
-##     No input. gradeSingleStudent is called after cd'ing into
-##     the student's folder
-##
-##   Compilation mode:
-##     1. If parse.y is found, then compile using make compiler
-##     2. If parsc.c is found, then compile using make compc
-##
-## gradeCodegen
-##
-##   Simply call gradeUnittest for both graph1 and pasrec
-##
-##   Arg:
-##     $1: compiler executable 
-##
-## gradeUnittest
-##
-##   Run the compiler executable on each of the unit test in
-##   the test folder and compare the result with the
-##   corresponding sample in the sample folder
-##
-##   Args:
-##     $1: compiler executable
-##     $2: test folder full path name
-##     $3: sample folder full path name
-##
-##   How to compare for each unit test
-##     1. [Seg Fault?] Run the compiler executable on the test
-##        and redirect the result into a temp file. If the
-##        file does not exist or has zero size, print out
-##        "Seg Fault!!"
-##     2. [Empty Output?] Check if there is nothing between
-##        /begin Your code/ and /begin Epilogue code/. If so
-##        print out "Empty Output!!". This is helped with
-##        countLines
-##     3. [first diff] diff sample output after removing all
-##        comments in both sample and output. If diff outputs
-##        nothing, print out "\xE2\x9C\x94" which is the check
-##        mark.
-##     4. [second diff] if the output and the sample does not
-##        match for the first time, the output has a second
-##        chance to match another sample if it exists. The
-##        second sample for the same test has a name same as
-##        the first sample appended a 0 to the basename of
-##        the filename.
-##        E.g.
-##        For test25.pas, the first sample is named as
-##        test25.sample and the second sample is named as
-##        test250.sample.
-##        Since we always use two digits to represent a test
-##        number, e.g. test03.pas instead of test3.pas, the
-##        second sample (e.g. test030.sample) will not be
-##        confused with any first samples (e.g. test30.sample).
-##     5. [Not Match] When the output does not match any of
-##        the samples, we print the following two things
-##        a. diff result between sample and output with
-##           comment removed
-##        b. code between /begin Your code/ and /begin Epilogue code/
-##           in the sample
-##
-##
-## TODO:
-##   1. The output when result does not match can still be
-##      hard for grading, especially when student has a lot
-##      of small issues. Sometimes I feel like printing the
-##      whole student's output also. But this adds info
-##      when student's code does match well. Maybe a heuristic
-##      can be used:
-##      when the number of diff exceeds a threshold, print
-##      student's output also
-##
-#############################################################
+###########################################################################
+##                                                                       ##
+## Autograder for project 6 --- codegen,c                                ##
+##                                                                       ##
+## The autograder can be used for grading all students' code             ##
+## (all mode) or a single student's code (single mode)                   ##
+## according to the first argument                                       ##
+##                                                                       ## 
+## Usage: ./codegen_autograder.sh p6|studentDir                          ##
+##                                                                       ##
+## gradeSingleStudent                                                    ##
+##                                                                       ##
+##   Both all mode and single mode will call gradeSingleStudent,         ##
+##   in which one student's code is compiled according to the            ##
+##   files submitted. Then the executable will be passed as              ##
+##   the only argument to gradeCodegen.                                  ##
+##                                                                       ##
+##   Arg:                                                                ##
+##     No input. gradeSingleStudent is called after cd'ing into          ##
+##     the student's folder                                              ##
+##                                                                       ##
+##   Compilation mode:                                                   ##
+##     1. If parse.y is found, then compile using make compiler          ##
+##     2. If parsc.c is found, then compile using make compc             ##
+##                                                                       ##
+## gradeCodegen                                                          ##
+##                                                                       ##
+##   Simply call gradeUnittest for both graph1 and pasrec                ##
+##                                                                       ##
+##   Arg:                                                                ##
+##     $1: compiler executable                                           ##
+##                                                                       ##
+## gradeUnittest                                                         ##
+##                                                                       ##
+##   Run the compiler executable on each of the unit test in             ##
+##   the test folder and compare the result with the                     ##
+##   corresponding sample in the sample folder                           ##
+##                                                                       ##
+##   Args:                                                               ##
+##     $1: compiler executable                                           ##
+##     $2: test folder full path name                                    ##
+##     $3: sample folder full path name                                  ##
+##                                                                       ##
+##   How to compare for each unit test                                   ##
+##     1. [Seg Fault?] Run the compiler executable on the test           ##
+##        and redirect the result into a temp file. If $? equals         ##
+##        139, then a seg fault signal is received.                      ##
+##     2. [No code generated?] Check if there is nothing between         ##
+##        /begin Your code/ and /begin Epilogue code/. If so             ##
+##        print out "No Code generated!!". This is helped with           ##
+##        countLines.                                                    ##
+##     3. [first diff] diff sample output after removing all             ##
+##        comments in both sample and output. If diff outputs            ##
+##        nothing, print out "\xE2\x9C\x94" which is the check           ##
+##        mark.                                                          ##
+##     4. [second diff] if the output and the sample does not            ##
+##        match for the first time, the output has a second              ##
+##        chance to match another sample if it exists. The               ##
+##        second sample for the same test has a name same as             ##
+##        the first sample appended a 0 to the basename of               ##
+##        the filename.                                                  ##
+##        E.g.                                                           ##
+##        For test25.pas, the first sample is named as                   ##
+##        test25.sample and the second sample is named as                ##
+##        test250.sample.                                                ##
+##        Since we always use two digits to represent a test             ##
+##        number, e.g. test03.pas instead of test3.pas, the              ##
+##        second sample (e.g. test030.sample) will not be                ##
+##        confused with any first samples (e.g. test30.sample).          ##
+##     5. [Not Match] When the output does not match any of              ##
+##        the samples, we print the following two things                 ##
+##        a. diff result between sample and output with                  ##
+##           comment removed                                             ##
+##        b. code between /begin Your code/ and /begin Epilogue code/    ##
+##           in the sample                                               ##
+##                                                                       ##
+##                                                                       ##
+## TODO:                                                                 ##
+##   1. The output when result does not match can still be               ##
+##      hard for grading, especially when student has a lot              ##
+##      of small issues. Sometimes I feel like printing the              ##
+##      whole student's output also. But this adds info                  ##
+##      when student's code does match well. Maybe a heuristic           ##
+##      can be used:                                                     ##
+##      when the number of diff exceeds a threshold, print               ##
+##      student's output also                                            ##
+##                                                                       ##
+###########################################################################
 TOP_DIR=$(pwd)
 AUTOGRADERDIR=$TOP_DIR
 TEST_GRAPH_DIR=$AUTOGRADERDIR/graph1_test
@@ -229,6 +228,8 @@ gradeSingleStudent()
     if [[ -f "parse.y" ]]; then
         ## disable parser-tracing function
         sed -i 's/yydebug/\/\/yydebug/g' parse.y
+        ## Canonicalize the parse tree before calling gencode
+        sed -i 's/gencode/exprCanonicalization(parseresult);gencode/g' parse.y
         make compiler &> dump
         if [[ -f "compiler" ]]; then
             gradeCodegen ./compiler 
