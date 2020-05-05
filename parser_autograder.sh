@@ -92,7 +92,7 @@ checkUnittest()
     ## $1 is the filename (w/out ext) of each unittest
     ##
     pass=0
-    Msg=$($PARSER < $TESTDIR/$1.pas | sed -n "/(program/,//p" > result)
+    Msg=$($PARSER < $TESTDIR/$1.pas)
     ##
     ## Check seg fault 
     ##
@@ -102,6 +102,7 @@ checkUnittest()
         ##
         ## If no seg fault, check syntax error
         ##
+        $PARSER < $TESTDIR/$1.pas | sed -n "/(program/,//p" > result
         syntaxErr=$(grep "syntax error" result)
         if [[ $syntaxErr ]]; then
             echo "found syntax error!!"
@@ -170,10 +171,11 @@ gradePasrec()
     PARSER=$1
     # test0: symbol table
     echo "@@@@@@@@@@ TEST 0 symbol table @@@@@@@@@@"
-    Msg=$($PARSER < $TESTDIR/test0_symtab.pas > test0_result)
+    Msg=$($PARSER < $TESTDIR/test0_symtab.pas)
     if [[ $? -eq 139 ]];then
         echo "Seg Fault!!"
     else
+        $PARSER < $TESTDIR/test0_symtab.pas > test0_result
         checkSymbolTable test0_result
         syntaxErr=$(grep "syntax error" test0_result)
         if [[ $syntaxErr ]]; then
@@ -228,11 +230,12 @@ gradeSingleStudent()
         sed -i 's/yydebug/\/\/yydebug/g' parse.y
         make parser &> dump
         if [[ -f "parser" ]]; then
-            Msg=$(./parser < $INPUT &> result)
+            Msg=$(./parser < $INPUT)
             if [[ $? -eq 139 ]];then
                 echo ">>>>>>>>>>>>> Grading $INPUT >>>>>>>>>>>>>"
                 echo "Seg Fault!!"
             else
+                ./parser < $INPUT &> result
                 processResult result
             fi
 
@@ -245,10 +248,11 @@ gradeSingleStudent()
     elif [[ -f "parsc.c" ]]; then
         make parsec &> dump
         if [[ -f "parsec" ]]; then
-            Msg=$(./parsec < $INPUT &> result)
+            Msg=$(./parsec < $INPUT)
             if [[ $? -eq 139 ]]; then
                 echo "Seg Fault!!"
             else
+                ./parsec < $INPUT &> result
                 processResult result
             fi
             if [[ $LEVEL == 2 ]]; then

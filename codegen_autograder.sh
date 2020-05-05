@@ -123,16 +123,18 @@ gradeUnittest()
         testN=$(basename "$entry")
         testN="${testN%.*}"
         echo "@@@@@@@@@@@@@@@@@@@@ testing $testN: @@@@@@@@@@@@@@@@@@@"
-        Msg=$($1 < $entry | sed -n "/begin Your code/,//p" > tmp_result)
+        Msg=$($1 < $entry)
         ##
         ## Check seg fault 
         ##
         if [[ $? -eq 139 ]];then
             echo "Seg Fault!!"
+            pass=2
         else
             ##
             ## If no seg fault, check syntax error
             ##
+            $1 < $entry | sed -n "/begin Your code/,//p" > tmp_result
             syntaxErr=$(grep "syntax error" tmp_result)
             if [[ $syntaxErr ]]; then
                 echo "found syntax error!!"
@@ -180,6 +182,7 @@ gradeUnittest()
                     fi
                 else
                     echo "Empty Output!!"
+                    pass=0
                 fi
             fi
         fi
@@ -231,6 +234,9 @@ gradeSingleStudent()
         ## Canonicalize the parse tree before calling gencode
         sed -i 's/gencode/exprCanonicalization(parseresult);gencode/g' parse.y
         make compiler &> dump
+        ## Reverse source code modification after compilation
+        sed -i 's/exprCanonicalization(parseresult);gencode/gencode/g' parse.y
+        sed -i 's/\/\/yydebug/yydebug/g' parse.y
         if [[ -f "compiler" ]]; then
             gradeCodegen ./compiler 
         else
