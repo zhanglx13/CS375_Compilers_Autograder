@@ -16,6 +16,7 @@ declare -A banArray
 banArray=(
     [pprint.c]=1
     [printtoken.c]=1
+    [pprint.h]=1
 )
 ##
 ## Algorithm:
@@ -29,6 +30,7 @@ banArray=(
 ##          the folder
 ##
 cd ~/submissions_$1
+zipFound=0
 for submittedFile in ./*
 do
     # get the student's name, which is the substring before '_'
@@ -45,33 +47,73 @@ do
         ##
         ## Note that this is done iff the student dir does not exist
         ## before. Since student might submit multiple files for
-        ## for any project, their submitted files will be overwritten
+        ## any project, their submitted files will be overwritten
         ## if the utility files are copied after student's file is
         ## converted and copied.
         ##
         cp $FILEDIR/* $LOCAL_DIR/$sname
     fi
     ##
-    ## Now the student's folder is guaranteed to exist
-    ## Next we need to copy student's submitted files
-    ## into the folder
+    ## Check if the student has submitted a .zip file
     ##
-    ## the downloaded submitted file has the following form
-    ## 
-    ## name_LATE_3454987397_397484737_parse-3.y
-    ##
-    ## The goal is to extract the basename of the file without
-    ## version number
-    ##
-    ## Step 1: extract the filename with version number
-    fwithV=$(echo ${submittedFile##*_})
-    ## Step 2: replace version number (-[1-9]) with nothing
-    ##         Need to do it twice because version number
-    ##         can have two digits
-    fwithoutV=$(echo ${fwithV/-[0-9]})
-    fwithoutV=$(echo ${fwithoutV/[0-9]})
-    ## Step 3: copy and rename the file if it's not in the banArray
-    if [[ ${banArray[$fwithoutV]} -eq 0 ]]; then
-        cp $submittedFile $LOCAL_DIR/$sname/$fwithoutV
+    ext=$(echo ${submittedFile##*.})
+    if [[ $ext == "zip" ]]; then
+        echo "zip file found: $submittedFile"
+        zipFound=1
+        fname=$(echo ${submittedFile%.*})
+        fname=$(echo ${fname##*/})
+        echo "filename: $fname"
+        ## Extract the zip package using the rename policy
+        dtrx --one=rename $submittedFile
+        ## Copy student's files
+        ## cp will automatically ignore folders since we do not
+        ## specify -r 
+        cp $fname/* $LOCAL_DIR/$sname
+        ## Remove the unzipped dir
+        rm -r $fname
+    else
+        ##
+        ## Now the student's folder is guaranteed to exist
+        ## Next we need to copy student's submitted files
+        ## into the folder
+        ##
+        ## the downloaded submitted file has the following form
+        ## 
+        ## name_LATE_3454987397_397484737_parse-3.y
+        ##
+        ## The goal is to extract the basename of the file without
+        ## version number
+        ##
+        ## Step 1: extract the filename with version number
+        fwithV=$(echo ${submittedFile##*_})
+        ## Step 2: replace version number (-[1-9]) with nothing
+        ##         Need to do it twice because version number
+        ##         can have two digits
+        fwithoutV=$(echo ${fwithV/-[0-9]})
+        fwithoutV=$(echo ${fwithoutV/[0-9]})
+        ## Step 3: Just in case that the filename now has the form of
+        ##
+        ##         parse ().y
+        ##
+        ##        In this case, we need to delete space, (, and )
+        fwithoutV=$(echo ${fwithoutV/[\ ]})
+        fwithoutV=$(echo ${fwithoutV/()})
+        ## Step 4: copy and rename the file if it's not in the banArray
+        if [[ ${banArray[$fwithoutV]} -eq 0 ]]; then
+            ##
+            ## Note that when filename contains space and other wild
+            ## chars, putting the filename into "" handles everything.
+            ##
+            cp "$submittedFile" $LOCAL_DIR/$sname/$fwithoutV
+        fi
+        ##
+        ## Copy autograder utility files into the student dir
+        ##
+        cp $FILEDIR/pprint.c $LOCAL_DIR/$sname
+        cp $FILEDIR/pprint.h $LOCAL_DIR/$sname
+        cp $FILEDIR/printtoken.c $LOCAL_DIR/$sname
     fi
 done
+if [[ $zipFound -eq 1 ]]; then
+    echo "zipped package found!"
+fi
