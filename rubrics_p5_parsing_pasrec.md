@@ -67,10 +67,7 @@ Then the correctness of type coercion will depend on the type of aref.
 In general, if `aref` refers to a complex type, such as RECORD, POINTER, the 
 **symtype** field of `aref` should be properly set. If `aref` refers to a basic 
 type, such as real and integer, the **basicdt** field of `aref` should also be 
-properly set.
-
-As a result, you should modify your type coercion in `binop()` if you only
-check `basicdt` of lhs and rhs. 
+properly set. 
 
 For the next project --- codegen, if the type of `aref` is not properly set, 
 the wrong register might be chosen for the `aref` structure. So make sure 
