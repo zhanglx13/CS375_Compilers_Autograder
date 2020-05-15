@@ -95,8 +95,8 @@
 ###########################################################################
 TOP_DIR=$(pwd)
 AUTOGRADERDIR=$TOP_DIR
-TEST_DIR=$AUTOGRADERDIR/codegen_test
-SAMPLE_DIR=$AUTOGRADERDIR/codegen_sample
+TEST_DIR=$AUTOGRADERDIR/test_p6
+SAMPLE_DIR=$AUTOGRADERDIR/sample_p6
 
 
 countAsmLines()
