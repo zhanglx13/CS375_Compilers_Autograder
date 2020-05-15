@@ -95,13 +95,11 @@
 ###########################################################################
 TOP_DIR=$(pwd)
 AUTOGRADERDIR=$TOP_DIR
-TEST_GRAPH_DIR=$AUTOGRADERDIR/graph1_test
-SAMPLE_GRAPH_DIR=$AUTOGRADERDIR/graph1_sample
-TEST_PASREC_DIR=$AUTOGRADERDIR/pasrec_test
-SAMPLE_PASREC_DIR=$AUTOGRADERDIR/pasrec_sample
+TEST_DIR=$AUTOGRADERDIR/codegen_test
+SAMPLE_DIR=$AUTOGRADERDIR/codegen_sample
 
 
-countLines()
+countAsmLines()
 {
     ##
     ## $1 is the output file
@@ -123,67 +121,94 @@ gradeUnittest()
         testN=$(basename "$entry")
         testN="${testN%.*}"
         echo "@@@@@@@@@@@@@@@@@@@@ testing $testN: @@@@@@@@@@@@@@@@@@@"
-        Msg=$($1 < $entry)
+        Msg=$($1 < $entry &> tmp_err)
         ##
         ## Check seg fault 
         ##
         if [[ $? -eq 139 ]];then
-            echo "Seg Fault!!"
+            syntaxErr=$(grep "syntax error" tmp_err)
+            if [[ $syntaxErr ]]; then
+                echo "syntax error ==> seg fault!!"
+            else
+                echo "Seg Fault!!"
+            fi
             pass=2
         else
             ##
-            ## If no seg fault, check syntax error
+            ## If no seg fault, get assembly code
+            ##
+            ## Note that we do not need to check syntax error here.
+            ## The rationale is that when syntax error happens in the parsing
+            ## phase, there will always be a seg fault when gencode is called.
+            ## Therefore, the syntax error was caught in the previous case.
             ##
             $1 < $entry | sed -n "/begin Your code/,//p" > tmp_result
-            syntaxErr=$(grep "syntax error" tmp_result)
-            if [[ $syntaxErr ]]; then
-                echo "found syntax error!!"
-            else
+            ##
+            ## Check empty output
+            ##
+            if [ -s tmp_result ]
+            then
                 ##
-                ## If no syntax error, check empty output
+                ## First we check if the output is empty between the markers
                 ##
-                if [ -s tmp_result ]
+                nL=$(countAsmLines tmp_result)
+                if [ $nL == "2" ]
                 then
+                    echo "No Assembly Code Generated!!"
+                    pass=2
+                else
                     ##
-                    ## First we check if the output is empty between the markers
+                    ## When diffing, we want to ignore comments
                     ##
-                    nL=$(countLines tmp_result)
-                    if [ $nL == "2" ]
+                    sed '/^[[:blank:]]*#/d;s/#.*//' tmp_result > output
+                    sed '/^[[:blank:]]*#/d;s/#.*//' $3/"$testN.sample" > sample
+                    DIFF=$(diff -w sample output)
+                    if [ "$DIFF" != "" ]
                     then
-                        echo "No Code Generated!!"
-                    else
                         ##
-                ## When diffing, we want to ignore comments
-                ##
-                sed '/^[[:blank:]]*#/d;s/#.*//' tmp_result > output
-                sed '/^[[:blank:]]*#/d;s/#.*//' $3/"$testN.sample" > sample
-                DIFF=$(diff -w sample output)
-                if [ "$DIFF" != "" ]
-                then
-                    ##
-                    ## If the output does not match the sample
-                    ## Try to see if there is an alternative sample
-                    ##
-                    if [ -f $3/$testN$zero.sample ]; then
-                        sed '/^[[:blank:]]*#/d;s/#.*//' $3/$testN$zero.sample > sample
-                        DIFF1=$(diff -w sample output)
-                        if [ "$DIFF1" != "" ]
-                        then
-                            pass=0  
+                        ## If the output does not match the sample
+                        ## Try to see if there is an alternative sample
+                        ##
+                        if [ -f $3/$testN$zero.sample ]; then
+                            sed '/^[[:blank:]]*#/d;s/#.*//' $3/$testN$zero.sample > sample
+                            DIFF1=$(diff -w sample output)
+                            if [ "$DIFF1" != "" ]
+                            then
+                                pass=0  
+                            else
+                                pass=1
+                            fi
                         else
-                            pass=1
+                            pass=0
                         fi
                     else
-                        pass=0
+                        pass=1
                     fi
-                else
-                    pass=1
                 fi
-                    fi
+            else
+                ##
+                ## Empty output usually means gencode is commented out in the
+                ## main(). Here we try to uncomment gencode in parse.y and
+                ## rerun the autograder.
+                ## 
+                echo "Empty Output ==> gencode might be commented out!!"
+                if [[ "$1" == "./compiler" ]]; then
+                    echo "  ... backup parse.y ==> parse_orig.y ..."
+                    cp parse.y parse_orig.y
+                    echo "  ... uncomment gencode in parse.y ..."
+                    $AUTOGRADERDIR/uncomment_gencode.sh parse.y
+                    echo "  ... rerun the autograder ..."
+                    CURDIR=$(pwd)
+                    cd $AUTOGRADERDIR
+                    ./codegen_autograder.sh $CURDIR
                 else
-                    echo "Empty Output!!"
-                    pass=0
+                    echo "  ... parsc.c needs to be fixed ..."
+                    echo "  ... please fix it manually ..."
                 fi
+                ##
+                ## terminate the autograder when re-run completes
+                ## 
+                exit 0
             fi
         fi
 
@@ -196,7 +221,9 @@ gradeUnittest()
             ## When they are different, we might want to check the
             ## sample. But only the important section of the sample
             ##
-            sed -n '/begin Your code/,/begin Epilogue code/p' $3/"$testN.sample" | sed '1d;$d' 
+            sed -n '/begin Your code/,/begin Epilogue code/p' $3/"$testN.sample" |
+                sed '1d;$d' |
+                awk '{print NR ":" $0}'
         elif [ $pass == 1 ]
         then
             ##
@@ -205,22 +232,7 @@ gradeUnittest()
             echo -e "\xE2\x9C\x94"
         fi
     done
-    rm tmp_result output sample
-}
-
-
-
-gradeCodegen()
-{
-    ##
-    ## $1 the executable
-    ##
-    echo "################### graph1.pas ######################"
-    gradeUnittest $1 $TEST_GRAPH_DIR $SAMPLE_GRAPH_DIR
-
-    echo "################### pasrec.pas ######################"
-    gradeUnittest $1 $TEST_PASREC_DIR $SAMPLE_PASREC_DIR
-
+    rm -f tmp_* output sample
 }
 
 
@@ -238,14 +250,14 @@ gradeSingleStudent()
         sed -i 's/exprCanonicalization(parseresult);gencode/gencode/g' parse.y
         sed -i 's/\/\/yydebug/yydebug/g' parse.y
         if [[ -f "compiler" ]]; then
-            gradeCodegen ./compiler 
+            gradeUnittest ./compiler $TEST_DIR $SAMPLE_DIR
         else
             echo "Compilation error, compiler not found!"
         fi
     elif [[ -f "parsc.c" ]]; then
         make compc &> dump
         if [[ -f "compc" ]]; then
-            gradeCodegen ./compc
+            gradeUnittest ./compc $TEST_DIR $SAMPLE_DIR
         else
             echo "Compilation error, compc not found!"
         fi
