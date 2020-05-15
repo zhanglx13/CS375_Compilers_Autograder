@@ -214,8 +214,53 @@ gradeUnittest()
 
         if [ $pass == 0 ]
         then
+            ##
+            ## Count the diff lines and generate a simple report
+            ## at the end
+            ##
+            ##
+            ## Count the assembly code lines in the sample
+            ##
+            sL=$(countAsmLines $3/"$testN.sample")
+            sL=$(echo "$sL-2" | bc)
+            ##
+            ## Output diff
+            ##
             echo ">>>>>>>> DIFF <<<<<<<<"
-            diff -w sample output
+            diff -w sample output | tee tmp_diff
+            ##
+            ## tmp_diffN contains d and c diff line numbers only
+            ## tmp_sampleN contains the line numbers before d/c
+            ##
+            sed -n '/[[:digit:]][dc][[:digit:]]/p' tmp_diff > tmp_diffN
+            awk 'BEGIN {FS="[dc]"}{print $1}' tmp_diffN > tmp_sampleN
+            diffL=0
+            epilogue=0
+            while read -r line
+            do
+                ##
+                ## $beforeN stores the starting line number
+                ## $afterN stores the end line number
+                ##
+                beforeN=${line/,[0-9]*/}
+                afterN=${line/[0-9]*,/}
+                ##
+                ## Check if start line number is less than the total
+                ## number of assembly code. If so, increment $result
+                ##
+                if [[ $(echo "$beforeN <= $sL" | bc) -eq 1 ]];then
+                    diffL=$(echo "$diffL+$afterN-$beforeN+1" | bc)
+                else
+                    ##
+                    ## If the diff happens in the epilogue, only set
+                    ## the flag
+                    ## 
+                    epilogue=1
+                fi
+            done < tmp_sampleN
+            ##
+            ## Output sample
+            ##
             echo ">>>>>>>> Sample <<<<<<<<"
             ##
             ## When they are different, we might want to check the
@@ -224,6 +269,14 @@ gradeUnittest()
             sed -n '/begin Your code/,/begin Epilogue code/p' $3/"$testN.sample" |
                 sed '1d;$d' |
                 awk '{print NR ":" $0}'
+            ##
+            ## Output a report
+            ## 
+            echo ">>>>>>>> Report <<<<<<<<"
+            echo "wrong assembly code lines: $diffL / $sL"
+            if [[ $epilogue -eq 1 ]]; then
+                echo "something wrong in epilogue"
+            fi
         elif [ $pass == 1 ]
         then
             ##
