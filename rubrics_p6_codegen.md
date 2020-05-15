@@ -6,10 +6,10 @@
 github code using moss. 
 If you get caught, you will get a 0 for this project.**
 
-1. `graph1i.pas` ==> There are 12 unit tests in the graph1_test directory.
-    Samples are in the graph1_sample directory.
-2. `pasrec.pas` ==> There are 35 unit tests in the pasrec_test directory.
-    Samples are in the pasrec_sample directory.
+1. There are 47 unit tests in test_p6 directory. The first 35 tests 
+   (test00-test34) are from pasrec.pas and the last 12 tests (test35-test46)
+   are from graph1i.pas.
+2. The samples associated with each unit test can be found in the sample_p6 directory.
 3. Each unit test worths 2 points. The rest 6 points are free.
 4. You can get partial points (0.5, 1, 1.5) if your output is partially correct.
 5. The grade is based on these unittests. 
@@ -32,6 +32,9 @@ and run
 ./codegen_autograder.sh workingdir
 ```
 where `workingdir` is where you put all your code.
+
+**Remember to copy `printtoken.c`, `pprint.c`, and `print.h` from cs375_minimal
+directory into your workingdir before running the autograder.**
 
 ## Submissions
 
