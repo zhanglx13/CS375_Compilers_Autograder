@@ -32,7 +32,14 @@ Same as project 3 except p3 should be replaced with p5
 
 ## Project 6 Code generation for graph1.pas and pasrec.pas
 
-Same as the above projects except that the autograder is now **codegen_autograder.sh** and the project dir is always p6.
+After preparation, run the autograder on a single student dir as
+
+```
+./codegen_autograder.sh studentDir
+```
+The autograder for p6 does support batch mode of grading. 
+However, it just does not make sense to run all student codegen at the same time.
+
 
 # File Structures
 
@@ -47,10 +54,10 @@ Same as the above projects except that the autograder is now **codegen_autograde
 1. test_p1: each test (scantst_n.pas) corresponds to line n in scantst.pas excluding empty lines. This folder is used as the input tests for project 1 and 2
 2. sample_p1: sample output for each test in test_p1 using lexer. This is used as the sample for project 1
 3. sample_p2: sample output for each test in test_p1 using lex. This is used as the sample for project 2
-4. test_p5: unit tests extracted from pasrec.pasrec
+4. test_p5: unit tests extracted from pasrec.pas.
 5. sample_p5: samples for each test in test_p5. Note that if one test has multiple samples, the alternative samples should have the same name as the test with a number appended.
    E.g. test5_while.pas can have multiple samples: test5_while.sample and test5_while0.sample.
-6. graph1_test, graph1_sample, pasrec_test, pasrec_sample: unit tests and samples for the codegen project. Similarly, multiple samples for the same test are distinguished by the appended number to the sample name.
+6. test_p6, sample_p6: unit tests and samples for the codegen project. Similarly, multiple samples for the same test are distinguished by the appended number to the sample name.
 7. sample_trees: contains trivb.sample and graph1i.sample. These outputs are generated using the modified pprint.c, therefore, the layout and indentation of the output is different.
 
 ## Symbol Table Checker
@@ -59,11 +66,12 @@ Same as the above projects except that the autograder is now **codegen_autograde
 
 ## Utility scripts and files
 
-1. ./prepare.sh: Used to move students' code into ~/CS375_gradingDir
-2. ./copy.sh: used by ./prepare.sh to copy useful files from cs375_minimal into student's folder
-3. cs375_minimal: contains all other files that are necessary to build each project. Changes are made to makefile, pprint.c, and printtoken.c
+1. cs375_minimal: contains all other files that are necessary to build each project. Changes are made to makefile, pprint.c, and printtoken.c
+2. ./prepare.sh: Used to move students' code into ~/CS375_gradingDir
+3. ./copy.sh: used by ./prepare.sh to copy useful files from cs375_minimal into student's folder
 4. ./check_moss.sh: copy all students' code into a folder and use moss.sh to check plagiarism
 5. ./test_p5_hints.sh: hints about each unit test of project 5.
+6. ./uncomment_gencode.sh: uncomment gencode in given file.
 
 ## Project Rubrics
 
