@@ -196,7 +196,35 @@ gradeUnittest()
                     echo "  ... backup parse.y ==> parse_orig.y ..."
                     cp parse.y parse_orig.y
                     echo "  ... uncomment gencode in parse.y ..."
-                    $AUTOGRADERDIR/uncomment_gencode.sh parse.y
+                    #########################################################################
+                    ## The following two commands use GNU Sed, which has some              ## 
+                    ## extensions over the standard sed. Therefore, if MacOS               ##
+                    ## is used, make sure to install the gnu-sed.                          ##
+                    ##                                                                     ##
+                    ## Step 1: remove /*  */ around gencode                                ##
+                    ##                                                                     ##
+                    ## sed commands                                                        ##
+                    ## 1. This command works for multiple lines                            ##
+                    ## 2. 1{h;d} For the first line, put it into the hold space (h)        ##
+                    ##    and move on the next cycle without printing the pattern (d)      ##
+                    ## 3. For other lines, append the pattern into the hold space (H)      ##
+                    ##    and move on to the next cycle without printing the pattern (d)   ##
+                    ## 4. For the last line, swap contents in pattern space and hold       ##
+                    ##    space. And then do the replace.                                  ##
+                    ## 5. For the replace, [^a-zA-Z] makes it not match any comments       ##
+                    ##    before the gencode() line. Remember that sed regex matches       ##
+                    ##    the longest string.                                              ## 
+                    #########################################################################
+                    sed -n -i '1{h;d}; H;$!d; x ; s|/\*[^a-zA-Z]*\(gencode.*;\)[\n ]*\*/|\1|;p' parse.y
+                    #########################################################################
+                    ## Step 2: Remove // before gencode() at the same line                 ## 
+                    ##                                                                     ##
+                    ## sed commands                                                        ##
+                    ## 1. This only works for the gencode() line.                          ##
+                    ## 2. This command removes anything between // and gencode             ##
+                    ## 3. This command removes anything after gencode();                   ##
+                    #########################################################################
+                    sed -i 's|^\([ ]*\)//.*\(gencode.*;\).*|\1\2|' parse.y
                     echo "  ... rerun the autograder ..."
                     CURDIR=$(pwd)
                     cd $AUTOGRADERDIR
