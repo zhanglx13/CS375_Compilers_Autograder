@@ -35,6 +35,7 @@ for submittedFile in ./*
 do
     # get the student's name, which is the substring before '_'
     sname=$( echo $submittedFile | cut -d'_' -f1)
+    sname=${sname##*/}
     echo "processing student: $sname"
     if [ ! -d "$LOCAL_DIR/$sname" ];
     then
@@ -62,13 +63,19 @@ do
         zipFound=1
         fname=$(echo ${submittedFile%.*})
         fname=$(echo ${fname##*/})
-        echo "filename: $fname"
         ## Extract the zip package using the rename policy
         dtrx --one=rename $submittedFile
         ## Copy student's files
         ## cp will automatically ignore folders since we do not
-        ## specify -r 
-        cp $fname/* $LOCAL_DIR/$sname
+        ## specify -r
+        ## Only copy the file is it is not in the banarray
+        for f in $fname/*
+        do
+            ff=${f##*/}
+            if [[ ${banArray[$ff]} -eq 0 ]]; then
+                cp $f $LOCAL_DIR/$sname
+            fi
+        done
         ## Remove the unzipped dir
         rm -r $fname
     else
