@@ -7,7 +7,7 @@ SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 INC := -I include
 
-CXX := clang++
+CXX := clang++ -std=c++11
 CC  := clang
 CXXFLAGS := -pedantic-errors -Wall -Wextra -Werror
 
