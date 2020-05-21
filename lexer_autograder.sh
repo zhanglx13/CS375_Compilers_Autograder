@@ -63,7 +63,7 @@ if [[ $1 == "p1" ]];then
 elif [[ $1 == "p2" ]];then
     EXE=lexer
 fi
-
+printHeader=0
 
 
 ##
@@ -77,6 +77,57 @@ sArray=(
     [52]=1
     [53]=1
 )
+
+repeatPrint()
+{
+    # $1 char to repeat
+    # $2 times
+    for i in `seq 1 $2`
+    do
+        printf "$1"
+    done
+}
+printName()
+{
+    # $1 name to print
+    space=20
+    name="$1"
+    strLen=$(echo ${#name})
+    printf "\u250F"
+    totalLen=$(echo "$strLen+$space+$space" | bc)
+    repeatPrint "\u2501" $totalLen
+    printf "\u2513\n"
+    printf "\u2503"
+    repeatPrint " " $space
+    printf "%s" $WHO
+    repeatPrint " " $space
+    printf "\u2503\n"
+    printf "\u2517"
+    repeatPrint "\u2501" $totalLen
+    printf "\u251B\n"
+}
+
+printTest()
+{
+    # $1 test to print
+    # $2 the message to print on the same line of the test name
+    space=2
+    name="$1"
+    strLen=$(echo ${#name})
+    printf "\u2554"
+    totalLen=$(echo "$strLen+$space+$space" | bc)
+    repeatPrint "\u2550" $totalLen
+    printf "\u2557\n"
+    printf "\u2551"
+    repeatPrint " " $space
+    printf "%s" "$name"
+    repeatPrint " " $space
+    printf "\u2551  $2\n"
+    printf "\u255A"
+    repeatPrint "\u2550" $totalLen
+    printf "\u255D\n"
+}
+
 ##
 ## This function checks the special cases of p1
 ##
@@ -116,10 +167,12 @@ checkSpecial()
             ##
             ## If overflow message not found, then print error
             ##
-            echo ""
-            echo "$1"
-            echo ""
-            echo "=> Empty error message!!!"
+            if [[ $printHeader -eq 0 ]];then
+                printTest "scantst"
+                printHeader=1
+            fi
+            printf "\u25b6 %s\n" $1
+            echo "  Empty error message!!!"
             ((wronglines++))
             ##
             ## Note that for scantst_20, there are three
@@ -138,9 +191,11 @@ checkSpecial()
             egrep 'tokentype' $3 | awk 'NR>1' > sample_tmp
             DIFF=$(diff result_tmp sample_tmp)
             if [[ $DIFF != "" ]]; then
-                echo ""
-                echo "$1"
-                echo ""
+                if [[ $printHeader -eq 0 ]];then
+                    printTest "scantst"
+                    printHeader=1
+                fi
+                printf "\u25b6 %s\n" $1
                 echo "$DIFF"
                 ((wronglines++))
             fi
@@ -200,9 +255,11 @@ checkSpecial()
     if [[ $cmp -eq 1 ]]; then
         DIFF=$(diff $2 $3)
         if [[ $DIFF != "" ]]; then
-            echo ""
-            echo "$1"
-            echo ""
+            if [[ $printHeader -eq 0 ]];then
+                printTest "scantst"
+                printHeader=1
+            fi
+            printf "\u25b6 %s\n" $1
             echo "$DIFF"
             ((wronglines++))
         fi
@@ -216,13 +273,12 @@ checkSpecial()
 
 gradeSingleStudent()
 {
-    echo "######################  $WHO  #########################"
+    printName $WHO
     wronglines=0
     make $EXE &> compilation_dump
     if [[ -f "$EXE" ]];then
-        echo ">>>>>>>>>>"
-        echo "scantst:"
-        echo ">>>>>>>>>>"
+        #printTest "scantst"
+        printHeader=0
         for testInput in $TESTS
         do
             xbase=${testInput##*/}
@@ -242,13 +298,15 @@ gradeSingleStudent()
             ## If so, we simply print segfault for this test
             ##
             if [[ $? -eq 139 ]]; then
+                if [[ $printHeader -eq 0 ]];then
+                    printTest "scantst"
+                    printHeader=1
+                fi
                 ##
                 ## Seg fault
                 ##
-                echo ""
-                echo "$xpref"
-                echo ""
-                echo "=> Seg fault"
+                printf "\u25b6 %s\n" $xpref
+                echo "  Seg fault"
                 ((wronglines++))
             else
                 DIFF=$(diff result $SAMPLEDIR/$xpref.sample)
@@ -257,9 +315,11 @@ gradeSingleStudent()
                     if [[ $EXE -eq "lexanc" ]]; then
                         checkSpecial $xpref result $SAMPLEDIR/$xpref.sample
                     else
-                        echo ""
-                        echo "$xpref"
-                        echo ""
+                        if [[ $printHeader -eq 0 ]];then
+                            printTest "scantst"
+                            printHeader=1
+                        fi
+                        printf "\u25b6 %s\n" $xpref
                         echo "$DIFF"
                         ((wronglines++))
                     fi
@@ -267,7 +327,7 @@ gradeSingleStudent()
             fi
         done
         if [[ $wronglines -eq 0 ]]; then
-            echo -e "\xE2\x9C\x94"
+            printTest "scantst" "\u2714"
         else
             echo "Wrong lines: $wronglines"
         fi
@@ -279,16 +339,13 @@ gradeSingleStudent()
         ## as the DIFF for the last test case of scantst.pas, which is scantst_9
         ##
         DIFF=""
-        echo ""
-        echo ">>>>>>>>>>"
-        echo "graph1:"
-        echo ">>>>>>>>>>"
+        printHeader=0
 	    Msg=$(./$EXE < $FILEDIR/graph1.pas &> result)
         ##
         ## Check if the last command seg faults
         ##
         if [[ $? -eq 139 ]]; then
-            echo "=> Seg fault"
+            printTest "graph1 " "Seg fault!!"
         else
             if [[ $1 == "p1" ]]; then
                 DIFF=$(diff result graph1.lex)
@@ -297,9 +354,10 @@ gradeSingleStudent()
             fi
             if [ "$DIFF" != "" ]
             then
+                printTest "graph1 "
                 echo "$DIFF"
             else
-                echo -e "\xE2\x9C\x94"
+                printTest "graph1 " "\u2714"
             fi
         fi
         rm *.o result $EXE
@@ -342,9 +400,11 @@ else
             ##
             for student in $SUBDIR
             do
-                cd $student
-                WHO=${student##*/}
-                gradeSingleStudent
+                if [[ -d $student ]]; then
+                    cd $student
+                    WHO=${student##*/}
+                    gradeSingleStudent
+                fi
             done
         fi
     else

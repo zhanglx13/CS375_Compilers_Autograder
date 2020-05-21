@@ -98,6 +98,55 @@ AUTOGRADERDIR=$TOP_DIR
 TEST_DIR=$AUTOGRADERDIR/test_p6
 SAMPLE_DIR=$AUTOGRADERDIR/sample_p6
 
+repeatPrint()
+{
+    # $1 char to repeat
+    # $2 times
+    for i in `seq 1 $2`
+    do
+        printf "$1"
+    done
+}
+printName()
+{
+    # $1 name to print
+    space=10
+    name="$1"
+    strLen=$(echo ${#name})
+    printf "\u250F"
+    totalLen=$(echo "$strLen+$space+$space" | bc)
+    repeatPrint "\u2501" $totalLen
+    printf "\u2513\n"
+    printf "\u2503"
+    repeatPrint " " $space
+    printf "%s" $WHO
+    repeatPrint " " $space
+    printf "\u2503\n"
+    printf "\u2517"
+    repeatPrint "\u2501" $totalLen
+    printf "\u251B\n"
+}
+
+printTest()
+{
+    # $1 test to print
+    # $2 the message to print on the same line of the test name
+    space=2
+    name="$1"
+    strLen=$(echo ${#name})
+    printf "\u2554"
+    totalLen=$(echo "$strLen+$space+$space" | bc)
+    repeatPrint "\u2550" $totalLen
+    printf "\u2557\n"
+    printf "\u2551"
+    repeatPrint " " $space
+    printf "%s" "$name"
+    repeatPrint " " $space
+    printf "\u2551  $2\n"
+    printf "\u255A"
+    repeatPrint "\u2550" $totalLen
+    printf "\u255D\n"
+}
 
 countAsmLines()
 {
@@ -120,7 +169,6 @@ gradeUnittest()
     do
         testN=$(basename "$entry")
         testN="${testN%.*}"
-        echo "@@@@@@@@@@@@@@@@@@@@ testing $testN: @@@@@@@@@@@@@@@@@@@"
         Msg=$($1 < $entry &> tmp_err)
         ##
         ## Check seg fault 
@@ -128,9 +176,9 @@ gradeUnittest()
         if [[ $? -eq 139 ]];then
             syntaxErr=$(grep "syntax error" tmp_err)
             if [[ $syntaxErr ]]; then
-                echo "syntax error ==> seg fault!!"
+                printTest $testN "syntax error \u21D2 seg fault!!"
             else
-                echo "Seg Fault!!"
+                printTest $testN "Seg fault!!"
             fi
             pass=2
         else
@@ -154,7 +202,7 @@ gradeUnittest()
                 nL=$(countAsmLines tmp_result)
                 if [ $nL == "2" ]
                 then
-                    echo "No Assembly Code Generated!!"
+                    printTest $testN "No Assembly Code Generated!!"
                     pass=2
                 else
                     ##
@@ -191,9 +239,9 @@ gradeUnittest()
                 ## main(). Here we try to uncomment gencode in parse.y and
                 ## rerun the autograder.
                 ## 
-                echo "Empty Output ==> gencode might be commented out!!"
+                printf "Empty Output \u21D2 gencode might be commented out!!\n"
                 if [[ "$1" == "./compiler" ]]; then
-                    echo "  ... backup parse.y ==> parse_orig.y ..."
+                    printf "  ... backup parse.y \u21D2 parse_orig.y ...\n"
                     cp parse.y parse_orig.y
                     echo "  ... uncomment gencode in parse.y ..."
                     #########################################################################
@@ -228,7 +276,7 @@ gradeUnittest()
                     echo "  ... rerun the autograder ..."
                     CURDIR=$(pwd)
                     cd $AUTOGRADERDIR
-                    ./codegen_autograder.sh $CURDIR
+                    ./codegen_autograder.sh $CURDIR 1
                 else
                     echo "  ... parsc.c needs to be fixed ..."
                     echo "  ... please fix it manually ..."
@@ -242,6 +290,7 @@ gradeUnittest()
 
         if [ $pass == 0 ]
         then
+            printTest $testN
             ##
             ## Count the diff lines and generate a simple report
             ## at the end
@@ -254,7 +303,8 @@ gradeUnittest()
             ##
             ## Output diff
             ##
-            echo ">>>>>>>> DIFF <<<<<<<<"
+            repeatPrint "\u2500" 35 ## light horizontal line
+            printf "\n\u25b6 DIFF\n"
             diff -w sample output | tee tmp_diff
             ##
             ## tmp_diffN contains d and c diff line numbers only
@@ -289,18 +339,21 @@ gradeUnittest()
             ##
             ## Output sample
             ##
-            echo ">>>>>>>> Sample <<<<<<<<"
+            repeatPrint "\u2500" 70 ## light horizontal line
+            printf "\n\u25b6 Sample\n"
             ##
             ## When they are different, we might want to check the
             ## sample. But only the important section of the sample
             ##
             sed -n '/begin Your code/,/begin Epilogue code/p' $3/"$testN.sample" |
                 sed '1d;$d' |
-                awk '{print NR ":" $0}'
+                cat -n # simpler than the following awk command
+                #awk '{print NR ":" $0}'
             ##
             ## Output a report
             ## 
-            echo ">>>>>>>> Report <<<<<<<<"
+            repeatPrint "\u2500" 70 ## light horizontal line
+            printf "\n\u25b6 Report\n"
             echo "wrong assembly code lines: $diffL / $sL"
             if [[ $epilogue -eq 1 ]]; then
                 echo "something wrong in epilogue"
@@ -310,7 +363,7 @@ gradeUnittest()
             ##
             ## When PASS, print out the check mark
             ##
-            echo -e "\xE2\x9C\x94"
+            printTest $testN "\u2714"
         fi
     done
     rm -f tmp_* output sample
@@ -319,31 +372,39 @@ gradeUnittest()
 
 gradeSingleStudent()
 {
-    echo "######################  $WHO  #########################"
-
-    if [[ -f "parse.y" ]]; then
-        ## disable parser-tracing function
-        sed -i 's/yydebug/\/\/yydebug/g' parse.y
-        ## Canonicalize the parse tree before calling gencode
-        sed -i 's/gencode/exprCanonicalization(parseresult);gencode/g' parse.y
-        make compiler &> dump
-        ## Reverse source code modification after compilation
-        sed -i 's/exprCanonicalization(parseresult);gencode/gencode/g' parse.y
-        sed -i 's/\/\/yydebug/yydebug/g' parse.y
-        if [[ -f "compiler" ]]; then
-            gradeUnittest ./compiler $TEST_DIR $SAMPLE_DIR
+    ## $1: rerun mode
+    ##
+    ## Only print the student's name if the rerun mode is NOT set
+    if [[ $rerun -eq 0 ]]; then
+        printName $WHO
+    fi
+    if [[ -f "codegen.c" ]]; then
+        if [[ -f "parse.y" ]]; then
+            ## disable parser-tracing function
+            sed -i 's/yydebug/\/\/yydebug/g' parse.y
+            ## Canonicalize the parse tree before calling gencode
+            sed -i 's/gencode/exprCanonicalization(parseresult);gencode/g' parse.y
+            make compiler &> dump
+            ## Reverse source code modification after compilation
+            sed -i 's/exprCanonicalization(parseresult);gencode/gencode/g' parse.y
+            sed -i 's/\/\/yydebug/yydebug/g' parse.y
+            if [[ -f "compiler" ]]; then
+                gradeUnittest ./compiler $TEST_DIR $SAMPLE_DIR
+            else
+                echo "Compilation error, compiler not found!"
+            fi
+        elif [[ -f "parsc.c" ]]; then
+            make compc &> dump
+            if [[ -f "compc" ]]; then
+                gradeUnittest ./compc $TEST_DIR $SAMPLE_DIR
+            else
+                echo "Compilation error, compc not found!"
+            fi
         else
-            echo "Compilation error, compiler not found!"
-        fi
-    elif [[ -f "parsc.c" ]]; then
-        make compc &> dump
-        if [[ -f "compc" ]]; then
-            gradeUnittest ./compc $TEST_DIR $SAMPLE_DIR
-        else
-            echo "Compilation error, compc not found!"
+            echo "Parser file (parse.y or parsc.c) not found!"
         fi
     else
-        echo "Parser file (parse.y or parsc.c) not found!"
+        echo "codegen.c not found!"
     fi
     
     rm -f result dump
@@ -354,32 +415,14 @@ gradeSingleStudent()
 ##
 ## Start autograding process
 ##
-if [[ $# -eq 1 ]];
-then
-    if [ $1 == "p6" ];
-    then
-        ##
-        ## $1 is one of project number
-        ## invoke the all mode
-        ##
-        SUBDIR=~/CS375_gradingDir/*
-        for student in $SUBDIR
-        do
-            cd $student
-            WHO=${student##*/}
-            gradeSingleStudent
-            cd $TOP_DIR
-        done
-    else
-        ##
-        ## $1 is the student dir
-        ## invoke the single mode
-        ##
-        cd $1
-        WHO=$1
-        gradeSingleStudent
-        cd $TOP_DIR
-    fi
-else
-    echo "Usage: ./codegen_autograder.sh p6|studentDir"
+## $1: student dir
+## $2: if exist, the autograder is set to rerun mode
+##
+rerun=0
+if [[ $# -eq 2 ]]; then
+    rerun=1
 fi
+cd $1
+WHO=$1
+gradeSingleStudent $rerun
+cd $TOP_DIR
