@@ -1,0 +1,10 @@
+(program graph1
+(progn output)
+(progn (:= (aref (^ john) 32) 2)
+(:= (aref (^ john) 0) 19)
+(:= (aref (^ john) 8) mary)
+(:= (aref (^ john) 40) 4.000000e+04)
+(:= (aref (^ fred) 8) 0)
+(:= (aref (^ mary) 16) c)
+(:= sum (+ sum (aref (^ ptr) 0)))
+(:= ptr (aref (^ ptr) 8))))

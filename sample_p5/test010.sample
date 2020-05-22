@@ -1,0 +1,7 @@
+(program graph1
+(progn output)
+(progn (:= i 0)
+(label 1)
+(if (<> i 10)
+(progn (:= i (+ i 1))
+(goto 1)))))

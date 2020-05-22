@@ -1,0 +1,6 @@
+(program graph1
+(progn output)
+(progn (funcall write 'i = ')
+(funcall writelni i)
+(funcall write 'Fred loc im = ')
+(funcall writelnf 3.140000e+00)))

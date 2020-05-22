@@ -1,0 +1,6 @@
+(program graph1
+(progn output)
+(progn (:= (aref c 0) 1.000000e+00)
+(:= (aref c 8) 1.000000e+00)
+(:= (aref d 8)
+(aref c 8))))
