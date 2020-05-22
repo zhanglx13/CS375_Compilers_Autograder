@@ -273,7 +273,6 @@ checkSpecial()
 
 gradeSingleStudent()
 {
-    printName $WHO
     wronglines=0
     make $EXE &> compilation_dump
     if [[ -f "$EXE" ]];then
@@ -403,6 +402,7 @@ else
                 if [[ -d $student ]]; then
                     cd $student
                     WHO=${student##*/}
+                    printName $WHO
                     gradeSingleStudent
                 fi
             done
