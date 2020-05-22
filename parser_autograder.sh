@@ -182,6 +182,8 @@ checkUnittest()
             else
                 pass=1
             fi
+            ##################################################################
+            ## This method is not used now
             ##
             ## When the second argument is provided
             ## $2 is the number of possible samples that
@@ -191,21 +193,38 @@ checkUnittest()
             ## only when none of the previous samples are
             ## passed
             ##
-            if [[ $# -eq 2 ]]; then
-                START=0
-                i=$2
-                ((END=i-1))
-                for (( c=$START; c<$END; c++ ))
-                do
-                    if [[ $pass == 0 ]]; then
-                        temDIFF=$(diff -w $SAMPLEDIR/$1$c.sample result)
-                        if [ "$temDIFF" == "" ]
-                        then
-                            pass=1
-                        fi
-                    fi
-                done
+            #if [[ $# -eq 2 ]]; then
+            #    START=0
+            #    i=$2
+            #    ((END=i-1))
+            #    for (( c=$START; c<$END; c++ ))
+            #    do
+            #        if [[ $pass == 0 ]]; then
+            #            temDIFF=$(diff -w $SAMPLEDIR/$1$c.sample result)
+            #            if [ "$temDIFF" == "" ]
+            #            then
+            #                pass=1
+            #            fi
+            #        fi
+            #    done
+            #fi
+            #################################################################
+
+            #################################################################
+            ## When DIFF is not empty and there is another sample for this ##
+            ## test, we do another check.                                  ##
+            ## For now, only one more check is needed.                     ##
+            #################################################################
+            if [[ $pass -eq 0 ]] && [[ -f $SAMPLEDIR/$1"0".sample ]]; then
+                temDIFF=$(diff -w $SAMPLEDIR/$1"0".sample result)
+                if [ "$tmpDIFF" == "" ]
+                then
+                    pass=1
+                fi
             fi
+            ##
+            ## Output according to pass or not
+            ##
             if [ $pass == 0 ]
             then
                 diff -w $SAMPLEDIR/$1.sample result > msg
@@ -231,6 +250,13 @@ checkUnittest()
                     diffL=$(echo "$diffL+$afterN-$beforeN+1" | bc)
                 done < tmp_sampleN
                 sL=$(wc -l $SAMPLEDIR/$1.sample | awk '{print $1}')
+                ##
+                ## The first two lines will always be
+                ## (program graph1
+                ## (progn output)
+                ## and it is assumed these two line do not have diffs.
+                ##
+                sL=$(echo "$sL-2" | bc)
                 printf "$diffL / $sL\n"
                 cat msg
                 repeatPrint "\u2501" $lenMsg
@@ -239,7 +265,7 @@ checkUnittest()
                 printf "\u2714\n"
             fi
         else
-            printf "\n  Empty Output!!\n"
+            printf "empty output!!\n"
         fi
     fi
     rm -f result tmp_*
@@ -258,60 +284,38 @@ gradePasrec()
     ## we do not need to pass it as one of the arguments
     ##
     PARSER=$1
-    # test0: symbol table
-    printf "\u25b6 TEST 00:  "
-    Msg=$($PARSER < $TESTDIR/test00_symtab.pas &> test0_result)
-    if [[ $? -eq 139 ]];then
-        syntaxErr=$(grep "syntax error" test0_result)
-        if [[ $syntaxErr ]]; then
-            ## seg fault caused by syntax error
-            printf "syntax error \u21D2 seg fault!!\n"
+    for testNFullName in $TESTDIR/*
+    do
+        ## Remove path and extension
+        testN=${testNFullName##*/}
+        testN=${testN%.*}
+        testNo=${testN##test}
+        if [[ "$testN" == "test00" ]]; then
+            ##
+            ## Check symbol table
+            ##
+            printf "\u25b6 TEST 00:  "
+            Msg=$($PARSER < $TESTDIR/$testN.pas &> test0_result)
+            if [[ $? -eq 139 ]];then
+                syntaxErr=$(grep "syntax error" test0_result)
+                if [[ $syntaxErr ]]; then
+                    ## seg fault caused by syntax error
+                    printf "syntax error \u21D2 seg fault!!\n"
+                else
+                    printf "seg fault!!\n"
+                fi
+            else
+                checkSymbolTable test0_result $SAMPLEST_PASREC $ALIGN_PASREC
+            fi
+            rm -f test0_result
         else
-            printf "seg fault!!\n"
+            ##
+            ## Check other unit tests
+            ##
+            printf "\u25b6 TEST $testNo:  "
+            checkUnittest $testN
         fi
-    else
-        $PARSER < $TESTDIR/test00_symtab.pas > test0_result
-        checkSymbolTable test0_result $SAMPLEST_PASREC $ALIGN_PASREC
-        syntaxErr=$(grep "syntax error" test0_result)
-        if [[ $syntaxErr ]]; then
-            echo "  Found syntax error after symbol table!!"
-        fi
-    fi
-    rm -f test0_result
-    printf "\u25b6 TEST 01:  "
-    checkUnittest test01_newfun
-    printf "\u25b6 TEST 02:  "
-    checkUnittest test02_newfun
-    printf "\u25b6 TEST 03:  "
-    checkUnittest test03_simpleRec
-    printf "\u25b6 TEST 04:  "
-    checkUnittest test04_simpleRec
-    printf "\u25b6 TEST 05:  "
-    checkUnittest test05_hardRec
-    printf "\u25b6 TEST 06:  "
-    checkUnittest test06_hardRec
-    printf "\u25b6 TEST 07:  "
-    checkUnittest test07_hardRec
-    printf "\u25b6 TEST 08:  "
-    checkUnittest test08_arr
-    printf "\u25b6 TEST 09:  "
-    checkUnittest test09_arr
-    printf "\u25b6 TEST 10:  "
-    checkUnittest test10_arr
-    printf "\u25b6 TEST 11:  "
-    checkUnittest test11_arr
-    printf "\u25b6 TEST 12:  "
-    ##
-    ## Multiple samples due to label numbers
-    ##
-    checkUnittest test12_while 2
-    printf "\u25b6 TEST 13:  "
-    ##
-    ## Multiple samples due to label numbers
-    ##
-    checkUnittest test13_label 2
-    printf "\u25b6 TEST 14:  "
-    checkUnittest test14_write
+    done
 }
 
 gradeSingleStudent()
@@ -322,7 +326,13 @@ gradeSingleStudent()
     if [[ -f "parse.y" ]]; then
         ## disable parser-tracing function
         sed -i "s/yydebug/\/\/yydebug/g" parse.y
-        make parser &> dump
+        ##
+        ## Dump the stdout to compilation_dump
+        ## Dump the stderr to err_dump
+        ##
+        make parser > compilation_dump 2> err_dump
+        ## Revoke the change to parse.y
+        sed -i "s/\/\/yydebug/yydebug/g" parse.y
         if [[ -f "parser" ]]; then
             Msg=$(./parser < $INPUT)
             if [[ $? -eq 139 ]];then
@@ -337,6 +347,8 @@ gradeSingleStudent()
             fi
         else
             echo "Compilation error, parser not found!"
+            echo "Stderr:"
+            cat err_dump
         fi
     elif [[ -f "parsc.c" ]]; then
         make parsec &> dump
