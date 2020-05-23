@@ -1,4 +1,0 @@
-(program graph1
-(progn output)
-(progn (:= (aref people (+ (* i 32) -8)) 
-(aref (^ ptr) 24))))

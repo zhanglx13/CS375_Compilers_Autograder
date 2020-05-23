@@ -17,3 +17,13 @@ moss_checkDir
 compiler_issue
 
 bad_students
+
+*_deprecated
+
+*moss.sh
+
+toServer.sh
+todo.md
+
+gitrepo*
+test.sh

@@ -1,4 +1,0 @@
-(program graph1
-(progn output)
-(progn (:= (aref (^ john) 16) 3.340000e+02)
-(:= (aref (^ john) 24) 3.340000e+02)))
