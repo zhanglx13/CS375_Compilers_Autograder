@@ -36,7 +36,7 @@ else
         ## We need to go back to the autograder_dir
         ##
         cd $AUTOGRADER
-        ./copy.sh $1
+        ./scripts/copy.sh $1
     else
         echo "Please specify project as one of (p1,p2,p3,p4,p5,p6)"
     fi

@@ -58,11 +58,11 @@ fi
 ## Now everything is within range, run the autograder
 ##
 if [[ $pn -lt 3 ]]; then
-    ./lexer_autograder.sh p$pn $WD
+    ./scripts/lexer_autograder.sh p$pn $WD
 elif [[ $pn -lt 6 ]]; then
-    ./parser_autograder.sh p$pn $WD
+    ./scripts/parser_autograder.sh p$pn $WD
 else
-    ./codegen_autograder.sh $WD
+    ./scripts/codegen_autograder.sh $WD
 fi
 
 

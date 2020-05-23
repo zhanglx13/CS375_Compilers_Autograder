@@ -276,7 +276,7 @@ gradeUnittest()
                     echo "  ... rerun the autograder ..."
                     CURDIR=$(pwd)
                     cd $AUTOGRADERDIR
-                    ./codegen_autograder.sh $CURDIR 1
+                    ./scripts/codegen_autograder.sh $CURDIR 1
                 else
                     echo "  ... parsc.c needs to be fixed ..."
                     echo "  ... please fix it manually ..."
