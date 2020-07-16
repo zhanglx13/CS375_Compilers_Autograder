@@ -1,9 +1,9 @@
-graph1.pas
-graph1.lex
-graph1.lexer
-scantst.pas
-scantst.lex
-scantst.lexer
+#graph1.pas
+#graph1.lex
+#graph1.lexer
+#scantst.pas
+#scantst.lex
+#scantst.lexer
 p*_gradingDir
 
 *.zip
