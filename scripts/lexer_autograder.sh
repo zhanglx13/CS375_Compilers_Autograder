@@ -347,9 +347,9 @@ gradeSingleStudent()
             printTest "graph1 " "Seg fault!!"
         else
             if [[ $1 == "p1" ]]; then
-                DIFF=$(diff result graph1.lex)
+                DIFF=$(diff result $FILEDIR/graph1.lex)
             elif [[ $1 == "p2" ]]; then
-                DIFF=$(diff result graph1.lexer)
+                DIFF=$(diff result $FILEDIR/graph1.lexer)
             fi
             if [ "$DIFF" != "" ]
             then
@@ -392,7 +392,7 @@ else
             ##
             cd $2
             WHO=$2
-            gradeSingleStudent
+            gradeSingleStudent $1
         else
             ##
             ## all mode
@@ -403,7 +403,7 @@ else
                     cd $student
                     WHO=${student##*/}
                     printName $WHO
-                    gradeSingleStudent
+                    gradeSingleStudent $1
                 fi
             done
         fi
