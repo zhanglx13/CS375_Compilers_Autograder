@@ -58,8 +58,8 @@ do
     ## Check if the student has submitted a .zip file
     ##
     ext=$(echo ${submittedFile##*.})
-    if [[ $ext == "zip" ]]; then
-        echo "zip file found: $submittedFile"
+    if [[ $ext == "zip" ]] || [[ $ext == "tar" ]]; then
+        echo "zip or tar file found: $submittedFile"
         zipFound=1
         fname=$(echo ${submittedFile%.*})
         fname=$(echo ${fname##*/})
@@ -68,7 +68,7 @@ do
         ## Copy student's files
         ## cp will automatically ignore folders since we do not
         ## specify -r
-        ## Only copy the file is it is not in the banarray
+        ## Only copy the file if it is not in the banarray
         for f in $fname/*
         do
             ff=${f##*/}
