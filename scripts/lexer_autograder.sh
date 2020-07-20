@@ -92,19 +92,11 @@ printName()
     # $1 name to print
     space=20
     name="$1"
-    strLen=$(echo ${#name})
-    printf "\u250F"
-    totalLen=$(echo "$strLen+$space+$space" | bc)
-    repeatPrint "\u2501" $totalLen
-    printf "\u2513\n"
-    printf "\u2503"
+    printf "||\n||"
     repeatPrint " " $space
     printf "%s" $WHO
     repeatPrint " " $space
-    printf "\u2503\n"
-    printf "\u2517"
-    repeatPrint "\u2501" $totalLen
-    printf "\u251B\n"
+    printf "\n||\n"
 }
 
 printTest()
@@ -113,19 +105,9 @@ printTest()
     # $2 the message to print on the same line of the test name
     space=2
     name="$1"
-    strLen=$(echo ${#name})
-    printf "\u2554"
-    totalLen=$(echo "$strLen+$space+$space" | bc)
-    repeatPrint "\u2550" $totalLen
-    printf "\u2557\n"
-    printf "\u2551"
+    printf "|\n|"
     repeatPrint " " $space
-    printf "%s" "$name"
-    repeatPrint " " $space
-    printf "\u2551  $2\n"
-    printf "\u255A"
-    repeatPrint "\u2550" $totalLen
-    printf "\u255D\n"
+    printf "%s  $2\n|\n" "$name"
 }
 
 ##
@@ -171,7 +153,7 @@ checkSpecial()
                 printTest "scantst"
                 printHeader=1
             fi
-            printf "\u25b6 %s\n" $1
+            printf "%s\n" $1
             echo "  Empty error message!!!"
             ((wronglines++))
             ##
@@ -195,7 +177,7 @@ checkSpecial()
                     printTest "scantst"
                     printHeader=1
                 fi
-                printf "\u25b6 %s\n" $1
+                printf "%s\n" $1
                 echo "$DIFF"
                 ((wronglines++))
             fi
@@ -259,7 +241,7 @@ checkSpecial()
                 printTest "scantst"
                 printHeader=1
             fi
-            printf "\u25b6 %s\n" $1
+            printf "%s\n" $1
             echo "$DIFF"
             ((wronglines++))
         fi
@@ -290,7 +272,7 @@ gradeSingleStudent()
             ## received by bash is not. Therefore, we need to use Msg
             ## to wrap the signal message
             ##
-            Msg=$(timeout 2 ./$EXE < $testInput &> result)
+            Msg=$(timeout 3 ./$EXE < $testInput &> result)
             ##
             ## Since we are checking seg fault and time out, the exit status
             ## needs to be saved. Note that $? is the status of the last
@@ -310,7 +292,7 @@ gradeSingleStudent()
                 ##
                 ## Seg fault
                 ##
-                printf "\u25b6 %s\n" $xpref
+                printf "%s\n" $xpref
                 echo "  Seg fault"
                 ((wronglines++))
             ##
@@ -324,7 +306,7 @@ gradeSingleStudent()
                 ##
                 ## Timeout
                 ##
-                printf "\u25b6 %s\n" $xpref
+                printf "%s\n" $xpref
                 echo "  Timeout"
                 ((wronglines++))
             else
@@ -338,7 +320,7 @@ gradeSingleStudent()
                             printTest "scantst"
                             printHeader=1
                         fi
-                        printf "\u25b6 %s\n" $xpref
+                        printf "%s\n" $xpref
                         echo "$DIFF"
                         ((wronglines++))
                     fi
@@ -346,7 +328,7 @@ gradeSingleStudent()
             fi
         done
         if [[ $wronglines -eq 0 ]]; then
-            printTest "scantst" "\u2714"
+            printTest "scantst" "All Good!!"
         else
             echo "Wrong lines: $wronglines"
         fi
@@ -379,7 +361,7 @@ gradeSingleStudent()
                 printTest "graph1 "
                 echo "$DIFF"
             else
-                printTest "graph1 " "\u2714"
+                printTest "graph1 " "All Good!!"
             fi
         fi
         rm *.o result $EXE
