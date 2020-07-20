@@ -290,13 +290,19 @@ gradeSingleStudent()
             ## received by bash is not. Therefore, we need to use Msg
             ## to wrap the signal message
             ##
-            Msg=$(./$EXE < $testInput &> result)
+            Msg=$(timeout 2 ./$EXE < $testInput &> result)
+            ##
+            ## Since we are checking seg fault and time out, the exit status
+            ## needs to be saved. Note that $? is the status of the last
+            ## executed command.
+            ##
+            status=$?
             ##
             ## Then we check if the exit code of the last command
             ## is 139, which is SIGNAL 11, i.e. segmentation fault
             ## If so, we simply print segfault for this test
             ##
-            if [[ $? -eq 139 ]]; then
+            if [[ $status -eq 139 ]]; then
                 if [[ $printHeader -eq 0 ]];then
                     printTest "scantst"
                     printHeader=1
@@ -306,6 +312,20 @@ gradeSingleStudent()
                 ##
                 printf "\u25b6 %s\n" $xpref
                 echo "  Seg fault"
+                ((wronglines++))
+            ##
+            ## The exit status for timed out commands is 124
+            ##
+            elif [[ $status -eq 124 ]]; then
+                if [[ $printHeader -eq 0 ]];then
+                    printTest "scantst"
+                    printHeader=1
+                fi
+                ##
+                ## Timeout
+                ##
+                printf "\u25b6 %s\n" $xpref
+                echo "  Timeout"
                 ((wronglines++))
             else
                 DIFF=$(diff result $SAMPLEDIR/$xpref.sample)
@@ -339,12 +359,15 @@ gradeSingleStudent()
         ##
         DIFF=""
         printHeader=0
-	    Msg=$(./$EXE < $FILEDIR/graph1.pas &> result)
+	    Msg=$(timeout 3 ./$EXE < $FILEDIR/graph1.pas &> result)
+        status=$?
         ##
         ## Check if the last command seg faults
         ##
-        if [[ $? -eq 139 ]]; then
+        if [[ $status -eq 139 ]]; then
             printTest "graph1 " "Seg fault!!"
+        elif [[ $status -eq 124 ]]; then
+            printTest "graph1 " "Timed out!!"
         else
             if [[ $1 == "p1" ]]; then
                 DIFF=$(diff result $FILEDIR/graph1.lex)
