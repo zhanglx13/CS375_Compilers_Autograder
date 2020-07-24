@@ -24,19 +24,11 @@ printName()
     # $1 name to print
     space=20
     name="$1"
-    strLen=$(echo ${#name})
-    printf "\u250F"
-    totalLen=$(echo "$strLen+$space+$space" | bc)
-    repeatPrint "\u2501" $totalLen
-    printf "\u2513\n"
-    printf "\u2503"
+    printf "||\n||"
     repeatPrint " " $space
     printf "%s" $WHO
     repeatPrint " " $space
-    printf "\u2503\n"
-    printf "\u2517"
-    repeatPrint "\u2501" $totalLen
-    printf "\u251B\n"
+    printf "\n||\n"
 }
 
 printTest()
@@ -45,19 +37,9 @@ printTest()
     # $2 the message to print on the same line of the test name
     space=2
     name="$1"
-    strLen=$(echo ${#name})
-    printf "\u2554"
-    totalLen=$(echo "$strLen+$space+$space" | bc)
-    repeatPrint "\u2550" $totalLen
-    printf "\u2557\n"
-    printf "\u2551"
+    printf "|\n|"
     repeatPrint " " $space
-    printf "%s" "$name"
-    repeatPrint " " $space
-    printf "\u2551  $2\n"
-    printf "\u255A"
-    repeatPrint "\u2550" $totalLen
-    printf "\u255D\n"
+    printf "%s  $2\n|\n" "$name"
 }
 
 
@@ -94,12 +76,12 @@ checkSymbolTable()
         lines=$(cat msg | wc -l)
         if [ $lines == "0" ]
         then
-            printf "\u2714\n"
+            printf "All Good!!\n"
         else
             lenMsg=$(wc -L msg | awk '{print $1}')
             printf "\n"
             cat msg
-            repeatPrint "\u2501" $lenMsg
+            repeatPrint "-" $lenMsg
             printf "\n"
         fi
     else
@@ -116,7 +98,7 @@ checkSymbolTable()
 processResult()
 {
     printTest $INPUT
-    printf "\u25b6 Check symbol table:  "
+    printf "> Check symbol table:  "
     checkSymbolTable $1
     syntaxErr=$(grep "syntax error" $1)
     if [[ $syntaxErr ]]; then
@@ -126,7 +108,7 @@ processResult()
         ## Extract the parse tree
         ##
         sed -n "/(program graph1/,//p" $1 > tree_result
-        printf "\u25b6 Check parsing tree:  "
+        printf "> Check parsing tree:  "
         if [ -s tree_result ]
         then
             DIFF=$(diff -w $SAMPLE tree_result)
@@ -135,7 +117,7 @@ processResult()
                 printf "\n"
                 diff -w $SAMPLE tree_result
             else
-                printf "\u2714\n"
+                printf "All Good!!\n"
             fi
         else
             printf "Output tree not found!!\n"
@@ -160,13 +142,13 @@ checkUnittest()
             ##
             ## Seg fault caused by syntax error
             ##
-            printf "syntax error \u21D2 seg fault!!\n"
+            echo "syntax error ==> seg fault!!"
         else
             ##
             ## Seg fault caused by something else
             ## Probably an uninitialized basicdt of a token
             ## 
-            printf "seg fault!!\n"
+            echo "seg fault!!"
         fi
     else
         ##
@@ -259,10 +241,10 @@ checkUnittest()
                 sL=$(echo "$sL-2" | bc)
                 printf "$diffL / $sL\n"
                 cat msg
-                repeatPrint "\u2501" $lenMsg
+                repeatPrint "-" $lenMsg
                 printf "\n"
             else
-                printf "\u2714\n"
+                printf "All Good!!\n"
             fi
         else
             printf "empty output!!\n"
@@ -294,15 +276,15 @@ gradePasrec()
             ##
             ## Check symbol table
             ##
-            printf "\u25b6 TEST 00:  "
+            printf "> TEST 00:  "
             Msg=$($PARSER < $TESTDIR/$testN.pas &> test0_result)
             if [[ $? -eq 139 ]];then
                 syntaxErr=$(grep "syntax error" test0_result)
                 if [[ $syntaxErr ]]; then
                     ## seg fault caused by syntax error
-                    printf "syntax error \u21D2 seg fault!!\n"
+                    echo "syntax error ==> seg fault!!"
                 else
-                    printf "seg fault!!\n"
+                    echo "seg fault!!"
                 fi
             else
                 checkSymbolTable test0_result $SAMPLEST_PASREC $ALIGN_PASREC
@@ -312,7 +294,7 @@ gradePasrec()
             ##
             ## Check other unit tests
             ##
-            printf "\u25b6 TEST $testNo:  "
+            printf "> TEST $testNo:  "
             checkUnittest $testN
         fi
     done
@@ -321,7 +303,7 @@ gradePasrec()
 gradeSingleStudent()
 {
     ##
-    ## Compile student's code according to the submisions
+    ## Compile student's code according to the submissions
     ##    
     if [[ -f "parse.y" ]]; then
         ## disable parser-tracing function
