@@ -51,7 +51,7 @@ lex.yy.c: lexan.l token.h
 	lex lexan.l
 
 parsec: parsc.o lexanc.o scanner.o printtoken.o pprint.o symtab.o
-	$(CC) -o parsec parsc.o lexanc.o scanner.o printtoken.o pprint.o symtab.o
+	$(CC) -o parsec parsc.o lexanc.o scanner.o printtoken.o pprint.o symtab.o -lm
 
 parsc.o: parsc.c lexan.h token.h symtab.h parse.h
 	$(CC) -c parsc.c
