@@ -14,4 +14,4 @@
 .LC3:
 	.string	"Fred loc im = "
 
-        .ident  "CS 375 Compiler - Fall 2019"
+        .ident  "CS 375 Compiler - Fall 2020"

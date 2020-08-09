@@ -29,4 +29,4 @@
 .LC2:
 	.string	" "
 
-        .ident  "CS 375 Compiler - Fall 2019"
+        .ident  "CS 375 Compiler - Fall 2020"
