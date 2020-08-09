@@ -110,21 +110,13 @@ repeatPrint()
 printName()
 {
     # $1 name to print
-    space=10
+    space=20
     name="$1"
-    strLen=$(echo ${#name})
-    printf "\u250F"
-    totalLen=$(echo "$strLen+$space+$space" | bc)
-    repeatPrint "\u2501" $totalLen
-    printf "\u2513\n"
-    printf "\u2503"
+    printf "||\n||"
     repeatPrint " " $space
     printf "%s" $WHO
     repeatPrint " " $space
-    printf "\u2503\n"
-    printf "\u2517"
-    repeatPrint "\u2501" $totalLen
-    printf "\u251B\n"
+    printf "\n||\n"
 }
 
 printTest()
@@ -133,19 +125,11 @@ printTest()
     # $2 the message to print on the same line of the test name
     space=2
     name="$1"
-    strLen=$(echo ${#name})
-    printf "\u2554"
-    totalLen=$(echo "$strLen+$space+$space" | bc)
-    repeatPrint "\u2550" $totalLen
-    printf "\u2557\n"
-    printf "\u2551"
+    printf "|\n|"
     repeatPrint " " $space
-    printf "%s" "$name"
-    repeatPrint " " $space
-    printf "\u2551  $2\n"
-    printf "\u255A"
-    repeatPrint "\u2550" $totalLen
-    printf "\u255D\n"
+    echo "$1  $2"
+    echo "|"
+    #printf "%s  $2\n|\n" "$name"
 }
 
 countAsmLines()
@@ -169,6 +153,7 @@ gradeUnittest()
     do
         testN=$(basename "$entry")
         testN="${testN%.*}"
+        echo "entry: $entry"
         Msg=$($1 < $entry &> tmp_err)
         ##
         ## Check seg fault 
@@ -176,9 +161,10 @@ gradeUnittest()
         if [[ $? -eq 139 ]];then
             syntaxErr=$(grep "syntax error" tmp_err)
             if [[ $syntaxErr ]]; then
-                printTest $testN "syntax error \u21D2 seg fault!!"
+                printTest $testN "syntax error ==> seg fault!!"
             else
                 printTest $testN "Seg fault!!"
+                echo "so it seg faults???"
             fi
             pass=2
         else
@@ -239,9 +225,9 @@ gradeUnittest()
                 ## main(). Here we try to uncomment gencode in parse.y and
                 ## rerun the autograder.
                 ## 
-                printf "Empty Output \u21D2 gencode might be commented out!!\n"
+                echo "Empty Output ==> gencode might be commented out!!"
                 if [[ "$1" == "./compiler" ]]; then
-                    printf "  ... backup parse.y \u21D2 parse_orig.y ...\n"
+                    echo "  ... backup parse.y --> parse_orig.y ..."
                     cp parse.y parse_orig.y
                     echo "  ... uncomment gencode in parse.y ..."
                     #########################################################################
@@ -303,8 +289,8 @@ gradeUnittest()
             ##
             ## Output diff
             ##
-            repeatPrint "\u2500" 35 ## light horizontal line
-            printf "\n\u25b6 DIFF\n"
+            repeatPrint "-" 35 ## light horizontal line
+            printf "\n> DIFF\n"
             diff -w sample output | tee tmp_diff
             ##
             ## tmp_diffN contains d and c diff line numbers only
@@ -339,8 +325,8 @@ gradeUnittest()
             ##
             ## Output sample
             ##
-            repeatPrint "\u2500" 70 ## light horizontal line
-            printf "\n\u25b6 Sample\n"
+            repeatPrint "-" 70 ## light horizontal line
+            printf "\n> Sample\n"
             ##
             ## When they are different, we might want to check the
             ## sample. But only the important section of the sample
@@ -352,8 +338,8 @@ gradeUnittest()
             ##
             ## Output a report
             ## 
-            repeatPrint "\u2500" 70 ## light horizontal line
-            printf "\n\u25b6 Report\n"
+            repeatPrint "-" 70 ## light horizontal line
+            printf "\n> Report\n"
             echo "wrong assembly code lines: $diffL / $sL"
             if [[ $epilogue -eq 1 ]]; then
                 echo "something wrong in epilogue"
@@ -363,7 +349,7 @@ gradeUnittest()
             ##
             ## When PASS, print out the check mark
             ##
-            printTest $testN "\u2714"
+            printTest $testN "All Good!!"
         fi
     done
     rm -f tmp_* output sample
