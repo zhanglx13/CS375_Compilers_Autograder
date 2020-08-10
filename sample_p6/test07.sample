@@ -16,4 +16,4 @@
 	.long	0   	#  3.000000
 	.long	1074266112
 
-        .ident  "CS 375 Compiler - Fall 2020"
+        .ident  "CS 375 Compiler - Spring 2020"
