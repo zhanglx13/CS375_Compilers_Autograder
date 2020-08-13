@@ -250,7 +250,7 @@ checkUnittest()
             printf "empty output!!\n"
         fi
     fi
-    rm -f result tmp_*
+    rm -f result tmp_* msg
 }
 
 gradePasrec()
@@ -276,7 +276,7 @@ gradePasrec()
             ##
             ## Check symbol table
             ##
-            printf "> TEST 00:  "
+            printf "> TEST 00 (25):  "
             Msg=$($PARSER < $TESTDIR/$testN.pas &> test0_result)
             if [[ $? -eq 139 ]];then
                 syntaxErr=$(grep "syntax error" test0_result)
@@ -294,7 +294,7 @@ gradePasrec()
             ##
             ## Check other unit tests
             ##
-            printf "> TEST $testNo:  "
+            printf "> TEST $testNo (${points[$testNo]}):  "
             checkUnittest $testN
         fi
     done
@@ -374,6 +374,23 @@ pArray=(
     [p3]=1
     [p4]=1
     [p5]=1
+)
+
+declare -A points
+points=(
+    [00]=25
+    [01]=4
+    [02]=4
+    [03]=5
+    [04]=5
+    [05]=8
+    [06]=6
+    [07]=4
+    [08]=4
+    [09]=5
+    [10]=6
+    [11]=6
+    [12]=8
 )
 
 if [[ $# -eq 0 ]] || [[ $# -gt 2 ]];
