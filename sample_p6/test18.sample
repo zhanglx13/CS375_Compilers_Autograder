@@ -1,9 +1,6 @@
 # ------------------------- begin Your code -----------------------------
-	movq	-1016(%rbp),%rax     	#  john -> %rax
-	movsd	40(%rax),%xmm0         	#  ^.[40+%rax] -> %xmm0
-	movl	$96,%eax         	#  96 -> %eax
-	cltq	                  	#  sign-extend
-	movsd	%xmm0,-1296(%rbp,%rax)	#  %xmm0 -> ac[%rax]
+	leaq	.LC1(%rip),%rdi  	#  addr of literal .LC1
+	call	write@PLT          	#  write()
 # ----------------------- begin Epilogue code ---------------------------
 	movq	%r9, %rbx        # restore %rbx (callee-saved) from %r9
         leave
@@ -13,5 +10,8 @@
         .size   graph1, .-graph1
 # ----------------- end Epilogue; Literal data follows ------------------
         .section        .rodata
+	.align  4
+.LC1:
+	.string	"i = "
 
-        .ident  "CS 375 Compiler - Spring 2020"
+        .ident  "CS 375 Compiler - Fall 2020"

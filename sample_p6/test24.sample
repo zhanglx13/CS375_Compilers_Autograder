@@ -1,7 +1,8 @@
 # ------------------------- begin Your code -----------------------------
-	movq	-1000(%rbp),%rax     	#  fred -> %rax
-	movsd	24(%rax),%xmm0         	#  ^.[24+%rax] -> %xmm0
-	call	writelnf@PLT              	#  writelnf()
+	movl	$96,%eax         	#  96 -> %eax
+	cltq	                  	#  sign-extend
+	movsd	-192(%rbp,%rax),%xmm0         	#  ac[-192] -> %xmm0
+	movsd	%xmm0,-32(%rbp)     	#  %xmm0 -> y
 # ----------------------- begin Epilogue code ---------------------------
 	movq	%r9, %rbx        # restore %rbx (callee-saved) from %r9
         leave
@@ -12,4 +13,4 @@
 # ----------------- end Epilogue; Literal data follows ------------------
         .section        .rodata
 
-        .ident  "CS 375 Compiler - Spring 2020"
+        .ident  "CS 375 Compiler - Fall 2020"

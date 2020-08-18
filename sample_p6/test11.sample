@@ -1,7 +1,7 @@
 # ------------------------- begin Your code -----------------------------
-	movq	$0,%rax         	#  0 -> %rax
-	movq	-1000(%rbp),%rcx     	#  fred -> %rcx
-	movq	%rax,8(%rcx)         	#  %rax -> ^. [8+%rcx]
+	movl	-24(%rbp),%eax     	#  i -> %eax
+	cvtsi2sd	%eax,%xmm0    	#  float %eax -> %xmm0
+	movsd	%xmm0,-32(%rbp)     	#  %xmm0 -> x
 # ----------------------- begin Epilogue code ---------------------------
 	movq	%r9, %rbx        # restore %rbx (callee-saved) from %r9
         leave
@@ -12,4 +12,4 @@
 # ----------------- end Epilogue; Literal data follows ------------------
         .section        .rodata
 
-        .ident  "CS 375 Compiler - Spring 2020"
+        .ident  "CS 375 Compiler - Fall 2020"

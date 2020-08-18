@@ -1,7 +1,12 @@
 # ------------------------- begin Your code -----------------------------
-	movl	-1308(%rbp),%eax     	#  sum -> %eax
-	movl	%eax,%edi         	#  %eax -> %edi
-	call	writelni@PLT            #  writelni()
+	movsd	-32(%rbp),%xmm0     	#  x -> %xmm0
+	call	exp@PLT          	#  exp()
+	movsd	%xmm0,-8(%rbp)     	#  %xmm0 -> temp
+	movsd	-32(%rbp),%xmm0     	#  x -> %xmm0
+	call	sin@PLT          	#  sin()
+	movsd	-8(%rbp),%xmm1     	#  temp -> %xmm1
+	mulsd	%xmm0,%xmm1         	#  %xmm1 * %xmm0 -> %xmm1
+	movsd	%xmm1,-24(%rbp)     	#  %xmm1 -> y
 # ----------------------- begin Epilogue code ---------------------------
 	movq	%r9, %rbx        # restore %rbx (callee-saved) from %r9
         leave
@@ -12,4 +17,4 @@
 # ----------------- end Epilogue; Literal data follows ------------------
         .section        .rodata
 
-        .ident  "CS 375 Compiler - Spring 2020"
+        .ident  "CS 375 Compiler - Fall 2020"

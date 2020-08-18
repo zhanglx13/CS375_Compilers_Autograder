@@ -1,13 +1,19 @@
 # ------------------------- begin Your code -----------------------------
-	movq	-992(%rbp),%rax     	#  ptr -> %rax
-	movl	0(%rax),%ecx         	#  ^.[0+%rax] -> %ecx
-	movl	-1312(%rbp),%eax     	#  i -> %eax
-	movl	$48,%edx         	#  48 -> %edx
-	imull	%edx,%eax         	#  %eax * %edx -> %eax
-	movl	$-48,%edx         	#  -48 -> %edx
-	addl	%edx,%eax         	#  %eax + %edx -> %eax
-	cltq	                  	#  sign-extend
-	movl	%ecx,-976(%rbp,%rax)	#  %ecx -> people[%rax]
+	movl	$1,%eax         	#  1 -> %eax
+	movl	%eax,-32(%rbp)     	#  %eax -> n
+.L0:
+	movl	-32(%rbp),%eax     	#  n -> %eax
+	movl	$1,%ecx         	#  1 -> %ecx
+	subl	%ecx,%eax         	#  %eax - %ecx -> %eax
+	movl	%eax,-32(%rbp)     	#  %eax -> n
+	movl	-32(%rbp),%eax     	#  n -> %eax
+	movl	$0,%ecx         	#  0 -> %ecx
+	cmpl	%ecx,%eax           	#  compare %eax - %ecx
+	je	.L2 			#  jump if     ==
+	jmp	.L0 			#  jump 
+	jmp	.L3 			#  jump 
+.L2:
+.L3:
 # ----------------------- begin Epilogue code ---------------------------
 	movq	%r9, %rbx        # restore %rbx (callee-saved) from %r9
         leave
@@ -18,4 +24,4 @@
 # ----------------- end Epilogue; Literal data follows ------------------
         .section        .rodata
 
-        .ident  "CS 375 Compiler - Spring 2020"
+        .ident  "CS 375 Compiler - Fall 2020"

@@ -1,9 +1,21 @@
 # ------------------------- begin Your code -----------------------------
-	movl	-1308(%rbp),%eax     	#  sum -> %eax
-	movq	-992(%rbp),%rcx     	#  ptr -> %rcx
-	movl	0(%rcx),%edx         	#  ^.[0+%rcx] -> %edx
-	addl	%edx,%eax         	#  %eax + %edx -> %eax
-	movl	%eax,-1308(%rbp)     	#  %eax -> sum
+	movl	$0,%eax         	#  0 -> %eax
+	movl	%eax,-32(%rbp)     	#  %eax -> i
+.L0:
+	movl	-32(%rbp),%eax     	#  i -> %eax
+	movl	$32,%ecx         	#  32 -> %ecx
+	cmpl	%ecx,%eax           	#  compare %eax - %ecx
+	jle	.L2 			#  jump if     <=
+	jmp	.L3 			#  jump 
+.L2:
+	movl	$1,%eax         	#  1 -> %eax
+	movl	%eax,-28(%rbp)     	#  %eax -> n
+	movl	-32(%rbp),%eax     	#  i -> %eax
+	movl	$1,%ecx         	#  1 -> %ecx
+	addl	%ecx,%eax         	#  %eax + %ecx -> %eax
+	movl	%eax,-32(%rbp)     	#  %eax -> i
+	jmp	.L0 			#  jump 
+.L3:
 # ----------------------- begin Epilogue code ---------------------------
 	movq	%r9, %rbx        # restore %rbx (callee-saved) from %r9
         leave
@@ -14,4 +26,4 @@
 # ----------------- end Epilogue; Literal data follows ------------------
         .section        .rodata
 
-        .ident  "CS 375 Compiler - Spring 2020"
+        .ident  "CS 375 Compiler - Fall 2020"
