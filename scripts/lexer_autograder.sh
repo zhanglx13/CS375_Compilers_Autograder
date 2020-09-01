@@ -136,7 +136,7 @@ checkSpecial()
     ##
     ## Checks if the sample output contains scientific numbers
     ##
-    cnt=$(egrep -c '*[0-9]e[+|-]*' $3)
+    cnt=$($EGREP -c '*[0-9]e[+|-]*' $3)
     if [[ ${sArray[$num]} ]]; then
         ##
         ## Overflow special cases
@@ -144,7 +144,7 @@ checkSpecial()
         ##
         ## First, get the error message
         ##
-        errMsg=$(egrep -v tokentype $2 | egrep -v Started)
+        errMsg=$($EGREP -v tokentype $2 | $EGREP -v Started)
         if [[ $errMsg == "" ]]; then
             ##
             ## If overflow message not found, then print error
@@ -169,8 +169,8 @@ checkSpecial()
             ##
             ## grep tokentype lines and remove the first
             ##
-            egrep 'tokentype' $2 | awk 'NR>1' > result_tmp
-            egrep 'tokentype' $3 | awk 'NR>1' > sample_tmp
+            $EGREP 'tokentype' $2 | awk 'NR>1' > result_tmp
+            $EGREP 'tokentype' $3 | awk 'NR>1' > sample_tmp
             DIFF=$(diff result_tmp sample_tmp)
             if [[ $DIFF != "" ]]; then
                 if [[ $printHeader -eq 0 ]];then
@@ -190,7 +190,7 @@ checkSpecial()
         ## First check if student's output also has
         ## only one scientific number
         ##
-        myCnt=$(egrep -c '*[0-9]e[+|-]*' $2)
+        myCnt=$($EGREP -c '*[0-9]e[+|-]*' $2)
         if [[ $myCnt -ne $cnt ]];then
             cmp=1
         else
@@ -198,8 +198,8 @@ checkSpecial()
             ## Then we should take a close look at the
             ## line containing the scientific number
             ##
-            egrep '*[0-9]e[+|-]*' $3 > sampleLine
-            egrep '*[0-9]e[+|-]*' $2 > myLine
+            $EGREP '*[0-9]e[+|-]*' $3 > sampleLine
+            $EGREP '*[0-9]e[+|-]*' $2 > myLine
             ##
             ## Get tokentype, type, mantissa, and exponent
             ##
@@ -272,7 +272,7 @@ gradeSingleStudent()
             ## received by bash is not. Therefore, we need to use Msg
             ## to wrap the signal message
             ##
-            Msg=$(timeout 3 ./$EXE < $testInput &> result)
+            Msg=$($TIMEOUT 3 ./$EXE < $testInput &> result)
             ##
             ## Since we are checking seg fault and time out, the exit status
             ## needs to be saved. Note that $? is the status of the last
@@ -341,7 +341,7 @@ gradeSingleStudent()
         ##
         DIFF=""
         printHeader=0
-	    Msg=$(timeout 3 ./$EXE < $FILEDIR/graph1.pas &> result)
+	    Msg=$($TIMEOUT 3 ./$EXE < $FILEDIR/graph1.pas &> result)
         status=$?
         ##
         ## Check if the last command seg faults
@@ -379,6 +379,31 @@ pArray=(
     [p1]=1
     [p2]=1
 )
+
+##
+## Testing for MacOS
+## Check for gnu version of timeout and egrep
+##
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo ">>>>>>>>> Running the autograder on MacOS <<<<<<<<<<"
+    if hash gtimeout 2>/dev/null; then
+        TIMEOUT=gtimeout
+    else
+        echo "Please install gnu-timeout as follows:"
+        echo "  brew install coreutils"
+        exit 0
+    fi
+    if hash gegrep 2>/dev/null; then
+        EGREP=gegrep
+    else
+        echo "Please install gnu-grep as follows:"
+        echo "  brew install grep"
+        exit 0
+    fi
+else
+    TIMEOUT=timeout
+    EGREP=egrep
+fi
 
 if [[ $# -eq 0 ]] || [[ $# -gt 2 ]];
 then
