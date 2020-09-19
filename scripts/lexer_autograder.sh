@@ -1,58 +1,5 @@
 #! /usr/bin/env bash
 
-##
-## Read scantst.pas and write each line
-## as a separate file name as
-##     scantst_lineno.pas
-## where lineno is replaced by the line number
-##
-## Empty lines are ignored
-##
-## The result files are save in test_p1/
-##
-
-# lineno=1
-# while read -r line
-# do
-#     if [ ! -z "$line" ]
-#     then
-#         echo "$lineno: $line"
-#         echo "$line" > "./test_p1/scantst_$lineno.pas"
-#     fi
-#     ((lineno++))
-# done < scantst.pas
-
-
-##
-## Generate one possible set of samples using the solution
-##
-## The samples are saved in sample_p1/
-##
-
-# for entry in ./test_p1/*
-# do
-#     xpath=${entry%/*}
-#     xbase=${entry##*/}
-#     xfext=${xbase##*.}
-#     xpref=${xbase%.*}
-#     ./lexanc < $entry > "./sample_p1/$xpref.sample"
-# done
-
-##
-## Generate one possible set of samples using the solution
-##
-## The samples are saved in sample_p2/
-##
-
-# for entry in ./test_p1/*
-# do
-#     xpath=${entry%/*}
-#     xbase=${entry##*/}
-#     xfext=${xbase##*.}
-#     xpref=${xbase%.*}
-#     ./lexer < $entry > "./sample_p2/$xpref.sample"
-# done
-
 AUTOGRADERDIR=$(pwd)
 TESTS=$AUTOGRADERDIR/test_p1/*
 SAMPLEDIR=$AUTOGRADERDIR/sample_$1
@@ -150,7 +97,7 @@ checkSpecial()
             ## If overflow message not found, then print error
             ##
             if [[ $printHeader -eq 0 ]];then
-                printTest "scantst"
+                printTest " "
                 printHeader=1
             fi
             printf "%s\n" $1
@@ -174,7 +121,7 @@ checkSpecial()
             DIFF=$(diff result_tmp sample_tmp)
             if [[ $DIFF != "" ]]; then
                 if [[ $printHeader -eq 0 ]];then
-                    printTest "scantst"
+                    printTest " "
                     printHeader=1
                 fi
                 printf "%s\n" $1
@@ -238,7 +185,7 @@ checkSpecial()
         DIFF=$(diff $2 $3)
         if [[ $DIFF != "" ]]; then
             if [[ $printHeader -eq 0 ]];then
-                printTest "scantst"
+                printTest " "
                 printHeader=1
             fi
             printf "%s\n" $1
@@ -264,6 +211,7 @@ gradeSingleStudent()
         do
             xbase=${testInput##*/}
             xpref=${xbase%.*}
+            testF=${xpref%_*}
             ##
             ## Run the lexer and redirect stdout and stderr to result
             ##
@@ -286,7 +234,7 @@ gradeSingleStudent()
             ##
             if [[ $status -eq 139 ]]; then
                 if [[ $printHeader -eq 0 ]];then
-                    printTest "scantst"
+                    printTest " "
                     printHeader=1
                 fi
                 ##
@@ -300,7 +248,7 @@ gradeSingleStudent()
             ##
             elif [[ $status -eq 124 ]]; then
                 if [[ $printHeader -eq 0 ]];then
-                    printTest "scantst"
+                    printTest " "
                     printHeader=1
                 fi
                 ##
@@ -313,11 +261,16 @@ gradeSingleStudent()
                 DIFF=$(diff result $SAMPLEDIR/$xpref.sample)
                 if [ "$DIFF" != "" ]
                 then
-                    if [[ $EXE -eq "lexanc" ]]; then
+                    ##
+                    ## Since scantst and graph1 tests are merged into the same
+                    ## dir, we need to make sure we only check scientific numbers
+                    ## for the scantst tests.
+                    ##
+                    if [[ $EXE -eq "lexanc" ]] && [[ $testF -eq "scantst" ]]; then
                         checkSpecial $xpref result $SAMPLEDIR/$xpref.sample
                     else
                         if [[ $printHeader -eq 0 ]];then
-                            printTest "scantst"
+                            printTest " "
                             printHeader=1
                         fi
                         printf "%s\n" $xpref
@@ -328,42 +281,48 @@ gradeSingleStudent()
             fi
         done
         if [[ $wronglines -eq 0 ]]; then
-            printTest "scantst" "All Good!!"
+            printTest " " "All Good!!"
         else
             echo "Wrong lines: $wronglines"
         fi
-        ## Test graph1.pas
-        ##
-        ## Note that we need to empty DIFF before using it for testing graph1.pas
-        ## because DIFF=$(diff x y) will not update DIFF's content if x and y is
-        ## the same. In this case, the DIFF for the graph1.pas test will be the same
-        ## as the DIFF for the last test case of scantst.pas, which is scantst_9
-        ##
-        DIFF=""
-        printHeader=0
-	    Msg=$($TIMEOUT 3 ./$EXE < $FILEDIR/graph1.pas &> result)
-        status=$?
-        ##
-        ## Check if the last command seg faults
-        ##
-        if [[ $status -eq 139 ]]; then
-            printTest "graph1 " "Seg fault!!"
-        elif [[ $status -eq 124 ]]; then
-            printTest "graph1 " "Timed out!!"
-        else
-            if [[ $1 == "p1" ]]; then
-                DIFF=$(diff result $FILEDIR/graph1.lex)
-            elif [[ $1 == "p2" ]]; then
-                DIFF=$(diff result $FILEDIR/graph1.lexer)
-            fi
-            if [ "$DIFF" != "" ]
-            then
-                printTest "graph1 "
-                echo "$DIFF"
-            else
-                printTest "graph1 " "All Good!!"
-            fi
-        fi
+        ############################################################################
+        ## The testing for graph1.pas is deprecated since graph1 (together with   ##
+        ## pasrec.pas) is broken down into individual lines for unit testing.     ##
+        ##                                                                        ##
+        ## Test graph1.pas                                                        ##
+        ##                                                                        ##
+        ## Note that we need to empty DIFF before using it for testing graph1.pas ##
+        ## because DIFF=$(diff x y) will not update DIFF's content if x and y is  ##
+        ## the same. In this case, the DIFF for the graph1.pas test will be the   ##
+        ## same as the DIFF for the last test case of scantst.pas,                ##
+        ## which is scantst_9                                                     ##
+        ##                                                                        ##
+        # DIFF=""                                                                 ##
+        # printHeader=0                                                           ##
+	    # Msg=$($TIMEOUT 3 ./$EXE < $FILEDIR/graph1.pas &> result)                ##
+        # status=$?                                                               ##
+        # ##                                                                      ##
+        # ## Check if the last command seg faults                                 ##
+        # ##                                                                      ##
+        # if [[ $status -eq 139 ]]; then                                          ##
+        #     printTest "graph1 " "Seg fault!!"                                   ##
+        # elif [[ $status -eq 124 ]]; then                                        ##
+        #     printTest "graph1 " "Timed out!!"                                   ##
+        # else                                                                    ##
+        #     if [[ $1 == "p1" ]]; then                                           ##
+        #         DIFF=$(diff result $FILEDIR/graph1.lex)                         ##
+        #     elif [[ $1 == "p2" ]]; then                                         ##
+        #         DIFF=$(diff result $FILEDIR/graph1.lexer)                       ##
+        #     fi                                                                  ##
+        #     if [ "$DIFF" != "" ]                                                ##
+        #     then                                                                ##
+        #         printTest "graph1 "                                             ##
+        #         echo "$DIFF"                                                    ##
+        #     else                                                                ##
+        #         printTest "graph1 " "All Good!!"                                ##
+        #     fi                                                                  ##
+        # fi                                                                      ##
+        ############################################################################
         rm *.o result $EXE
     else
         echo "Does not compile"
