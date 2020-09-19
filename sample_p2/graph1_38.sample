@@ -1,0 +1,4 @@
+Started scanner test.
+yylex() =  260   tokentype:  5  type:     0            1
+yylex() =  287   tokentype:  1  which:    8           ..
+yylex() =  260   tokentype:  5  type:     0           10

@@ -1,0 +1,4 @@
+Started scanner test.
+yylex() =  258   tokentype:  3  value:                 d
+yylex() =  263   tokentype:  0  which:    3            *
+yylex() =  258   tokentype:  3  value:                 i

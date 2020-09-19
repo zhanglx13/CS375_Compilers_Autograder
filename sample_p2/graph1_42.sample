@@ -1,0 +1,4 @@
+Started scanner test.
+yylex() =  258   tokentype:  3  value:               ptr
+yylex() =  267   tokentype:  0  which:    7           <>
+yylex() =  302   tokentype:  2  which:   15          nil

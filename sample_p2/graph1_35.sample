@@ -1,0 +1,5 @@
+Started scanner test.
+yylex() =  258   tokentype:  3  value:                pp
+yylex() =  266   tokentype:  0  which:    6            =
+yylex() =  272   tokentype:  0  which:   12            ^
+yylex() =  258   tokentype:  3  value:            person

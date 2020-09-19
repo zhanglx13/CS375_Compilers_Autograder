@@ -1,0 +1,5 @@
+Started scanner test.
+yylex() =  258   tokentype:  3  value:           writeln
+yylex() =  283   tokentype:  1  which:    4            (
+yylex() =  259   tokentype:  4  value:                 *
+yylex() =  284   tokentype:  1  which:    5            )
