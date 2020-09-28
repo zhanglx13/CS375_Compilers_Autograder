@@ -62,7 +62,7 @@ checkSymbolTable()
     ##
     ## The following script is extracting anything between "Symbol table level 1"
     ## and "(program graph1" that starts with either a digit or '('
-    sed -n '/Symbol table level 1/,/(program graph1/{/^ *\([0-9]\+\|(\)/p}' $1 | sed '$d' > symtab_result
+    $SED -n '/Symbol table level 1/,/(program graph1/{/^ *\([0-9]\+\|(\)/p}' $1 | $SED '$d' > symtab_result
     ##
     ## Check the symbol table using the C++ checker
     ##
@@ -78,7 +78,7 @@ checkSymbolTable()
         then
             printf "All Good!!\n"
         else
-            lenMsg=$(wc -L msg | awk '{print $1}')
+            lenMsg=$(wc -L msg | $AWK '{print $1}')
             printf "\n"
             cat msg
             repeatPrint "-" $lenMsg
@@ -100,14 +100,14 @@ processResult()
     printTest $INPUT
     printf "> Check symbol table:  "
     checkSymbolTable $1
-    syntaxErr=$(grep "syntax error" $1)
+    syntaxErr=$($GREP "syntax error" $1)
     if [[ $syntaxErr ]]; then
         echo "  Found syntax error!!"
     else
         ##
         ## Extract the parse tree
         ##
-        sed -n "/(program graph1/,//p" $1 > tree_result
+        $SED -n "/(program graph1/,//p" $1 > tree_result
         printf "> Check parsing tree:  "
         if [ -s tree_result ]
         then
@@ -137,7 +137,7 @@ checkUnittest()
     ## Check seg fault 
     ##
     if [[ $? -eq 139 ]];then
-        syntaxErr=$(grep "syntax error" tmp_err)
+        syntaxErr=$($GREP "syntax error" tmp_err)
         if [[ $syntaxErr ]]; then
             ##
             ## Seg fault caused by syntax error
@@ -154,7 +154,7 @@ checkUnittest()
         ##
         ## If no seg fault, check empty output
         ##
-        $PARSER < $TESTDIR/$1.pas | sed -n "/(program/,//p" > result
+        $PARSER < $TESTDIR/$1.pas | $SED -n "/(program/,//p" > result
         if [ -s result ]
         then
             DIFF=$(diff -w $SAMPLEDIR/$1.sample result)
@@ -213,13 +213,13 @@ checkUnittest()
                 ##
                 ## Get the longest line length
                 ##
-                lenMsg=$(wc -L msg | awk '{print $1}')
+                lenMsg=$(wc -L msg | $AWK '{print $1}')
                 ##
                 ## tmp_diffN contains d and c diff line numbers only
                 ## tmp_sampleN contains the line numbers before d/c
                 ##
-                sed -n '/[[:digit:]][dc][[:digit:]]/p' msg > tmp_diffN
-                awk 'BEGIN {FS="[dc]"}{print $1}' tmp_diffN > tmp_sampleN
+                $SED -n '/[[:digit:]][dc][[:digit:]]/p' msg > tmp_diffN
+                $AWK 'BEGIN {FS="[dc]"}{print $1}' tmp_diffN > tmp_sampleN
                 diffL=0
                 while read -r line
                 do
@@ -231,7 +231,7 @@ checkUnittest()
                     afterN=${line/[0-9]*,/}
                     diffL=$(echo "$diffL+$afterN-$beforeN+1" | bc)
                 done < tmp_sampleN
-                sL=$(wc -l $SAMPLEDIR/$1.sample | awk '{print $1}')
+                sL=$(wc -l $SAMPLEDIR/$1.sample | $AWK '{print $1}')
                 ##
                 ## The first two lines will always be
                 ## (program graph1
@@ -279,7 +279,7 @@ gradePasrec()
             printf "> TEST 00 (25):  "
             Msg=$($PARSER < $TESTDIR/$testN.pas &> test0_result)
             if [[ $? -eq 139 ]];then
-                syntaxErr=$(grep "syntax error" test0_result)
+                syntaxErr=$($GREP "syntax error" test0_result)
                 if [[ $syntaxErr ]]; then
                     ## seg fault caused by syntax error
                     echo "syntax error ==> seg fault!!"
@@ -307,14 +307,14 @@ gradeSingleStudent()
     ##    
     if [[ -f "parse.y" ]]; then
         ## disable parser-tracing function
-        sed -i "s/yydebug/\/\/yydebug/g" parse.y
+        $SED -i "s/yydebug/\/\/yydebug/g" parse.y
         ##
         ## Dump the stdout to compilation_dump
         ## Dump the stderr to err_dump
         ##
         make parser > compilation_dump 2> err_dump
         ## Revoke the change to parse.y
-        sed -i "s/\/\/yydebug/yydebug/g" parse.y
+        $SED -i "s/\/\/yydebug/yydebug/g" parse.y
         if [[ -f "parser" ]]; then
             Msg=$(./parser < $INPUT)
             if [[ $? -eq 139 ]];then
@@ -392,6 +392,51 @@ points=(
     [11]=6
     [12]=8
 )
+
+##
+## Testing for MacOS
+## Check for gnu version of timeout and egrep
+##
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo ">>>>>>>>> Running the autograder on MacOS <<<<<<<<<<"
+    ## Check for timeout
+    # if hash gtimeout 2>/dev/null; then
+    #     TIMEOUT=gtimeout
+    # else
+    #     echo "Please install gnu-timeout as follows:"
+    #     echo "  brew install coreutils"
+    #     exit 0
+    # fi
+    ## Check gnu-grep
+    if hash ggrep 2>/dev/null; then
+        GREP=ggrep
+    else
+        echo "Please install gnu-grep as follows:"
+        echo "  brew install grep"
+        exit 0
+    fi
+    ## Check gnu-sed
+    if hash gsed 2>/dev/null; then
+        SED=gsed
+    else
+        echo "Please install gnu-sed as follows:"
+        echo "  brew install gnu-sed"
+        exit 0
+    fi
+    ## Check for gnu-awk
+    if hash gawk 2>/dev/null; then
+        AWK=gawk
+    else
+        echo "Please install gnu-awk as follows:"
+        echo "  brew install gawk"
+        exit 0
+    fi
+else
+    # TIMEOUT=timeout
+    GREP=grep
+    SED=sed
+    AWK=awk
+fi
 
 if [[ $# -eq 0 ]] || [[ $# -gt 2 ]];
 then
