@@ -334,9 +334,11 @@ double setPriority(TOKEN tok)
 void switchOperands(TOKEN op)
 {
     TOKEN lhs = op->operands;
+    if (lhs == NULL)
+        return;
     TOKEN rhs = lhs->link;
     /* return if unary operation */
-    if ((lhs == NULL) || (rhs == NULL))
+    if (rhs == NULL)
         return;
     /* return if any of the operands' priority is not set */
     if ((setPriority(lhs) == -1.0) || (setPriority(rhs) == -1.0))
