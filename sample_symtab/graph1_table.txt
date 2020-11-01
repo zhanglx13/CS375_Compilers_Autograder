@@ -1,0 +1,9 @@
+ 38050576           d  CONST  typ    REAL  val  6.250000e-02
+ 38050928           s  CONST  typ INTEGER  val  32
+ 38051280           h  CONST  typ INTEGER  val  34
+ 38051632           c  CONST  typ    REAL  val  6.283180e+00
+ 38051984         lim  CONST  typ INTEGER  val  32
+ 38052592           x  VAR    1 typ    real  lvl  1  siz     8  off     0
+ 38052688           y  VAR    1 typ    real  lvl  1  siz     8  off     8
+ 38053168           i  VAR    0 typ integer  lvl  1  siz     4  off    16
+ 38053264           n  VAR    0 typ integer  lvl  1  siz     4  off    20
