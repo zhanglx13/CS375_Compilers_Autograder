@@ -1,12 +1,17 @@
-{ unit test 02  label/goto}
+{ unit test 02 symbol table instrec}
 
 program graph1(output);
 label 1492, 1776;
-var i, sum : integer;
+type complex = record re, im: real end;
+     pp = ^ person;
+     person = record age:      integer;
+                     friend:   pp;
+                     location: complex;
+                     salary:   real end;
+var c, d                  : complex;
+    i                     : integer;
+    john, mary, fred, ptr : pp;
+    you, he, she, me      : person;
 begin
-   1492:
-        i := 0;
-   1776:
-        sum := i+1;
-   if sum < 3 then goto 1776
+   i := 1
 end.

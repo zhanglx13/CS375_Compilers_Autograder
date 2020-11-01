@@ -1,0 +1,4 @@
+(program graph1
+(progn output)
+(progn (:= (aref aco (+ (* i 12) -8)) 2)
+(:= (aref aco (+ (* j 12) -4)) 0)))

@@ -1,9 +1,18 @@
-{ unit test 11 A[const, const] }
+{ unit test 08 a^.b^.c }
 
 program graph1(output);
-type color = (red, white, blue);
-var aco: array[1..10, color] of color;
+type complex = record re, im: real end;
+     color = (red, white, blue);
+     pp = ^ person;
+     person = record age:      integer;
+                     friend:   pp;
+                     location: complex;
+                     favorite: color;
+                     salary:   real end;
+var john: pp;
 begin
-   aco[4,white] := blue;
-   aco[2,blue] := red
+   john^.friend^.age := 23;
+   john^.friend^.salary := 4500.0;
+   john^.friend^.location.im := 4.5;
+   john^.friend^.friend^.location.re := 3
 end.

@@ -1,10 +1,12 @@
-{ unit test 05  a.b}
+{ unit test 02  label/goto}
 
 program graph1(output);
-type complex = record er, mi: real end;
-var c,d: complex;
+label 1492, 1776;
+var i, sum : integer;
 begin
-   c.er := 1.0;
-   c.mi := 1;
-   d.mi := c.mi
+   1492:
+        i := 0;
+   1776:
+        sum := i+1;
+   if sum < 3 then goto 1776
 end.

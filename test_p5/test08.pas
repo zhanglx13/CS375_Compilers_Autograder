@@ -1,18 +1,10 @@
-{ unit test 08 a^.b^.c }
+{ unit test 05  a.b}
 
 program graph1(output);
-type complex = record re, im: real end;
-     color = (red, white, blue);
-     pp = ^ person;
-     person = record age:      integer;
-                     friend:   pp;
-                     location: complex;
-                     favorite: color;
-                     salary:   real end;
-var john: pp;
+type complex = record er, mi: real end;
+var c,d: complex;
 begin
-   john^.friend^.age := 23;
-   john^.friend^.salary := 4500.0;
-   john^.friend^.location.im := 4.5;
-   john^.friend^.friend^.location.re := 3
+   c.er := 1.0;
+   c.mi := 1;
+   d.mi := c.mi
 end.

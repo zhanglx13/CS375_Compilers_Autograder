@@ -1,4 +1,5 @@
 (program graph1
 (progn output)
-(progn (:= (aref (^ john) 16) 3.000000e+00)
-(:= (aref (^ john) 24) 4.500000e+00)))
+(progn (:= joh (funcall new 48))
+(:= mry (funcall new 48))
+(:= frd (funcall new 48))))

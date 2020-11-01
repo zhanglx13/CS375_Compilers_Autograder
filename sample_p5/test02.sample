@@ -1,8 +1,51 @@
-(program graph1
-(progn output)
-(progn (label 0)
-(:= i 0)
-(label 1)
-(:= sum (+ i 1))
-(if (< sum 3)
-(goto 1))))
+Symbol table level 1
+ 15597904     complex  TYPE   typ 15597808  lvl  1  siz    16  off     0
+(RECORD (re real)
+        (im real))
+ 15598416      person  TYPE   typ 15600272  lvl  1  siz    48  off     0
+(RECORD (age integer)
+        (friend (^ person))
+        (location (RECORD (re real)
+                          (im real)))
+        (salary real))
+ 15598512          pp  TYPE   typ 15598320  lvl  1  siz     8  off     0
+(^ person)
+ 15600816           c  VAR    0 typ 15597808  lvl  1  siz    16  off     0
+(RECORD (re real)
+        (im real))
+ 15600912           d  VAR    0 typ 15597808  lvl  1  siz    16  off    16
+(RECORD (re real)
+        (im real))
+ 15601264           i  VAR    0 typ integer  lvl  1  siz     4  off    32
+ 15602000        john  VAR    4 typ 15598320  lvl  1  siz     8  off    40
+(^ person)
+ 15602096        mary  VAR    4 typ 15598320  lvl  1  siz     8  off    48
+(^ person)
+ 15602192        fred  VAR    4 typ 15598320  lvl  1  siz     8  off    56
+(^ person)
+ 15602288         ptr  VAR    4 typ 15598320  lvl  1  siz     8  off    64
+(^ person)
+ 15603024         you  VAR    0 typ 15600272  lvl  1  siz    48  off    80
+(RECORD (age integer)
+        (friend (^ person))
+        (location (RECORD (re real)
+                          (im real)))
+        (salary real))
+ 15603120          he  VAR    0 typ 15600272  lvl  1  siz    48  off   128
+(RECORD (age integer)
+        (friend (^ person))
+        (location (RECORD (re real)
+                          (im real)))
+        (salary real))
+ 15603216         she  VAR    0 typ 15600272  lvl  1  siz    48  off   176
+(RECORD (age integer)
+        (friend (^ person))
+        (location (RECORD (re real)
+                          (im real)))
+        (salary real))
+ 15603312          me  VAR    0 typ 15600272  lvl  1  siz    48  off   224
+(RECORD (age integer)
+        (friend (^ person))
+        (location (RECORD (re real)
+                          (im real)))
+        (salary real))

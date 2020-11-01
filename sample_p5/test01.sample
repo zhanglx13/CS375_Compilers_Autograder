@@ -1,7 +1,9 @@
-(program graph1
-(progn output)
-(progn (:= i 0)
-(label 0)
-(if (<> i 10)
-(progn (:= i (+ i 1))
-(goto 0)))))
+Symbol table level 1
+ 140192870592960          pr  TYPE   typ 140192870592880  lvl  1  siz     8  off     0
+(^ real)
+ 140192870593440          pi  TYPE   typ 140192870593360  lvl  1  siz     8  off     0
+(^ integer)
+ 140192870593840           c  VAR    4 typ 140192870592880  lvl  1  siz     8  off     0
+(^ real)
+ 140192870594176           d  VAR    4 typ 140192870593360  lvl  1  siz     8  off     8
+(^ integer)

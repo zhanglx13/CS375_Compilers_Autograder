@@ -1,4 +1,4 @@
-{ unit test 09 A[constant].B }
+{ unit test 06 a^.b }
 
 program graph1(output);
 type complex = record re, im: real end;
@@ -9,11 +9,15 @@ type complex = record re, im: real end;
                      location: complex;
                      favorite: color;
                      salary:   real end;
-var ac: array[1..10] of complex;
-    people: array[1..20] of person;
+var c: complex; sum: integer;
+    john, mary, fred, ptr: pp;
 begin
-   ac[3].re := 3.4;
-   ac[5].im := 4.5;
-   people[13].age := 19;
-   people[15].salary := 100.0
+   john^.favorite := blue;
+   john^.age := 19;
+   john^.friend := mary;
+   john^.salary := 40000.0;
+   fred^.friend := nil;
+   mary^.location := c;
+   sum := sum + ptr^.age;
+   ptr := ptr^.friend
 end.

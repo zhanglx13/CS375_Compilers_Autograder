@@ -1,4 +1,4 @@
-{ unit test 07 a^.b.c }
+{ unit test 04 new function}
 
 program graph1(output);
 type complex = record re, im: real end;
@@ -7,10 +7,10 @@ type complex = record re, im: real end;
      person = record age:      integer;
                      friend:   pp;
                      location: complex;
-                     favorite: color;
-                     salary:   real end;
-var john: pp;
+                     favorite: color end;
+var joh, mry, frd: pp;
 begin
-   john^.location.re := 3;
-   john^.location.im := 4.5
+   new(joh);
+   new(mry);
+   new(frd)
 end.

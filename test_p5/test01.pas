@@ -1,11 +1,11 @@
-{ unit test 01  while loop}
+{ unit test 01 symbol table instpoint }
 
 program graph1(output);
-var i: integer;
+label 1492, 1776;
+type pr = ^ real;
+     pi = ^ integer;
+var c : pr; d : pi;
 begin
-   i := 0;
-   while i <> 10 do
-   begin
-      i := i + 1
-   end
+   c^ := 1.1;
+   d^ := 1
 end.

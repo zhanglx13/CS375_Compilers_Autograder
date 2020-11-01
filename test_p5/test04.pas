@@ -1,16 +1,11 @@
-{ unit test 04 new function}
+{ unit test 01  while loop}
 
 program graph1(output);
-type complex = record re, im: real end;
-     color = (red, white, blue);
-     pp = ^ person;
-     person = record age:      integer;
-                     friend:   pp;
-                     location: complex;
-                     favorite: color end;
-var joh, mry, frd: pp;
+var i: integer;
 begin
-   new(joh);
-   new(mry);
-   new(frd)
+   i := 0;
+   while i <> 10 do
+   begin
+      i := i + 1
+   end
 end.
