@@ -10,6 +10,8 @@ TOP_DIR=$(pwd)
 AUTOGRADERDIR=$TOP_DIR
 SYMTABCHECKER=$AUTOGRADERDIR/symTable/bin/check_symtab
 
+source $AUTOGRADERDIR/scripts/checksym.sh
+
 repeatPrint()
 {
     # $1 char to repeat
@@ -46,8 +48,48 @@ printTest()
 checkSymbolTable()
 {
     ##
-    ## $1 the result file to be processed
+    ## $1: the result file to be processed
+    ## $2: filename for target symbol table output
     ##
+    ## Extract anything between "Symbol table level 1"
+    ## and "(program graph1" that starts with either a digit or '('
+    $SED -n '/Symbol table level 1/,/(program graph1/{/^ *\([0-9]\+\|(\)/p}' $1 > symtab_result.tmp
+    ## Check if the parse tree is printed
+    if $GREP -q "(program graph1" symtab_result.tmp
+    then
+        ## If so, remove the (program graph1 line
+        $SED -i '$d' symtab_result.tmp
+    else
+        ## If not, print a warning message
+        echo "Warning: the parse tree is not found!!"
+        ##
+        ## What if only the first line of the parse tree is not printed?
+        ##
+    fi
+
+    if [ -s symtab_result.tmp ]
+    then
+        output=symtab_result.tmp
+        target=$2
+        pass=1
+        compareCONST > err_msg.tmp
+        processTYPE >> err_msg.tmp
+        processVAR >> err_msg.tmp
+
+        if [[ $pass -eq 1 ]];then
+            printf "All Good!!\n"
+        else
+            lenMsg=$($WC -L err_msg.tmp | $AWK '{print $1}')
+            printf "\n"
+            cat err_msg.tmp
+            repeatPrint "-" $lenMsg
+            printf "\n"
+        fi
+    else
+        printf "Symbol table not found!!\n"
+    fi
+    rm *.tmp
+
     ## Other parameters are set as global variables:
     ##
     ## $SYMTABCHECKER: the executable of the c++ symbol table checker
@@ -62,44 +104,45 @@ checkSymbolTable()
     ##
     ## The following script is extracting anything between "Symbol table level 1"
     ## and "(program graph1" that starts with either a digit or '('
-    $SED -n '/Symbol table level 1/,/(program graph1/{/^ *\([0-9]\+\|(\)/p}' $1 | $SED '$d' > symtab_result
+    #$SED -n '/Symbol table level 1/,/(program graph1/{/^ *\([0-9]\+\|(\)/p}' $1 | $SED '$d' > symtab_result
     ##
     ## Check the symbol table using the C++ checker
     ##
-    if [ -s symtab_result ]
-    then
-        if [[ $# -eq 1 ]]; then
-            $SYMTABCHECKER $SAMPLEST symtab_result $ALIGN > msg
-        else
-            $SYMTABCHECKER $2 symtab_result $3 > msg
-        fi
-        lines=$(cat msg | wc -l)
-        if [ $lines == "0" ]
-        then
-            printf "All Good!!\n"
-        else
-            lenMsg=$(wc -L msg | $AWK '{print $1}')
-            printf "\n"
-            cat msg
-            repeatPrint "-" $lenMsg
-            printf "\n"
-        fi
-    else
-        printf "Symbol table not found!!\n"
-    fi
-    rm -f symtab_result msg
+    # if [ -s symtab_result ]
+    # then
+    #     if [[ $# -eq 1 ]]; then
+    #         $SYMTABCHECKER $SAMPLEST symtab_result $ALIGN > msg
+    #     else
+    #         $SYMTABCHECKER $2 symtab_result $3 > msg
+    #     fi
+    #     lines=$(cat msg | wc -l)
+    #     if [ $lines == "0" ]
+    #     then
+    #         printf "All Good!!\n"
+    #     else
+    #         lenMsg=$(wc -L msg | $AWK '{print $1}')
+    #         printf "\n"
+    #         cat msg
+    #         repeatPrint "-" $lenMsg
+    #         printf "\n"
+    #     fi
+    # else
+    #     printf "Symbol table not found!!\n"
+    # fi
+    # rm -f symtab_result msg
 }
 
 ##
 ## This script grades parser output from p3 and p4
 ##
-## $1 parser output file
+## $1: parser output file
+## $2: sample symbol table output
 ##
 processResult()
 {
     printTest $INPUT
     printf "> Check symbol table:  "
-    checkSymbolTable $1
+    checkSymbolTable $1 $2
     syntaxErr=$($GREP "syntax error" $1)
     if [[ $syntaxErr ]]; then
         echo "  Found syntax error!!"
@@ -213,7 +256,7 @@ checkUnittest()
                 ##
                 ## Get the longest line length
                 ##
-                lenMsg=$(wc -L msg | $AWK '{print $1}')
+                lenMsg=$($WC -L msg | $AWK '{print $1}')
                 ##
                 ## tmp_diffN contains d and c diff line numbers only
                 ## tmp_sampleN contains the line numbers before d/c
@@ -231,7 +274,7 @@ checkUnittest()
                     afterN=${line/[0-9]*,/}
                     diffL=$(echo "$diffL+$afterN-$beforeN+1" | bc)
                 done < tmp_sampleN
-                sL=$(wc -l $SAMPLEDIR/$1.sample | $AWK '{print $1}')
+                sL=$($WC -l $SAMPLEDIR/$1.sample | $AWK '{print $1}')
                 ##
                 ## The first two lines will always be
                 ## (program graph1
@@ -259,8 +302,8 @@ gradePasrec()
     ## $1 is the parser executable: parser or parsec
     ##
     printTest "pasrec.pas"
-    SAMPLEST_PASREC=$AUTOGRADERDIR/symTable/sample/table/pasrec_table.txt
-    ALIGN_PASREC=$AUTOGRADERDIR/symTable/sample/align/pasrec_align.txt
+    #SAMPLEST_PASREC=$AUTOGRADERDIR/symTable/sample/table/pasrec_table.txt
+    #ALIGN_PASREC=$AUTOGRADERDIR/symTable/sample/align/pasrec_align.txt
     ##
     ## We set the executable as a global variable so that
     ## we do not need to pass it as one of the arguments
@@ -272,14 +315,15 @@ gradePasrec()
         testN=${testNFullName##*/}
         testN=${testN%.*}
         testNo=${testN##test}
-        if [[ "$testN" == "test00" ]]; then
+        printf "> TEST $testNo (${points[$testNo]}):  "
+        if [[ ${symbolTest[$testNo]} ]];
+        then
             ##
             ## Check symbol table
             ##
-            printf "> TEST 00 (25):  "
-            Msg=$($PARSER < $TESTDIR/$testN.pas &> test0_result)
+            Msg=$($PARSER < $TESTDIR/$testN.pas &> output.tmp)
             if [[ $? -eq 139 ]];then
-                syntaxErr=$($GREP "syntax error" test0_result)
+                syntaxErr=$($GREP "syntax error" output.tmp)
                 if [[ $syntaxErr ]]; then
                     ## seg fault caused by syntax error
                     echo "syntax error ==> seg fault!!"
@@ -287,14 +331,12 @@ gradePasrec()
                     echo "seg fault!!"
                 fi
             else
-                checkSymbolTable test0_result $SAMPLEST_PASREC $ALIGN_PASREC
+                checkSymbolTable output.tmp $SAMPLEDIR/$testN.sample
             fi
-            rm -f test0_result
         else
             ##
             ## Check other unit tests
             ##
-            printf "> TEST $testNo (${points[$testNo]}):  "
             checkUnittest $testN
         fi
     done
@@ -304,7 +346,7 @@ gradeSingleStudent()
 {
     ##
     ## Compile student's code according to the submissions
-    ##    
+    ##
     if [[ -f "parse.y" ]]; then
         ## disable parser-tracing function
         $SED -i "s/yydebug/\/\/yydebug/g" parse.y
@@ -321,7 +363,7 @@ gradeSingleStudent()
                 printTest $INPUT "Seg fault!!"
             else
                 ./parser < $INPUT &> result
-                processResult result
+                processResult result $SAMPLEST
             fi
 
             if [[ $LEVEL == 2 ]]; then
@@ -340,7 +382,7 @@ gradeSingleStudent()
                 echo "Seg Fault!!"
             else
                 ./parsec < $INPUT &> result
-                processResult result
+                processResult result $SAMPLEST
             fi
             if [[ $LEVEL == 2 ]]; then
                 gradePasrec ./parsec
@@ -351,7 +393,7 @@ gradeSingleStudent()
     else
         echo "Parser file (parse.y or parsc.c) not found!"
     fi
-    
+
     rm -f result dump
 }
 
@@ -378,19 +420,31 @@ pArray=(
 
 declare -A points
 points=(
-    [00]=25
-    [01]=4
-    [02]=4
-    [03]=5
-    [04]=5
-    [05]=8
-    [06]=6
-    [07]=4
-    [08]=4
-    [09]=5
-    [10]=6
-    [11]=6
-    [12]=8
+    [00]=4
+    [01]=5
+    [02]=8
+    [03]=8
+    [04]=4
+    [05]=4
+    [06]=5
+    [07]=5
+    [08]=8
+    [09]=6
+    [10]=4
+    [11]=4
+    [12]=5
+    [13]=6
+    [14]=6
+    [15]=8
+)
+
+declare -A symbolTest
+## The first 4 test for p5 is for symbol tables
+symbolTest=(
+    [00]=1
+    [01]=1
+    [02]=1
+    [03]=1
 )
 
 ##
@@ -431,11 +485,20 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "  brew install gawk"
         exit 0
     fi
+    ## Check for gnu-wc
+    if hash gwc 2>/dev/null; then
+        WC=gwc
+    else
+        echo "Please install gnu-wc as follows:"
+        echo "  brew install coreutils"
+        exit 0
+    fi
 else
     # TIMEOUT=timeout
     GREP=grep
     SED=sed
     AWK=awk
+    WC=wc
 fi
 
 if [[ $# -eq 0 ]] || [[ $# -gt 2 ]];
@@ -455,19 +518,19 @@ else
             LEVEL=0
             INPUT=trivb.pas
             SAMPLE=$AUTOGRADERDIR/sample_trees/trivb.sample
-            SAMPLEST=$AUTOGRADERDIR/symTable/sample/table/trivb_table.txt
+            SAMPLEST=$AUTOGRADERDIR/sample_symtab/trivb_table.txt
             ALIGN=$AUTOGRADERDIR/symTable/sample/align/trivb_align.txt
         elif [[ $1 == "p4" ]]; then
             LEVEL=1
             INPUT=graph1i.pas
             SAMPLE=$AUTOGRADERDIR/sample_trees/graph1i.sample
-            SAMPLEST=$AUTOGRADERDIR/symTable/sample/table/graph1_table.txt
+            SAMPLEST=$AUTOGRADERDIR/sample_symtab/graph1_table.txt
             ALIGN=$AUTOGRADERDIR/symTable/sample/align/graph1_align.txt
         elif [[ $1 == "p5" ]]; then
             LEVEL=2
             INPUT=graph1i.pas
             SAMPLE=$AUTOGRADERDIR/sample_trees/graph1i.sample
-            SAMPLEST=$AUTOGRADERDIR/symTable/sample/table/graph1_table.txt
+            SAMPLEST=$AUTOGRADERDIR/sample_symtab/graph1_table.txt
             ALIGN=$AUTOGRADERDIR/symTable/sample/align/graph1_align.txt
             TESTDIR=$AUTOGRADERDIR/test_p5
             SAMPLEDIR=$AUTOGRADERDIR/sample_p5
