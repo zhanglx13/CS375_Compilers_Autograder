@@ -1,4 +1,4 @@
-{ unit test 02  label/goto}
+{ unit test 05  label/goto}
 
 program graph1(output);
 label 1492, 1776;

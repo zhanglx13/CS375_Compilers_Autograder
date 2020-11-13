@@ -1,4 +1,4 @@
-{ unit test 03  write/writeln function}
+{ unit test 06  write/writeln function}
 
 program graph1(output);
 var i: integer;

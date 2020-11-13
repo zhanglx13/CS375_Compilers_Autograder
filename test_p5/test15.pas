@@ -1,4 +1,4 @@
-{ unit test 12 A[var const] }
+{ unit test 15 A[var const] }
 
 program graph1(output);
 type color = (red, white, blue);

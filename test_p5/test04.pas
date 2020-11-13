@@ -1,4 +1,4 @@
-{ unit test 01  while loop}
+{ unit test 04  while loop}
 
 program graph1(output);
 var i: integer;

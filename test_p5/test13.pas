@@ -1,4 +1,4 @@
-{ unit test 10 A[var].B }
+{ unit test 13 A[var].B }
 
 program graph1(output);
 type complex = record re, im: real end;

@@ -1,4 +1,4 @@
-{ unit test 04 new function}
+{ unit test 07 new function}
 
 program graph1(output);
 type complex = record re, im: real end;
