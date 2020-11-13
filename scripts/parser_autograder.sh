@@ -241,7 +241,8 @@ checkUnittest()
             ## For now, only one more check is needed.                     ##
             #################################################################
             if [[ $pass -eq 0 ]] && [[ -f $SAMPLEDIR/$1"0".sample ]]; then
-                temDIFF=$(diff -w $SAMPLEDIR/$1"0".sample result)
+                fext="0.sample"
+                tmpDIFF=$(diff -w $SAMPLEDIR/$1$fext result)
                 if [ "$tmpDIFF" == "" ]
                 then
                     pass=1
