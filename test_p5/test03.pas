@@ -1,7 +1,6 @@
 { unit test 03 symbol table instarray }
 
 program graph1(output);
-label 1492, 1776;
 type complex = record re, im: real end;
      color = (red, white, blue);
      pp = ^ person;

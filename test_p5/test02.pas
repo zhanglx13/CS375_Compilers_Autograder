@@ -1,7 +1,6 @@
 { unit test 02 symbol table instrec}
 
 program graph1(output);
-label 1492, 1776;
 type complex = record re, im: real end;
      pp = ^ person;
      person = record age:      integer;

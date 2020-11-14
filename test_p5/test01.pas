@@ -1,7 +1,6 @@
 { unit test 01 symbol table instpoint }
 
 program graph1(output);
-label 1492, 1776;
 type pr = ^ real;
      pi = ^ integer;
 var c : pr; d : pi;
