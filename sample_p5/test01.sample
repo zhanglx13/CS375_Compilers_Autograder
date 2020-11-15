@@ -1,9 +1,10 @@
 Symbol table level 1
- 140192870592960          pr  TYPE   typ 140192870592880  lvl  1  siz     8  off     0
+ 38522384          pr  TYPE   typ 38522288  lvl  1  siz     8  off     0
 (^ real)
- 140192870593440          pi  TYPE   typ 140192870593360  lvl  1  siz     8  off     0
+ 38522896          pi  TYPE   typ 38522800  lvl  1  siz     8  off     0
 (^ integer)
- 140192870593840           c  VAR    4 typ 140192870592880  lvl  1  siz     8  off     0
+ 38523312           c  VAR    4 typ 38522288  lvl  1  siz     8  off     0
 (^ real)
- 140192870594176           d  VAR    4 typ 140192870593360  lvl  1  siz     8  off     8
+ 38523664           d  VAR    4 typ 38522800  lvl  1  siz     8  off     8
 (^ integer)
+ 38524016           i  VAR    0 typ integer  lvl  1  siz     4  off    16
