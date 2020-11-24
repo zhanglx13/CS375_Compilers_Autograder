@@ -153,18 +153,18 @@ gradeUnittest()
     do
         testN=$(basename "$entry")
         testN="${testN%.*}"
-        echo "entry: $entry"
+        num=${testN#test}
+        testNPoints="$testN (${points[$num]})"
         Msg=$($1 < $entry &> tmp_err)
         ##
-        ## Check seg fault 
+        ## Check seg fault
         ##
         if [[ $? -eq 139 ]];then
             syntaxErr=$(grep "syntax error" tmp_err)
             if [[ $syntaxErr ]]; then
-                printTest $testN "syntax error ==> seg fault!!"
+                printTest "$testNPoints" "syntax error ==> seg fault!!"
             else
-                printTest $testN "Seg fault!!"
-                echo "so it seg faults???"
+                printTest "$testNPoints" "Seg fault!!"
             fi
             pass=2
         else
@@ -188,7 +188,7 @@ gradeUnittest()
                 nL=$(countAsmLines tmp_result)
                 if [ $nL == "2" ]
                 then
-                    printTest $testN "No Assembly Code Generated!!"
+                    printTest "$testNPoints" "No Assembly Code Generated!!"
                     pass=2
                 else
                     ##
@@ -208,7 +208,7 @@ gradeUnittest()
                             DIFF1=$(diff -w sample output)
                             if [ "$DIFF1" != "" ]
                             then
-                                pass=0  
+                                pass=0
                             else
                                 pass=1
                             fi
@@ -224,7 +224,7 @@ gradeUnittest()
                 ## Empty output usually means gencode is commented out in the
                 ## main(). Here we try to uncomment gencode in parse.y and
                 ## rerun the autograder.
-                ## 
+                ##
                 echo "Empty Output ==> gencode might be commented out!!"
                 if [[ "$1" == "./compiler" ]]; then
                     echo "  ... backup parse.y --> parse_orig.y ..."
@@ -269,14 +269,14 @@ gradeUnittest()
                 fi
                 ##
                 ## terminate the autograder when re-run completes
-                ## 
+                ##
                 exit 0
             fi
         fi
 
         if [ $pass == 0 ]
         then
-            printTest $testN
+            printTest "$testNPoints"
             ##
             ## Count the diff lines and generate a simple report
             ## at the end
@@ -318,7 +318,7 @@ gradeUnittest()
                     ##
                     ## If the diff happens in the epilogue, only set
                     ## the flag
-                    ## 
+                    ##
                     epilogue=1
                 fi
             done < tmp_sampleN
@@ -337,19 +337,19 @@ gradeUnittest()
                 #awk '{print NR ":" $0}'
             ##
             ## Output a report
-            ## 
+            ##
             repeatPrint "-" 70 ## light horizontal line
             printf "\n> Report\n"
             echo "wrong assembly code lines: $diffL / $sL"
             if [[ $epilogue -eq 1 ]]; then
-                echo "something wrong in epilogue"
+                echo "something wrong in literal data section"
             fi
         elif [ $pass == 1 ]
         then
             ##
             ## When PASS, print out the check mark
             ##
-            printTest $testN "All Good!!"
+            printTest "$testNPoints" "All Good!!"
         fi
     done
     rm -f tmp_* output sample
@@ -361,19 +361,19 @@ gradeSingleStudent()
     ## $1: rerun mode
     ##
     ## Only print the student's name if the rerun mode is NOT set
-    if [[ $rerun -eq 0 ]]; then
-        printName $WHO
-    fi
+    #if [[ $rerun -eq 0 ]]; then
+    #    printName $WHO
+    #fi
     if [[ -f "codegen.c" ]]; then
         if [[ -f "parse.y" ]]; then
             ## disable parser-tracing function
-            sed -i 's/yydebug/\/\/yydebug/g' parse.y
+            $SED -i 's/yydebug/\/\/yydebug/g' parse.y
             ## Canonicalize the parse tree before calling gencode
-            sed -i 's/gencode/exprCanonicalization(parseresult);gencode/g' parse.y
+            $SED -i 's/gencode/exprCanonicalization(parseresult);gencode/g' parse.y
             make compiler &> dump
             ## Reverse source code modification after compilation
-            sed -i 's/exprCanonicalization(parseresult);gencode/gencode/g' parse.y
-            sed -i 's/\/\/yydebug/yydebug/g' parse.y
+            $SED -i 's/exprCanonicalization(parseresult);gencode/gencode/g' parse.y
+            $SED -i 's/\/\/yydebug/yydebug/g' parse.y
             if [[ -f "compiler" ]]; then
                 gradeUnittest ./compiler $TEST_DIR $SAMPLE_DIR
             else
@@ -392,7 +392,6 @@ gradeSingleStudent()
     else
         echo "codegen.c not found!"
     fi
-    
     rm -f result dump
 }
 
@@ -404,6 +403,55 @@ gradeSingleStudent()
 ## $1: student dir
 ## $2: if exist, the autograder is set to rerun mode
 ##
+
+declare -A points
+points=(
+    [00]=2
+    [01]=2
+    [02]=2
+    [03]=3
+    [04]=3
+    [05]=3
+    [06]=3
+    [07]=3
+    [08]=3
+    [09]=3
+    [10]=3
+    [11]=2
+    [12]=2
+    [13]=3
+    [14]=4
+    [15]=4
+    [16]=4
+    [17]=2
+    [18]=3
+    [19]=3
+    [20]=3
+    [21]=3
+    [22]=5
+    [23]=5
+    [24]=5
+    [25]=6
+    [26]=6
+    [27]=5
+    [28]=5
+)
+
+##
+## Testing for MacOS
+##
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo ">>>>>>>>> Running the autograder on MacOS <<<<<<<<<<"
+    if hash gsed 2>/dev/null; then
+        SED=gsed
+    else
+        echo "Please install gnu-sed as follows:"
+        echo "  brew install gnu-sed"
+    fi
+else
+    SED=sed
+fi
+
 rerun=0
 if [[ $# -eq 2 ]]; then
     rerun=1
