@@ -1,6 +1,6 @@
-/* genasm.c       Generate Assembly Code for X86    ; 31 Jul 19   */
+/* genasm.c       Generate Assembly Code for X86    ; 13 Nov 20   */
 
-/* Copyright (c) 2019 Gordon S. Novak Jr. and The University of Texas at Austin
+/* Copyright (c) 2020 Gordon S. Novak Jr. and The University of Texas at Austin
     */
 
 /* Routines for use with CS 375 Code Generation assignment for X86. */
@@ -31,6 +31,7 @@
    08 Aug 12; 10 Aug 12; 13 Aug 12; 14 May 13; 09 Jul 13; 25 Apr 14
    02 May 14; 15 May 14; 17 Apr 15; 05 May 15; 07 May 15; 05 Feb 16
    10 Oct 16; 03 May 17; 11 Oct 17; 04 Dec 17; 11 Jan 18; 27 Nov 18
+   31 Jul 19; 02 May 20
   */
 
 #include <stdio.h>
@@ -120,7 +121,7 @@ char* bottomcodeb[] = {
   ""};
 
 char* bottomcodec[] = { 
-  "        .ident  \"CS 375 Compiler - Fall 2019\"",
+  "        .ident  \"CS 375 Compiler - Fall 2020\"",
   /* "        .section     .note.GNU-stack,\"\",@progbits", /* need this? */
   ""};
 

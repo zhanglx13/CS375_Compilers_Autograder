@@ -179,20 +179,25 @@ TOKEN makearef(TOKEN var, TOKEN off, TOKEN tok);
 /* reducedot handles a record reference.
    dot is a (now) unused token that is recycled. */
 TOKEN reducedot(TOKEN var, TOKEN dot, TOKEN field);
+// assert( var->symtype->kind == RECORDSYM );
 
 /* arrayref processes an array reference a[i]
    subs is a list of subscript expressions.
    tok and tokb are (now) unused tokens that are recycled. */
 TOKEN arrayref(TOKEN arr, TOKEN tok, TOKEN subs, TOKEN tokb);
+// assert( arr->symtype->kind == ARRAYSYM );
 
 /* dopoint handles a ^ operator.  john^ becomes (^ john) with type record
    tok is a (now) unused token that is recycled. */
 TOKEN dopoint(TOKEN var, TOKEN tok);
+//     assert( var->symtype->kind == POINTERSYM );
+//     assert( var->symtype->datatype->kind == TYPESYM );
 
 /* instarray installs an array declaration into the symbol table.
    bounds points to a SUBRANGE symbol table entry.
    The symbol table pointer is returned in token typetok. */
 TOKEN instarray(TOKEN bounds, TOKEN typetok);
+//     assert(bounds->symtype->kind == SUBRANGE );
 
 /* talloc allocates a new TOKEN record. */
 TOKEN talloc();
