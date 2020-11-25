@@ -12,7 +12,7 @@
 ## The autograder can be used for grading all students' code             ##
 ## (all mode) or a single student's code (single mode)                   ##
 ## according to the first argument                                       ##
-##                                                                       ## 
+##                                                                       ##
 ## Usage: ./codegen_autograder.sh p6|studentDir                          ##
 ##                                                                       ##
 ## gradeSingleStudent                                                    ##
@@ -137,7 +137,7 @@ countAsmLines()
     ##
     ## $1 is the output file
     ##
-    sed -n '/begin Your code/,/begin Epilogue code/p' $1 | wc -l
+    $SED -n '/begin Your code/,/begin Epilogue code/p' $1 | $WC -l
 }
 
 gradeUnittest()
@@ -176,7 +176,7 @@ gradeUnittest()
             ## phase, there will always be a seg fault when gencode is called.
             ## Therefore, the syntax error was caught in the previous case.
             ##
-            $1 < $entry | sed -n "/begin Your code/,//p" > tmp_result
+            $1 < $entry | $SED -n "/begin Your code/,//p" > tmp_result
             ##
             ## Check empty output
             ##
@@ -194,8 +194,8 @@ gradeUnittest()
                     ##
                     ## When diffing, we want to ignore comments
                     ##
-                    sed '/^[[:blank:]]*#/d;s/#.*//' tmp_result > output
-                    sed '/^[[:blank:]]*#/d;s/#.*//' $3/"$testN.sample" > sample
+                    $SED '/^[[:blank:]]*#/d;s/#.*//' tmp_result > output
+                    $SED '/^[[:blank:]]*#/d;s/#.*//' $3/"$testN.sample" > sample
                     DIFF=$(diff -w sample output)
                     if [ "$DIFF" != "" ]
                     then
@@ -204,7 +204,7 @@ gradeUnittest()
                         ## Try to see if there is an alternative sample
                         ##
                         if [ -f $3/$testN$zero.sample ]; then
-                            sed '/^[[:blank:]]*#/d;s/#.*//' $3/$testN$zero.sample > sample
+                            $SED '/^[[:blank:]]*#/d;s/#.*//' $3/$testN$zero.sample > sample
                             DIFF1=$(diff -w sample output)
                             if [ "$DIFF1" != "" ]
                             then
@@ -231,7 +231,7 @@ gradeUnittest()
                     cp parse.y parse_orig.y
                     echo "  ... uncomment gencode in parse.y ..."
                     #########################################################################
-                    ## The following two commands use GNU Sed, which has some              ## 
+                    ## The following two commands use GNU Sed, which has some              ##
                     ## extensions over the standard sed. Therefore, if MacOS               ##
                     ## is used, make sure to install the gnu-sed.                          ##
                     ##                                                                     ##
@@ -247,18 +247,18 @@ gradeUnittest()
                     ##    space. And then do the replace.                                  ##
                     ## 5. For the replace, [^a-zA-Z] makes it not match any comments       ##
                     ##    before the gencode() line. Remember that sed regex matches       ##
-                    ##    the longest string.                                              ## 
+                    ##    the longest string.                                              ##
                     #########################################################################
-                    sed -n -i '1{h;d}; H;$!d; x ; s|/\*[^a-zA-Z]*\(gencode.*;\)[\n ]*\*/|\1|;p' parse.y
+                    $SED -n -i '1{h;d}; H;$!d; x ; s|/\*[^a-zA-Z]*\(gencode.*;\)[\n ]*\*/|\1|;p' parse.y
                     #########################################################################
-                    ## Step 2: Remove // before gencode() at the same line                 ## 
+                    ## Step 2: Remove // before gencode() at the same line                 ##
                     ##                                                                     ##
                     ## sed commands                                                        ##
                     ## 1. This only works for the gencode() line.                          ##
                     ## 2. This command removes anything between // and gencode             ##
                     ## 3. This command removes anything after gencode();                   ##
                     #########################################################################
-                    sed -i 's|^\([ ]*\)//.*\(gencode.*;\).*|\1\2|' parse.y
+                    $SED -i 's|^\([ ]*\)//.*\(gencode.*;\).*|\1\2|' parse.y
                     echo "  ... rerun the autograder ..."
                     CURDIR=$(pwd)
                     cd $AUTOGRADERDIR
@@ -293,11 +293,11 @@ gradeUnittest()
             printf "\n> DIFF\n"
             diff -w sample output | tee tmp_diff
             ##
-            ## tmp_diffN contains d and c diff line numbers only
-            ## tmp_sampleN contains the line numbers before d/c
+            ## tmp_diffN contains d,c, and a diff line numbers only
+            ## tmp_sampleN contains the line numbers before d/c/a
             ##
-            sed -n '/[[:digit:]][dc][[:digit:]]/p' tmp_diff > tmp_diffN
-            awk 'BEGIN {FS="[dc]"}{print $1}' tmp_diffN > tmp_sampleN
+            $SED -n '/[[:digit:]][dca][[:digit:]]/p' tmp_diff > tmp_diffN
+            $AWK 'BEGIN {FS="[dca]"}{print $1}' tmp_diffN > tmp_sampleN
             diffL=0
             epilogue=0
             while read -r line
@@ -331,8 +331,8 @@ gradeUnittest()
             ## When they are different, we might want to check the
             ## sample. But only the important section of the sample
             ##
-            sed -n '/begin Your code/,/begin Epilogue code/p' $3/"$testN.sample" |
-                sed '1d;$d' |
+            $SED -n '/begin Your code/,/begin Epilogue code/p' $3/"$testN.sample" |
+                $SED '1d;$d' |
                 cat -n # simpler than the following awk command
                 #awk '{print NR ":" $0}'
             ##
@@ -447,9 +447,26 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     else
         echo "Please install gnu-sed as follows:"
         echo "  brew install gnu-sed"
+        exit 0
+    fi
+    if hash gawk 2>/dev/null; then
+        AWK=gawk
+    else
+        echo "Please install gnu-awk as follows:"
+        echo "  brew install gawk"
+        exit 0
+    fi
+    if hash gwc 2>/dev/null; then
+        WC=gwc
+    else
+        echo "Please install gnu-wc as follows:"
+        echo "  brew install coreutils"
+        exit 0
     fi
 else
     SED=sed
+    AWK=awk
+    WC=wc
 fi
 
 rerun=0
