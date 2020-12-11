@@ -18,12 +18,20 @@ compiler_issue
 
 bad_students
 
-*_deprecated
+deprecated*
 
 *moss.sh
 
 toServer.sh
 todo.md
 
-gitrepo*
 test.sh
+database
+test_p5_orig
+test_p5_hidden
+sample_p5_orig
+sample_p5_hidden
+*_hints.sh
+maketest.sh
+addToDatabase.sh
+scripts/gentest.sh
