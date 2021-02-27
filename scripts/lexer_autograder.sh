@@ -99,11 +99,11 @@ checkSpecial()
             ##
             ## If overflow message not found, then print error
             ##
-            if [[ $printHeader -eq 0 ]] && [[ $1 == 0 ]];then
+            if [[ $printHeader -eq 0 ]] && [[ $4 == 0 ]];then
                 printTest " "
                 printHeader=1
             fi
-            if [[ $1 == 0 ]]; then
+            if [[ $4 == 0 ]]; then
                 printf "%s\n" $1
                 echo "  Empty error message!!!"
             fi
@@ -125,11 +125,11 @@ checkSpecial()
             $EGREP 'tokentype' $3 | awk 'NR>1' > sample_tmp
             DIFF=$(diff result_tmp sample_tmp)
             if [[ $DIFF != "" ]]; then
-                if [[ $printHeader -eq 0 ]] && [[ $1 == 0 ]];then
+                if [[ $printHeader -eq 0 ]] && [[ $4 == 0 ]];then
                     printTest " "
                     printHeader=1
                 fi
-                if [[ $1 == 0 ]]; then
+                if [[ $4 == 0 ]]; then
                     printf "%s\n" $1
                     echo "$DIFF"
                 fi
@@ -191,11 +191,11 @@ checkSpecial()
     if [[ $cmp -eq 1 ]]; then
         DIFF=$(diff $2 $3)
         if [[ $DIFF != "" ]]; then
-            if [[ $printHeader -eq 0 ]] && [[ $1 == 0 ]];then
+            if [[ $printHeader -eq 0 ]] && [[ $4 == 0 ]];then
                 printTest " "
                 printHeader=1
             fi
-            if [[ $1 == 0 ]]; then
+            if [[ $4 == 0 ]]; then
                 printf "%s\n" $1
                 echo "$DIFF"
             fi
