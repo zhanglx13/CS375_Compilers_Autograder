@@ -3,6 +3,8 @@
 AUTOGRADERDIR=$(pwd)
 TESTS=$AUTOGRADERDIR/test_p1/*
 SAMPLEDIR=$AUTOGRADERDIR/sample_$1
+## Directory that contains all students submissions in batch mode
+## For TA use only
 SUBDIR=~/CS375_gradingDir/*
 FILEDIR=$AUTOGRADERDIR/cs375_minimal
 if [[ $1 == "p1" ]];then
@@ -68,6 +70,7 @@ printTest()
 ##   $1 testname, in the form of scantst_xx or trivb_1
 ##   $2 student output file
 ##   $3 sample output file
+##   $4 bmode indicator
 ##
 checkSpecial()
 {
@@ -96,12 +99,14 @@ checkSpecial()
             ##
             ## If overflow message not found, then print error
             ##
-            if [[ $printHeader -eq 0 ]];then
+            if [[ $printHeader -eq 0 ]] && [[ $1 == 0 ]];then
                 printTest " "
                 printHeader=1
             fi
-            printf "%s\n" $1
-            echo "  Empty error message!!!"
+            if [[ $1 == 0 ]]; then
+                printf "%s\n" $1
+                echo "  Empty error message!!!"
+            fi
             ((wronglines++))
             ##
             ## Note that for scantst_20, there are three
@@ -120,12 +125,14 @@ checkSpecial()
             $EGREP 'tokentype' $3 | awk 'NR>1' > sample_tmp
             DIFF=$(diff result_tmp sample_tmp)
             if [[ $DIFF != "" ]]; then
-                if [[ $printHeader -eq 0 ]];then
+                if [[ $printHeader -eq 0 ]] && [[ $1 == 0 ]];then
                     printTest " "
                     printHeader=1
                 fi
-                printf "%s\n" $1
-                echo "$DIFF"
+                if [[ $1 == 0 ]]; then
+                    printf "%s\n" $1
+                    echo "$DIFF"
+                fi
                 ((wronglines++))
             fi
         fi
@@ -184,12 +191,14 @@ checkSpecial()
     if [[ $cmp -eq 1 ]]; then
         DIFF=$(diff $2 $3)
         if [[ $DIFF != "" ]]; then
-            if [[ $printHeader -eq 0 ]];then
+            if [[ $printHeader -eq 0 ]] && [[ $1 == 0 ]];then
                 printTest " "
                 printHeader=1
             fi
-            printf "%s\n" $1
-            echo "$DIFF"
+            if [[ $1 == 0 ]]; then
+                printf "%s\n" $1
+                echo "$DIFF"
+            fi
             ((wronglines++))
         fi
     fi
@@ -199,13 +208,14 @@ checkSpecial()
     rm -f result_tmp sample_tmp myLine sampleLine
 }
 
-
+##
+## $1 batch mode indicator: 0 for single mode; 1 for batch mode
+##
 gradeSingleStudent()
 {
     wronglines=0
     make $EXE &> compilation_dump
     if [[ -f "$EXE" ]];then
-        #printTest "scantst"
         printHeader=0
         for testInput in $TESTS
         do
@@ -220,7 +230,7 @@ gradeSingleStudent()
             ## received by bash is not. Therefore, we need to use Msg
             ## to wrap the signal message
             ##
-            Msg=$($TIMEOUT 3 ./$EXE < $testInput &> result)
+            Msg=$($TIMEOUT 8 ./$EXE < $testInput &> result)
             ##
             ## Since we are checking seg fault and time out, the exit status
             ## needs to be saved. Note that $? is the status of the last
@@ -233,29 +243,33 @@ gradeSingleStudent()
             ## If so, we simply print segfault for this test
             ##
             if [[ $status -eq 139 ]]; then
-                if [[ $printHeader -eq 0 ]];then
+                if [[ $printHeader -eq 0 ]] && [[ $1 == 0 ]];then
                     printTest " "
                     printHeader=1
                 fi
                 ##
                 ## Seg fault
                 ##
-                printf "%s\n" $xpref
-                echo "  Seg fault"
+                if [[ $1 == 0 ]]; then
+                    printf "%s\n" $xpref
+                    echo "  Seg fault"
+                fi
                 ((wronglines++))
             ##
             ## The exit status for timed out commands is 124
             ##
             elif [[ $status -eq 124 ]]; then
-                if [[ $printHeader -eq 0 ]];then
+                if [[ $printHeader -eq 0 ]] && [[ $1 == 0 ]];then
                     printTest " "
                     printHeader=1
                 fi
                 ##
                 ## Timeout
                 ##
-                printf "%s\n" $xpref
-                echo "  Timeout"
+                if [[ $1 == 0 ]]; then
+                    printf "%s\n" $xpref
+                    echo "  Timeout"
+                fi
                 ((wronglines++))
             else
                 DIFF=$(diff result $SAMPLEDIR/$xpref.sample)
@@ -267,20 +281,22 @@ gradeSingleStudent()
                     ## for the scantst tests.
                     ##
                     if [[ $EXE -eq "lexanc" ]] && [[ $testF -eq "scantst" ]]; then
-                        checkSpecial $xpref result $SAMPLEDIR/$xpref.sample
+                        checkSpecial $xpref result $SAMPLEDIR/$xpref.sample $1
                     else
-                        if [[ $printHeader -eq 0 ]];then
+                        if [[ $printHeader -eq 0 ]] && [[ $1 == 0 ]];then
                             printTest " "
                             printHeader=1
                         fi
-                        printf "%s\n" $xpref
-                        echo "$DIFF"
+                        if [[ $1 == 0 ]]; then
+                            printf "%s\n" $xpref
+                            echo "$DIFF"
+                        fi
                         ((wronglines++))
                     fi
                 fi
             fi
         done
-        if [[ $wronglines -eq 0 ]]; then
+        if [[ $wronglines -eq 0 ]] && [[ $1 == 0 ]]; then
             printTest " " "All Good!!"
         else
             echo "Wrong lines: $wronglines"
@@ -338,6 +354,8 @@ pArray=(
     [p1]=1
     [p2]=1
 )
+## Batch mode flag
+bmode=0
 
 ##
 ## Testing for MacOS
@@ -381,18 +399,19 @@ else
             ##
             cd $2
             WHO=$2
-            gradeSingleStudent $1
+            gradeSingleStudent 0
         else
             ##
-            ## all mode
+            ## batch mode
             ##
+            bmode=1
             for student in $SUBDIR
             do
                 if [[ -d $student ]]; then
                     cd $student
                     WHO=${student##*/}
-                    printName $WHO
-                    gradeSingleStudent $1
+                    printf "%s: " $WHO
+                    gradeSingleStudent 1
                 fi
             done
         fi
