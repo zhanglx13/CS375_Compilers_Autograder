@@ -140,7 +140,8 @@ checkSymbolTable()
 ##
 processResult()
 {
-    printTest $INPUT
+    inputF=${INPUT##*/}
+    printTest $inputF
     printf "> Check symbol table:  "
     checkSymbolTable $1 $2
     syntaxErr=$($GREP "syntax error" $1)
@@ -517,22 +518,19 @@ else
         ##
         if [[ $1 == "p3" ]]; then
             LEVEL=0
-            INPUT=trivb.pas
+            INPUT=$AUTOGRADERDIR/cs375_minimal/trivb.pas
             SAMPLE=$AUTOGRADERDIR/sample_trees/trivb.sample
             SAMPLEST=$AUTOGRADERDIR/sample_symtab/trivb_table.txt
-            ALIGN=$AUTOGRADERDIR/symTable/sample/align/trivb_align.txt
         elif [[ $1 == "p4" ]]; then
             LEVEL=1
-            INPUT=graph1i.pas
+            INPUT=$AUTOGRADERDIR/cs375_minimal/graph1i.pas
             SAMPLE=$AUTOGRADERDIR/sample_trees/graph1i.sample
             SAMPLEST=$AUTOGRADERDIR/sample_symtab/graph1_table.txt
-            ALIGN=$AUTOGRADERDIR/symTable/sample/align/graph1_align.txt
         elif [[ $1 == "p5" ]]; then
             LEVEL=2
-            INPUT=graph1i.pas
+            INPUT=$AUTOGRADERDIR/cs375_minimal/graph1i.pas
             SAMPLE=$AUTOGRADERDIR/sample_trees/graph1i.sample
             SAMPLEST=$AUTOGRADERDIR/sample_symtab/graph1_table.txt
-            ALIGN=$AUTOGRADERDIR/symTable/sample/align/graph1_align.txt
             TESTDIR=$AUTOGRADERDIR/test_p5
             SAMPLEDIR=$AUTOGRADERDIR/sample_p5
         fi
