@@ -1,4 +1,6 @@
 (program graph1
 (progn output)
 (progn (:= (aref aco 40) 2)
-(:= (aref aco 20) 0)))
+(:= (aref aco 20) 0)
+(:= (aref acoX 40) 2)
+(:= (aref acoX 20) 0)))

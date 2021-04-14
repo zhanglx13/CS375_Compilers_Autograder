@@ -1,22 +1,25 @@
 Symbol table level 1
- 8074480         red  CONST  typ INTEGER  val  0
- 8074576      orange  CONST  typ INTEGER  val  1
- 8074672      yellow  CONST  typ INTEGER  val  2
- 8074768       green  CONST  typ INTEGER  val  3
- 8074864        cyan  CONST  typ INTEGER  val  4
- 8074960        blue  CONST  typ INTEGER  val  5
- 8075056      indigo  CONST  typ INTEGER  val  6
- 8075152      violet  CONST  typ INTEGER  val  7
- 8075248      purple  CONST  typ INTEGER  val  8
- 8075344     magenta  CONST  typ INTEGER  val  9
- 8075440        pink  CONST  typ INTEGER  val  10
- 8075536       brown  CONST  typ INTEGER  val  11
- 8075632       white  CONST  typ INTEGER  val  12
- 8075728        gray  CONST  typ INTEGER  val  13
- 8075824       black  CONST  typ INTEGER  val  14
- 8076080       color  TYPE   typ 8075984  lvl  1  siz     4  off     0
-  0 ..  14
- 8076624           c  VAR    0 typ 8075984  lvl  1  siz     4  off     0
-  0 ..  14
- 8076720           d  VAR    0 typ 8075984  lvl  1  siz     4  off     4
-  0 ..  14
+ 34907824   newcolor0  CONST  typ INTEGER  val  0
+ 34907920   newcolor1  CONST  typ INTEGER  val  1
+ 34908016   newcolor2  CONST  typ INTEGER  val  2
+ 34908112         red  CONST  typ INTEGER  val  3
+ 34908208      orange  CONST  typ INTEGER  val  4
+ 34908304      yellow  CONST  typ INTEGER  val  5
+ 34908400       green  CONST  typ INTEGER  val  6
+ 34908496        cyan  CONST  typ INTEGER  val  7
+ 34908592        blue  CONST  typ INTEGER  val  8
+ 34908688      indigo  CONST  typ INTEGER  val  9
+ 34908784      violet  CONST  typ INTEGER  val  10
+ 34908880      purple  CONST  typ INTEGER  val  11
+ 34908976     magenta  CONST  typ INTEGER  val  12
+ 34909072        pink  CONST  typ INTEGER  val  13
+ 34909168       brown  CONST  typ INTEGER  val  14
+ 34909264       white  CONST  typ INTEGER  val  15
+ 34909360        gray  CONST  typ INTEGER  val  16
+ 34909456       black  CONST  typ INTEGER  val  17
+ 34909712       color  TYPE   typ 34909616  lvl  1  siz     4  off     0
+  0 ..  17
+ 34910256           c  VAR    0 typ 34909616  lvl  1  siz     4  off     0
+  0 ..  17
+ 34910352           d  VAR    0 typ 34909616  lvl  1  siz     4  off     4
+  0 ..  17

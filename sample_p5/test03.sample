@@ -1,40 +1,52 @@
 Symbol table level 1
- 19910992     complex  TYPE   typ 19910896  lvl  1  siz    16  off     0
+ 16765008     complex  TYPE   typ 16764912  lvl  1  siz    16  off     0
 (RECORD (re real)
         (im real))
- 19911728         red  CONST  typ INTEGER  val  0
- 19911824       white  CONST  typ INTEGER  val  1
- 19911920        blue  CONST  typ INTEGER  val  2
- 19912176       color  TYPE   typ 19912080  lvl  1  siz     4  off     0
+ 16765744         red  CONST  typ INTEGER  val  0
+ 16765840       white  CONST  typ INTEGER  val  1
+ 16765936        blue  CONST  typ INTEGER  val  2
+ 16766192       color  TYPE   typ 16766096  lvl  1  siz     4  off     0
   0 ..   2
- 19912688      person  TYPE   typ 19914896  lvl  1  siz    48  off     0
+ 16766704      person  TYPE   typ 16768912  lvl  1  siz    48  off     0
 (RECORD (age integer)
         (friend (^ person))
         (location (RECORD (re real)
                           (im real)))
         (favorite   0 ..   2)
         (salary real))
- 19912784          pp  TYPE   typ 19912592  lvl  1  siz     8  off     0
+ 16766800          pp  TYPE   typ 16766608  lvl  1  siz     8  off     0
 (^ person)
- 19915888  complexArr  TYPE   typ 19915792  lvl  1  siz   160  off     0
+ 16769904  complexArr  TYPE   typ 16769808  lvl  1  siz   160  off     0
 (ARRAY   1 ..  10 (RECORD (re real)
                           (im real)))
- 19917104  colorArr2D  TYPE   typ 19917008  lvl  1  siz   120  off     0
+ 16771120  colorArr2D  TYPE   typ 16771024  lvl  1  siz   120  off     0
 (ARRAY   1 ..  10 (ARRAY   0 ..   2   0 ..   2))
- 19918096   personArr  TYPE   typ 19918000  lvl  1  siz   960  off     0
+ 16772112   personArr  TYPE   typ 16772016  lvl  1  siz   960  off     0
 (ARRAY   1 ..  20 (RECORD (age integer)
                           (friend (^ person))
                           (location (RECORD (re real)
                                             (im real)))
                           (favorite   0 ..   2)
                           (salary real)))
- 19918512           i  VAR    0 typ integer  lvl  1  siz     4  off     0
- 19918864          ac  VAR    0 typ 19915792  lvl  1  siz   160  off    16
+ 16773104  complexArrX  TYPE   typ 16773008  lvl  1  siz    80  off     0
+(ARRAY   2 ..   6 (RECORD (re real)
+                          (im real)))
+ 16774320  colorArr2DX  TYPE   typ 16774224  lvl  1  siz    60  off     0
+(ARRAY   2 ..   6 (ARRAY   0 ..   2   0 ..   2))
+ 16775312  personArrX  TYPE   typ 16775216  lvl  1  siz   720  off     0
+(ARRAY   2 ..  16 (RECORD (age integer)
+                          (friend (^ person))
+                          (location (RECORD (re real)
+                                            (im real)))
+                          (favorite   0 ..   2)
+                          (salary real)))
+ 16775728           i  VAR    0 typ integer  lvl  1  siz     4  off     0
+ 16776080          ac  VAR    0 typ 16769808  lvl  1  siz   160  off    16
 (ARRAY   1 ..  10 (RECORD (re real)
                           (im real)))
- 19919216         aco  VAR    0 typ 19917008  lvl  1  siz   120  off   176
+ 16776432         aco  VAR    0 typ 16771024  lvl  1  siz   120  off   176
 (ARRAY   1 ..  10 (ARRAY   0 ..   2   0 ..   2))
- 19919568      people  VAR    0 typ 19918000  lvl  1  siz   960  off   304
+ 16776784      people  VAR    0 typ 16772016  lvl  1  siz   960  off   304
 (ARRAY   1 ..  20 (RECORD (age integer)
                           (friend (^ person))
                           (location (RECORD (re real)

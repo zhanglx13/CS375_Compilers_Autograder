@@ -12,7 +12,7 @@ type complex = record re, im: real end;
 var john: pp;
 begin
    john^.friend^.age := 23;
-   john^.friend^.salary := 4500.0;
-   john^.friend^.location.im := 4.5;
-   john^.friend^.friend^.location.re := 3
+   john^.friend^.salary := 1200.0;
+   john^.friend^.location.im := 5.4;
+   john^.friend^.friend^.location.re := 97
 end.

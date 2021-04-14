@@ -1,6 +1,6 @@
 (program graph1
 (progn output)
-(progn (:= (aref ac 32) 3.400000e+00)
-(:= (aref ac 72) 4.500000e+00)
-(:= (aref people 576) 19)
-(:= (aref people 712) 1.000000e+02)))
+(progn (:= (aref ac 72) 4.500000e+00)
+(:= (aref people 712) 1.000000e+02)
+(:= (aref acX 88) 5.400000e+00)
+(:= (aref peopleX 568) 1.234000e+03)))
