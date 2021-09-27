@@ -165,7 +165,7 @@ compareSingleVAR()
     ## Check size and underlying type
     sz=$($AWK -v name="^$1$" '$2 ~ name{print $10}' $target)
     mysz=$($AWK -v name="^$1$" '$2 ~ name{print $10}' $output)
-    if [ -z $mysz ]
+    if [ -z "$mysz" ]
     then
         echo "Incorrect VAR $1 (missing)"
         pass=0
