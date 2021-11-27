@@ -50,6 +50,7 @@
 /* BASEOFFSET is the offset for the first variable */
 #define BASEOFFSET 0
 
+int    DEBUG = 0;
 int    blocknumber = 0;       /* Number of current block being compiled */
 int    contblock[MAXBLOCKS];  /* Containing block for each block        */
 int    blockoffs[MAXBLOCKS];  /* Storage offsets for each block         */

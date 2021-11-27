@@ -121,7 +121,7 @@ void initsyms(void);    /* initializes pre-defined symbols */
 /* alignsize returns the required alignment boundary for a type  */
 int alignsize(SYMBOL sym);
 
-int DEBUG;
-int blocknumber;           /* Number of current block being compiled */
-int blockoffs[MAXBLOCKS];  /* Storage offsets for each block         */
-int basicsizes[5];
+extern int DEBUG;
+extern int blocknumber;           /* Number of current block being compiled */
+extern int blockoffs[MAXBLOCKS];  /* Storage offsets for each block         */
+extern int basicsizes[5];
