@@ -13,4 +13,4 @@
 # ----------------- end Epilogue; Literal data follows ------------------
         .section        .rodata
 
-        .ident  "CS 375 Compiler - Fall 2020"
+        .ident  "CS 375 Compiler - Fall 2021"
