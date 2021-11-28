@@ -4,16 +4,18 @@ set -e
 
 printUsage()
 {
-    echo "Usage: ./grade.sh -p n -d dir"
+    echo "Usage: ./grade.sh -p n -d dir [-t u]"
     echo "  n:   project number starting from 1 to 6"
     echo "  dir: working dir"
+    echo "  u:   unit test number"
 }
 
 OPTIND=1
 
 pn=0
 WD=""
-while getopts "p:d:h" opt; do
+singleTest=0
+while getopts "p:d:ht:" opt; do
     case "$opt" in
         h)
             printUsage
@@ -24,6 +26,10 @@ while getopts "p:d:h" opt; do
             ;;
         d)
             WD=$OPTARG
+            ;;
+        t)
+            tn=$OPTARG
+            singleTest=1
             ;;
         :)
             echo "Option -$OPTARG requires an argument." >&2
@@ -62,7 +68,15 @@ if [[ $pn -lt 3 ]]; then
 elif [[ $pn -lt 6 ]]; then
     ./scripts/parser_autograder.sh p$pn $WD
 else
-    ./scripts/codegen_autograder.sh $WD
+    if [[ $singleTest -eq 1 ]]; then
+        if [[ $tn -lt 0 ]] || [[ $tn -gt 30 ]]; then
+            echo "Unit test number out of range [0,30]"
+            exit 0
+        fi
+        ./scripts/codegen_autograder.sh $WD 0 $tn
+    else
+        ./scripts/codegen_autograder.sh $WD
+    fi
 fi
 
 

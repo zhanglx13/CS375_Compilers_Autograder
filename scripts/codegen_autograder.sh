@@ -6,93 +6,72 @@
 ##
 
 ###########################################################################
-##                                                                       ##
-## Autograder for project 6 --- codegen,c                                ##
-##                                                                       ##
-## The autograder can be used for grading all students' code             ##
-## (all mode) or a single student's code (single mode)                   ##
-## according to the first argument                                       ##
-##                                                                       ##
-## Usage: ./codegen_autograder.sh p6|studentDir                          ##
-##                                                                       ##
-## gradeSingleStudent                                                    ##
-##                                                                       ##
-##   Both all mode and single mode will call gradeSingleStudent,         ##
-##   in which one student's code is compiled according to the            ##
-##   files submitted. Then the executable will be passed as              ##
-##   the only argument to gradeCodegen.                                  ##
-##                                                                       ##
-##   Arg:                                                                ##
-##     No input. gradeSingleStudent is called after cd'ing into          ##
-##     the student's folder                                              ##
-##                                                                       ##
-##   Compilation mode:                                                   ##
-##     1. If parse.y is found, then compile using make compiler          ##
-##     2. If parsc.c is found, then compile using make compc             ##
-##                                                                       ##
-## gradeCodegen                                                          ##
-##                                                                       ##
-##   Simply call gradeUnittest for both graph1 and pasrec                ##
-##                                                                       ##
-##   Arg:                                                                ##
-##     $1: compiler executable                                           ##
-##                                                                       ##
-## gradeUnittest                                                         ##
-##                                                                       ##
-##   Run the compiler executable on each of the unit test in             ##
-##   the test folder and compare the result with the                     ##
-##   corresponding sample in the sample folder                           ##
-##                                                                       ##
-##   Args:                                                               ##
-##     $1: compiler executable                                           ##
-##     $2: test folder full path name                                    ##
-##     $3: sample folder full path name                                  ##
-##                                                                       ##
-##   How to compare for each unit test                                   ##
-##     1. [Seg Fault?] Run the compiler executable on the test           ##
-##        and redirect the result into a temp file. If $? equals         ##
-##        139, then a seg fault signal is received.                      ##
-##     2. [No code generated?] Check if there is nothing between         ##
-##        /begin Your code/ and /begin Epilogue code/. If so             ##
-##        print out "No Code generated!!". This is helped with           ##
-##        countLines.                                                    ##
-##     3. [first diff] diff sample output after removing all             ##
-##        comments in both sample and output. If diff outputs            ##
-##        nothing, print out "\xE2\x9C\x94" which is the check           ##
-##        mark.                                                          ##
-##     4. [second diff] if the output and the sample does not            ##
-##        match for the first time, the output has a second              ##
-##        chance to match another sample if it exists. The               ##
-##        second sample for the same test has a name same as             ##
-##        the first sample appended a 0 to the basename of               ##
-##        the filename.                                                  ##
-##        E.g.                                                           ##
-##        For test25.pas, the first sample is named as                   ##
-##        test25.sample and the second sample is named as                ##
-##        test250.sample.                                                ##
-##        Since we always use two digits to represent a test             ##
-##        number, e.g. test03.pas instead of test3.pas, the              ##
-##        second sample (e.g. test030.sample) will not be                ##
-##        confused with any first samples (e.g. test30.sample).          ##
-##     5. [Not Match] When the output does not match any of              ##
-##        the samples, we print the following two things                 ##
-##        a. diff result between sample and output with                  ##
-##           comment removed                                             ##
-##        b. code between /begin Your code/ and /begin Epilogue code/    ##
-##           in the sample                                               ##
-##                                                                       ##
-##                                                                       ##
-## TODO:                                                                 ##
-##   1. The output when result does not match can still be               ##
-##      hard for grading, especially when student has a lot              ##
-##      of small issues. Sometimes I feel like printing the              ##
-##      whole student's output also. But this adds info                  ##
-##      when student's code does match well. Maybe a heuristic           ##
-##      can be used:                                                     ##
-##      when the number of diff exceeds a threshold, print               ##
-##      student's output also                                            ##
-##                                                                       ##
-###########################################################################
+##
+## Autograder for project 6 --- codegen,c
+##
+## Usage: ./codegen_autograder.sh -p 6 - d WD [-t tn]
+##
+## gradeSingleStudent [tn]
+##
+##   The student's code is compiled according to the files submitted file.
+##   Then the executable, as well as test dir, sample dir, and may a unit test
+##   number will be passed to gradeUnittest.
+##
+##   Arg:
+##     tn: if specified, only the unit test will be graded.
+##
+##   Compilation mode:
+##     1. If parse.y is found, then compile using make compiler
+##     2. If parsc.c is found, then compile using make compc
+##
+## gradeUnittest
+##
+##   Run the compiler executable on each of the unit test (or only the unit test
+##   that is specified) in the test folder and compare with the result with the
+##   corresponding sample in the sample folder.
+##
+##   Args:
+##     $1: compiler executable
+##     $2: test folder full path name
+##     $3: sample folder full path name
+##     $4: If specified, gives the unit test number to grade.
+##
+##   How to grade each unit test
+##     1. [Seg Fault?] Run the compiler executable on the test and redirect the
+##        result into a temp file. If $? equals to 139, then a seg fault signal
+##        is received.
+##     2. [No code generated?] Check if there is nothing in the assembly code section.
+##        If so, print out "No Assembly Code  Generated!!" and "(seg fault)" if
+##        a seg fault is caught is the previous stage.
+##        This is helped with countAsmLines.
+##     3. [first diff] diff sample output after removing all comments in both
+##        sample and output. If diff outputs nothing, set pass=1.
+##     4. [second diff] if the output and the sample does not match for the first
+##        time, the output has a second chance to match another sample if it exists.
+##        The second sample for the same test has a name same as the first sample
+##        appended a 0 to the basename of the filename. E.g. For test25.pas, the
+##        first sample is named as test25.sample and the second sample is named as
+##        test250.sample. Since we always use two digits to represent a test number,
+##        e.g. test03.pas instead of test3.pas, the second sample
+##        (e.g. test030.sample) will not be confused with any first samples
+##        (e.g. test30.sample).
+##     5. [Not Match] When the output does not match any of the samples, we print
+##        the following:
+##        a. diff result between sample and output with comment removed.
+##        b. Student's output if in single test mode.
+##        b. code between /begin Your code/ and /begin Epilogue code/ in the sample.
+##        c. A report summarizing wrong lines of the assembly code.
+##     6. [Empty output?] When gencode is commented in parse.y, the output is
+##        empty. In this case, the script does the following:
+##        a. back up parse.y
+##        b. remove /*  */ around gencode
+##        c. Remove // before gencode() at the same line
+##        d. rerun the autograder.
+##        Note that rerun will only happen once and only when there is no seg fault.
+##        This means rerun will only happen when grading the very first test if it
+##        is necessary.
+##
+#########################################################################
 TOP_DIR=$(pwd)
 AUTOGRADERDIR=$TOP_DIR
 TEST_DIR=$AUTOGRADERDIR/test_p6
@@ -123,13 +102,27 @@ printTest()
 {
     # $1 test to print
     # $2 the message to print on the same line of the test name
-    space=2
+    space=1
     name="$1"
-    printf "|\n|"
+    #printf "|\n|"
+    printf "==>"
     repeatPrint " " $space
     echo "$1  $2"
-    echo "|"
+    #echo "|"
     #printf "%s  $2\n|\n" "$name"
+}
+
+printBreak()
+{
+    ##
+    ## $1: half the length of the break
+    ## $2: message to print
+    ##
+    printf "    "
+    repeatPrint "$" $1 ## light horizontal line
+    printf " $2 "
+    repeatPrint "$" $1
+    printf "\n"
 }
 
 countAsmLines()
@@ -137,7 +130,11 @@ countAsmLines()
     ##
     ## $1 is the output file
     ##
-    $SED -n '/begin Your code/,/begin Epilogue code/p' $1 | $WC -l
+    cp $1 tmp_output
+    $SED -n '/begin Your code/,/begin Epilogue code/p' tmp_output |
+        $SED '/begin Your code/d' |
+        $SED '/begin Epilogue code/d' | $WC -l
+    rm tmp_output
 }
 
 gradeUnittest()
@@ -146,152 +143,186 @@ gradeUnittest()
     ## $1 executable file name
     ## $2 folder (full path) containing tests
     ## $3 folder (full path) containing samples
+    ## $4 if exist, specify the single unit test to run ==> single test mode
     ##
+    if [[ $# -eq 4 ]]; then
+        unitTestNum=$4
+    fi
     zero=0
     pass=0
     for entry in $2/*
     do
+        segFault=0
         testN=$(basename "$entry")
         testN="${testN%.*}"
         num=${testN#test}
+        if [[ $# -eq 4 ]] && [[ ${num#0} -ne ${unitTestNum#0} ]]; then
+            continue;
+        fi
         testNPoints="$testN (${points[$num]})"
-        Msg=$($1 < $entry &> tmp_err)
         ##
         ## Check seg fault
         ##
+        Msg=$($1 < $entry &> tmp_err)
         if [[ $? -eq 139 ]];then
-            syntaxErr=$(grep "syntax error" tmp_err)
-            if [[ $syntaxErr ]]; then
-                printTest "$testNPoints" "syntax error ==> seg fault!!"
-            else
-                printTest "$testNPoints" "Seg fault!!"
-            fi
-            pass=2
-        else
+            segFault=1
+        fi
+        ##
+        ## We can get the assembly code regardless of seg fault
+        ##
+        ## Note that we do not need to check syntax error here.
+        ## The rationale is that when syntax error happens in the parsing
+        ## phase, there will always be a seg fault when gencode is called.
+        ## Therefore, the syntax error was caught in the previous case.
+        ##
+        ##
+        ## Check this post to learn why we need stdbuf to set the stdout
+        ## to be unbuffered when we want to redirect the output to a file
+        ## while a seg fault exists
+        ## https://stackoverflow.com/questions/52468549/bash-how-to-assign-output-of-command-that-ends-with-segmentation-fault-to-varia
+        ##
+        Msg=$(stdbuf -o0 $1 < $entry | $SED -n "/begin Your code/,//p" > tmp_result)
+        ##
+        ## Check empty output
+        ##
+        if [ -s tmp_result ]
+        then
             ##
-            ## If no seg fault, get assembly code
+            ## First we check if the output is empty between the markers
             ##
-            ## Note that we do not need to check syntax error here.
-            ## The rationale is that when syntax error happens in the parsing
-            ## phase, there will always be a seg fault when gencode is called.
-            ## Therefore, the syntax error was caught in the previous case.
-            ##
-            $1 < $entry | $SED -n "/begin Your code/,//p" > tmp_result
-            ##
-            ## Check empty output
-            ##
-            if [ -s tmp_result ]
+            nL=$(countAsmLines tmp_result)
+            if [ $nL == "0" ]
             then
-                ##
-                ## First we check if the output is empty between the markers
-                ##
-                nL=$(countAsmLines tmp_result)
-                if [ $nL == "2" ]
-                then
-                    printTest "$testNPoints" "No Assembly Code Generated!!"
-                    pass=2
+                if [[ $segFault -eq 1 ]]; then
+                    printTest "$testNPoints" "No Assembly Code Generated!! (Seg fault)"
                 else
+                    printTest "$testNPoints" "No Assembly Code Generated!!"
+                fi
+                pass=2
+            else
+                ##
+                ## When diffing, we want to ignore comments
+                ##
+                if [[ $segFault -eq 1 ]]; then
                     ##
-                    ## When diffing, we want to ignore comments
+                    ## When seg fault happens, we only compare the assembly code
+                    ## between begin and end
                     ##
-                    $SED '/^[[:blank:]]*#/d;s/#.*//' tmp_result > output
+                    $SED -n '/begin Your code/,/begin Epilogue code/p' $3/"$testN.sample" > sample
+                    $SED -i '/^[[:blank:]]*#/d;s/#.*//' sample
+                    $SED -n -i '/begin Your code/,/begin Epilogue code/p' tmp_result
+                else
                     $SED '/^[[:blank:]]*#/d;s/#.*//' $3/"$testN.sample" > sample
-                    DIFF=$(diff -w sample output)
-                    if [ "$DIFF" != "" ]
-                    then
-                        ##
-                        ## If the output does not match the sample
-                        ## Try to see if there is an alternative sample
-                        ##
-                        if [ -f $3/$testN$zero.sample ]; then
-                            $SED '/^[[:blank:]]*#/d;s/#.*//' $3/$testN$zero.sample > sample
-                            DIFF1=$(diff -w sample output)
-                            if [ "$DIFF1" != "" ]
-                            then
-                                pass=0
-                            else
-                                pass=1
-                            fi
+                fi
+                $SED '/^[[:blank:]]*#/d;s/#.*//' tmp_result > output
+                DIFF=$(diff -w sample output)
+                if [ "$DIFF" != "" ]
+                then
+                    ##
+                    ## If the output does not match the sample
+                    ## Try to see if there is an alternative sample
+                    ##
+                    if [ -f $3/$testN$zero.sample ]; then
+                        if [[ $segFault -eq 1 ]]; then
+                            $SED -n '/begin Your code/,/begin Epilogue code/p' $3/"$testN$zero.sample" > sample
+                            $SED -i '/^[[:blank:]]*#/d;s/#.*//' sample
                         else
+                            $SED '/^[[:blank:]]*#/d;s/#.*//' $3/$testN$zero.sample > sample
+                        fi
+                        DIFF1=$(diff -w sample output)
+                        if [ "$DIFF1" != "" ]
+                        then
                             pass=0
+                        else
+                            pass=1
                         fi
                     else
-                        pass=1
+                        pass=0
                     fi
+                else
+                    pass=1
+                fi
+            fi
+        elif [[ $rerun -eq 0 ]] && [[ $segFault -eq 0 ]]; then
+            ##
+            ## Empty output usually means gencode is commented out in the
+            ## main(). Here we try to uncomment gencode in parse.y and
+            ## rerun the autograder.
+            ## We only rerun if
+            ## - we haven't done so and
+            ## - there is no seg fault
+            ##
+            echo "Empty Output ==> gencode might be commented out!!"
+            if [[ "$1" == "./compiler" ]]; then
+                echo "  ... backup parse.y --> parse_orig.y ..."
+                cp parse.y parse_orig.y
+                echo "  ... uncomment gencode in parse.y ..."
+                #########################################################################
+                ## The following two commands use GNU Sed, which has some              ##
+                ## extensions over the standard sed. Therefore, if MacOS               ##
+                ## is used, make sure to install the gnu-sed.                          ##
+                ##                                                                     ##
+                ## Step 1: remove /*  */ around gencode                                ##
+                ##                                                                     ##
+                ## sed commands                                                        ##
+                ## 1. This command works for multiple lines                            ##
+                ## 2. 1{h;d} For the first line, put it into the hold space (h)        ##
+                ##    and move on the next cycle without printing the pattern (d)      ##
+                ## 3. For other lines, append the pattern into the hold space (H)      ##
+                ##    and move on to the next cycle without printing the pattern (d)   ##
+                ## 4. For the last line, swap contents in pattern space and hold       ##
+                ##    space. And then do the replace.                                  ##
+                ## 5. For the replace, [^a-zA-Z] makes it not match any comments       ##
+                ##    before the gencode() line. Remember that sed regex matches       ##
+                ##    the longest string.                                              ##
+                #########################################################################
+                $SED -n -i '1{h;d}; H;$!d; x ; s|/\*[^a-zA-Z]*\(gencode.*;\)[\n ]*\*/|\1|;p' parse.y
+                #########################################################################
+                ## Step 2: Remove // before gencode() at the same line                 ##
+                ##                                                                     ##
+                ## sed commands                                                        ##
+                ## 1. This only works for the gencode() line.                          ##
+                ## 2. This command removes anything between // and gencode             ##
+                ## 3. This command removes anything after gencode();                   ##
+                #########################################################################
+                $SED -i 's|^\([ ]*\)//.*\(gencode.*;\).*|\1\2|' parse.y
+                echo "  ... rerun the autograder ..."
+                CURDIR=$(pwd)
+                cd $AUTOGRADERDIR
+                if [[ $# -eq 4 ]]; then
+                    ./scripts/codegen_autograder.sh $CURDIR 1 $4
+                else
+                    ./scripts/codegen_autograder.sh $CURDIR 1
                 fi
             else
-                ##
-                ## Empty output usually means gencode is commented out in the
-                ## main(). Here we try to uncomment gencode in parse.y and
-                ## rerun the autograder.
-                ##
-                echo "Empty Output ==> gencode might be commented out!!"
-                if [[ "$1" == "./compiler" ]]; then
-                    echo "  ... backup parse.y --> parse_orig.y ..."
-                    cp parse.y parse_orig.y
-                    echo "  ... uncomment gencode in parse.y ..."
-                    #########################################################################
-                    ## The following two commands use GNU Sed, which has some              ##
-                    ## extensions over the standard sed. Therefore, if MacOS               ##
-                    ## is used, make sure to install the gnu-sed.                          ##
-                    ##                                                                     ##
-                    ## Step 1: remove /*  */ around gencode                                ##
-                    ##                                                                     ##
-                    ## sed commands                                                        ##
-                    ## 1. This command works for multiple lines                            ##
-                    ## 2. 1{h;d} For the first line, put it into the hold space (h)        ##
-                    ##    and move on the next cycle without printing the pattern (d)      ##
-                    ## 3. For other lines, append the pattern into the hold space (H)      ##
-                    ##    and move on to the next cycle without printing the pattern (d)   ##
-                    ## 4. For the last line, swap contents in pattern space and hold       ##
-                    ##    space. And then do the replace.                                  ##
-                    ## 5. For the replace, [^a-zA-Z] makes it not match any comments       ##
-                    ##    before the gencode() line. Remember that sed regex matches       ##
-                    ##    the longest string.                                              ##
-                    #########################################################################
-                    $SED -n -i '1{h;d}; H;$!d; x ; s|/\*[^a-zA-Z]*\(gencode.*;\)[\n ]*\*/|\1|;p' parse.y
-                    #########################################################################
-                    ## Step 2: Remove // before gencode() at the same line                 ##
-                    ##                                                                     ##
-                    ## sed commands                                                        ##
-                    ## 1. This only works for the gencode() line.                          ##
-                    ## 2. This command removes anything between // and gencode             ##
-                    ## 3. This command removes anything after gencode();                   ##
-                    #########################################################################
-                    $SED -i 's|^\([ ]*\)//.*\(gencode.*;\).*|\1\2|' parse.y
-                    echo "  ... rerun the autograder ..."
-                    CURDIR=$(pwd)
-                    cd $AUTOGRADERDIR
-                    ./scripts/codegen_autograder.sh $CURDIR 1
-                else
-                    echo "  ... parsc.c needs to be fixed ..."
-                    echo "  ... please fix it manually ..."
-                fi
-                ##
-                ## terminate the autograder when re-run completes
-                ##
-                exit 0
+                echo "  ... parsc.c needs to be fixed ..."
+                echo "  ... please fix it manually ..."
             fi
+            ##
+            ## terminate the autograder when re-run completes
+            ##
+            exit 0
         fi
 
         if [ $pass == 0 ]
         then
-            printTest "$testNPoints"
+            if [[ $segFault -eq 1 ]]; then
+                printTest "$testNPoints" "Seg fault!!"
+            else
+                printTest "$testNPoints"
+            fi
             ##
             ## Count the diff lines and generate a simple report
             ## at the end
             ##
-            ##
             ## Count the assembly code lines in the sample
             ##
             sL=$(countAsmLines $3/"$testN.sample")
-            sL=$(echo "$sL-2" | bc)
             ##
             ## Output diff
             ##
-            repeatPrint "-" 35 ## light horizontal line
-            printf "\n> DIFF\n"
-            diff -w sample output | tee tmp_diff
+            printBreak 15 DIFF
+            diff -w sample output | tee tmp_diff | $SED 's/^/    /'
             ##
             ## tmp_diffN contains d,c, and a diff line numbers only
             ## tmp_sampleN contains the line numbers before d/c/a
@@ -322,33 +353,47 @@ gradeUnittest()
                     epilogue=1
                 fi
             done < tmp_sampleN
-            ##
-            ## Output sample
-            ##
-            repeatPrint "-" 70 ## light horizontal line
-            printf "\n> Sample\n"
-            ##
-            ## When they are different, we might want to check the
-            ## sample. But only the important section of the sample
-            ##
-            $SED -n '/begin Your code/,/begin Epilogue code/p' $3/"$testN.sample" |
-                $SED '1d;$d' |
-                cat -n # simpler than the following awk command
+            if [[ $# -eq 4 ]]; then
+                printBreak 31 "My Output"
+                ##
+                ## In single test mode, print parse tree as well as the assembly code
+                ##
+                Msg=$(stdbuf -o0 $1 < $entry > tmp_result)
+                $SED -n "/program graph1/,/Beginning of Generated Code/p" tmp_result |
+                    $SED "/Beginning of Generated Code/d" > tmp_tree
+                $SED -n "/begin Your code/,//p" tmp_result > tmp_asm
+                if [[ $segFault -eq 1 ]]; then
+                    echo "Segmentation fault" >> tmp_asm
+                fi
+                cat tmp_tree | $SED 's/^/    /'
+                cat tmp_asm | $SED 's/^/    /'
+                printBreak 33 Sample
+                $SED -n '/begin Your code/,//p' $3/"$testN.sample" | $SED 's/^/    /'
+                echo ""
+            else
+                ##
+                ## Output sample
+                ##
+                printBreak 33 Sample
+                ##
+                ## When they are different, we might want to check the
+                ## sample. But only the important section of the sample
+                ##
+                $SED -n '/begin Your code/,/begin Epilogue code/p' $3/"$testN.sample" |
+                    $SED '1d;$d' |
+                    cat -n # simpler than the following awk command
                 #awk '{print NR ":" $0}'
+            fi
             ##
             ## Output a report
             ##
-            repeatPrint "-" 70 ## light horizontal line
-            printf "\n> Report\n"
-            echo "wrong assembly code lines: $diffL / $sL"
+            printBreak 34 Report
+            echo "    wrong assembly code lines: $diffL / $sL"
             if [[ $epilogue -eq 1 ]]; then
-                echo "something wrong in literal data section"
+                echo "    something wrong in literal data section"
             fi
         elif [ $pass == 1 ]
         then
-            ##
-            ## When PASS, print out the check mark
-            ##
             printTest "$testNPoints" "All Good!!"
         fi
     done
@@ -358,7 +403,7 @@ gradeUnittest()
 
 gradeSingleStudent()
 {
-    ## $1: rerun mode
+    ## $1: if exist, specify the single unit test number
     ##
     ## Only print the student's name if the rerun mode is NOT set
     #if [[ $rerun -eq 0 ]]; then
@@ -375,7 +420,11 @@ gradeSingleStudent()
             $SED -i 's/exprCanonicalization(parseresult);gencode/gencode/g' parse.y
             $SED -i 's/\/\/yydebug/yydebug/g' parse.y
             if [[ -f "compiler" ]]; then
-                gradeUnittest ./compiler $TEST_DIR $SAMPLE_DIR
+                if [[ $# -eq 1 ]]; then
+                    gradeUnittest ./compiler $TEST_DIR $SAMPLE_DIR $1
+                else
+                    gradeUnittest ./compiler $TEST_DIR $SAMPLE_DIR
+                fi
             else
                 echo "Compilation error, compiler not found!"
             fi
@@ -397,12 +446,7 @@ gradeSingleStudent()
 
 
 
-##
-## Start autograding process
-##
-## $1: student dir
-## $2: if exist, the autograder is set to rerun mode
-##
+
 
 declare -A points
 points=(
@@ -471,11 +515,24 @@ else
     WC=wc
 fi
 
+##
+## Start autograding process
+##
+## $1: student dir
+## $2: 1: rerun mode
+## $3: if exist, specify the unit test number ==> single test mode
+##
 rerun=0
 if [[ $# -eq 2 ]]; then
-    rerun=1
+    rerun=$2
 fi
 cd $1
 WHO=$1
-gradeSingleStudent $rerun
+if [[ $# -eq 3 ]]; then
+    ## Single unit test mode
+    gradeSingleStudent $3
+else
+    ## All unit tests mode
+    gradeSingleStudent
+fi
 cd $TOP_DIR
