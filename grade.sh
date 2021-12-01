@@ -69,7 +69,7 @@ elif [[ $pn -lt 6 ]]; then
     ./scripts/parser_autograder.sh p$pn $WD
 else
     if [[ $singleTest -eq 1 ]]; then
-        if [[ $tn -lt 0 ]] || [[ $tn -gt 30 ]]; then
+        if [[ ${tn#0} -lt 0 ]] || [[ ${tn#0} -gt 30 ]]; then
             echo "Unit test number out of range [0,30]"
             exit 0
         fi
