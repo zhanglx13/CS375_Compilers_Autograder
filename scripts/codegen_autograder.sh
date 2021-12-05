@@ -37,16 +37,19 @@
 ##     $4: If specified, gives the unit test number to grade.
 ##
 ##   How to grade each unit test
-##     1. [Seg Fault?] Run the compiler executable on the test and redirect the
-##        result into a temp file. If $? equals to 139, then a seg fault signal
-##        is received.
-##     2. [No code generated?] Check if there is nothing in the assembly code section.
-##        If so, print out "No Assembly Code  Generated!!" and "(seg fault)" if
-##        a seg fault is caught is the previous stage.
+##     1. [Error?] Run the compiler executable on the test and redirect the
+##        result into a temp file. If $? != 0, then there is an error and the message
+##        can be found by indexing in the exitErr array using $?.
+##     2. [No assembly code generated?] Check if there is nothing in the assembly
+##        code section. If so, print out "No Assembly Code Generated!!" and
+##        "<error message>" if there is an error.
 ##        This is helped with countAsmLines.
-##     3. [first diff] diff sample output after removing all comments in both
+##     3. [No assembly code found?] If "begin Your code" line is not printed, there
+##        must be an error at an earlier place. If so, print out "No Assembly Found!!"
+##        and "<error message>" if there is an error.
+##     4. [first diff] diff sample output after removing all comments in both
 ##        sample and output. If diff outputs nothing, set pass=1.
-##     4. [second diff] if the output and the sample does not match for the first
+##     5. [second diff] if the output and the sample does not match for the first
 ##        time, the output has a second chance to match another sample if it exists.
 ##        The second sample for the same test has a name same as the first sample
 ##        appended a 0 to the basename of the filename. E.g. For test25.pas, the
@@ -55,19 +58,19 @@
 ##        e.g. test03.pas instead of test3.pas, the second sample
 ##        (e.g. test030.sample) will not be confused with any first samples
 ##        (e.g. test30.sample).
-##     5. [Not Match] When the output does not match any of the samples, we print
+##     6. [Not Match] When the output does not match any of the samples, we print
 ##        the following:
 ##        a. diff result between sample and output with comment removed.
 ##        b. Student's output if in single test mode.
 ##        b. code between /begin Your code/ and /begin Epilogue code/ in the sample.
 ##        c. A report summarizing wrong lines of the assembly code.
-##     6. [Empty output?] When gencode is commented in parse.y, the output is
+##     7. [Empty output?] When gencode is commented in parse.y, the output is
 ##        empty. In this case, the script does the following:
 ##        a. back up parse.y
 ##        b. remove /*  */ around gencode
 ##        c. Remove // before gencode() at the same line
 ##        d. rerun the autograder.
-##        Note that rerun will only happen once and only when there is no seg fault.
+##        Note that rerun will happen iff there is no error.
 ##        This means rerun will only happen when grading the very first test if it
 ##        is necessary.
 ##
@@ -102,14 +105,15 @@ printTest()
 {
     # $1 test to print
     # $2 the message to print on the same line of the test name
+    # $3 err message if there is any
     space=1
-    name="$1"
-    #printf "|\n|"
     printf "==>"
     repeatPrint " " $space
-    echo "$1  $2"
-    #echo "|"
-    #printf "%s  $2\n|\n" "$name"
+    if [[ $3 != "" ]]; then
+        echo "$1  $2  <$3>"
+    else
+        echo "$1  $2"
+    fi
 }
 
 printBreak()
@@ -137,6 +141,26 @@ countAsmLines()
     rm tmp_output
 }
 
+checkErr()
+{
+    ##
+    ## $1 is the exit code of the previous command
+    ## It tries to find the exit code in exitErr array
+    ## and return the message if found.
+    ##
+    found=0
+    for key in "${!exitErr[@]}"
+    do
+        if [[ $key -eq $1 ]];then
+            echo "${exitErr[$key]}"
+            found=1
+        fi
+    done
+    if [[ $found -eq 0 ]];then
+        echo "Unknown exit code $1"
+    fi
+}
+
 gradeUnittest()
 {
     ##
@@ -150,9 +174,9 @@ gradeUnittest()
     fi
     zero=0
     pass=0
+    deadline=5
     for entry in $2/*
     do
-        segFault=0
         testN=$(basename "$entry")
         testN="${testN%.*}"
         num=${testN#test}
@@ -161,14 +185,24 @@ gradeUnittest()
         fi
         testNPoints="$testN (${points[$num]})"
         ##
-        ## Check seg fault
+        ## Check if there is any error
         ##
-        Msg=$($1 < $entry &> tmp_err)
-        if [[ $? -eq 139 ]];then
-            segFault=1
+        Msg=$($TIMEOUT $deadline $1 < $entry &> tmp_err)
+        status=$?
+        errMsg=""
+        if [[ $status -ne 0 ]];then
+            errMsg=$(checkErr $status)
+            #echo "any error: $errMsg"
         fi
         ##
-        ## We can get the assembly code regardless of seg fault
+        ## Early return if timeout
+        ##
+        if [[ $status -eq 124 ]]; then
+            printTest "$testNPoints" "Program takes longer than $deadline seconds to finish!!" "$errMsg"
+            continue;
+        fi
+        ##
+        ## We can get the assembly code regardless of the error
         ##
         ## Note that we do not need to check syntax error here.
         ## The rationale is that when syntax error happens in the parsing
@@ -181,7 +215,12 @@ gradeUnittest()
         ## while a seg fault exists
         ## https://stackoverflow.com/questions/52468549/bash-how-to-assign-output-of-command-that-ends-with-segmentation-fault-to-varia
         ##
-        Msg=$(stdbuf -o0 $1 < $entry | $SED -n "/begin Your code/,//p" > tmp_result)
+        Msg=$(stdbuf -o0 $1 < $entry &> tmp_raw_result)
+        ##
+        ## tmp_result does not include error messages
+        ##
+        { stdbuf -o0 $1 < $entry > tmp_no_err; } 2> /dev/null
+        $SED -n "/begin Your code/,//p" tmp_no_err > tmp_result
         ##
         ## Check empty output
         ##
@@ -193,19 +232,15 @@ gradeUnittest()
             nL=$(countAsmLines tmp_result)
             if [ $nL == "0" ]
             then
-                if [[ $segFault -eq 1 ]]; then
-                    printTest "$testNPoints" "No Assembly Code Generated!! (Seg fault)"
-                else
-                    printTest "$testNPoints" "No Assembly Code Generated!!"
-                fi
+                printTest "$testNPoints" "No Assembly Code Generated!!" "$errMsg"
                 pass=2
             else
                 ##
                 ## When diffing, we want to ignore comments
                 ##
-                if [[ $segFault -eq 1 ]]; then
+                if [[ $status -ne 0 ]]; then
                     ##
-                    ## When seg fault happens, we only compare the assembly code
+                    ## When there is an error, we only compare the assembly code
                     ## between begin and end
                     ##
                     $SED -n '/begin Your code/,/begin Epilogue code/p' $3/"$testN.sample" > sample
@@ -243,14 +278,15 @@ gradeUnittest()
                     pass=1
                 fi
             fi
-        elif [[ $rerun -eq 0 ]] && [[ $segFault -eq 0 ]]; then
+        elif [[ $status -ne 0 ]]; then
+            printTest "$testNPoints" "No Assembly Code Found!!" "$errMsg"
+            pass=2
+        elif [[ $rerun -eq 0 ]]; then
             ##
             ## Empty output usually means gencode is commented out in the
             ## main(). Here we try to uncomment gencode in parse.y and
             ## rerun the autograder.
-            ## We only rerun if
-            ## - we haven't done so and
-            ## - there is no seg fault
+            ## We only rerun if we haven't done so
             ##
             echo "Empty Output ==> gencode might be commented out!!"
             if [[ "$1" == "./compiler" ]]; then
@@ -306,17 +342,14 @@ gradeUnittest()
 
         if [ $pass == 0 ]
         then
-            if [[ $segFault -eq 1 ]]; then
-                printTest "$testNPoints" "Seg fault!!"
+            if [[ $status -ne 0 ]]; then
+                printTest "$testNPoints" "" "$errMsg"
             else
                 printTest "$testNPoints"
             fi
             ##
             ## Count the diff lines and generate a simple report
             ## at the end
-            ##
-            ## Count the assembly code lines in the sample
-            ##
             sL=$(countAsmLines $3/"$testN.sample")
             ##
             ## Output diff
@@ -358,15 +391,18 @@ gradeUnittest()
                 ##
                 ## In single test mode, print parse tree as well as the assembly code
                 ##
-                Msg=$(stdbuf -o0 $1 < $entry > tmp_result)
+                Msg=$(stdbuf -o0 $1 < $entry &> tmp_result)
                 $SED -n "/program graph1/,/Beginning of Generated Code/p" tmp_result |
                     $SED "/Beginning of Generated Code/d" > tmp_tree
                 $SED -n "/begin Your code/,//p" tmp_result > tmp_asm
-                if [[ $segFault -eq 1 ]]; then
-                    echo "Segmentation fault" >> tmp_asm
-                fi
                 cat tmp_tree | $SED 's/^/    /'
                 cat tmp_asm | $SED 's/^/    /'
+                ##
+                ## for some reason tmp_result does not capture the signal message
+                ##
+                if [[ $status -ne 0 ]]; then
+                    echo "    $errMsg"
+                fi
                 printBreak 33 Sample
                 $SED -n '/begin Your code/,//p' $3/"$testN.sample" | $SED 's/^/    /'
                 echo ""
@@ -394,7 +430,22 @@ gradeUnittest()
             fi
         elif [ $pass == 1 ]
         then
-            printTest "$testNPoints" "All Good!!"
+            printTest "$testNPoints" "All Good!!" "$errMsg"
+        elif [ $pass == 2 ]
+        then
+            if [[ $# -eq 4 ]]; then
+                printBreak 31 "My Output"
+                $SED -n "/program graph1/,//p" tmp_raw_result |
+                    $SED -n '/Beginning of Generated Code/{p; :a; N; /begin Your code/!ba; s/.*\n//}; p'|
+                    $SED '/Beginning of Generated Code/d' |
+                    $SED 's/^/    /'
+                if [[ $status -ne 0 ]];then
+                    echo "    $errMsg"
+                fi
+                printBreak 33 Sample
+                $SED -n '/begin Your code/,//p' $3/"$testN.sample" | $SED 's/^/    /'
+                echo ""
+            fi
         fi
     done
     rm -f tmp_* output sample
@@ -483,6 +534,20 @@ points=(
     [30]=1
 )
 
+declare -A exitErr
+##
+## reference:
+## https://www.geeksforgeeks.org/exit-codes-in-c-c-with-examples/
+##
+exitErr=(
+    [124]="SIGTERM (Time out)"
+    [133]="SIGTRAP (dividing an integer by zero)"
+    [134]="SIGABRT (failed assertion)"
+    [136]="SIGFPE (floating point exception or integer overflow)"
+    [137]="SIGKILL"
+    [139]="SIGSEGV (Segmentation fault)"
+)
+
 ##
 ## Testing for MacOS
 ##
@@ -509,10 +574,18 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "  brew install coreutils"
         exit 0
     fi
+    if hash gtimeout 2>/dev/null; then
+        TIMEOUT=gtimeout
+    else
+        echo "Please install gnu-timeout as follows:"
+        echo "  brew install coreutils"
+        exit 0
+    fi
 else
     SED=sed
     AWK=awk
     WC=wc
+    TIMEOUT=timeout
 fi
 
 ##
@@ -523,7 +596,7 @@ fi
 ## $3: if exist, specify the unit test number ==> single test mode
 ##
 rerun=0
-if [[ $# -eq 2 ]]; then
+if [[ $# -ge 2 ]]; then
     rerun=$2
 fi
 cd $1
