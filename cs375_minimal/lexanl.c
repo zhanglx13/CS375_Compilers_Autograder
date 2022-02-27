@@ -35,10 +35,11 @@
 #include "token.h"
 #include "lexan.h"
 
+TOKEN yylval;
+
 int main()          /* Calls yylex repeatedly to test */
   { 
     int res, done;
-    extern TOKEN yylval;
     printf("Started scanner test.\n");
     done = 0;
     while (done == 0)
