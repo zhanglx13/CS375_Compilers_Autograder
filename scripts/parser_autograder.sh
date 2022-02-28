@@ -396,7 +396,7 @@ gradeSingleStudent()
         echo "Parser file (parse.y or parsc.c) not found!"
     fi
 
-    rm -f result dump
+    rm -f result *dump
 }
 
 
