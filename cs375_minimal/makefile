@@ -15,7 +15,7 @@ parser: y.tab.o lex.yy.o printtoken.o pprint.o symtab.o
 	$(CC) -o parser y.tab.o lex.yy.o printtoken.o pprint.o symtab.o -lm
 
 y.tab.c: parse.y token.h parse.h symtab.h lexan.h
-	yacc parse.y
+	yacc -t parse.y
 
 y.tab.o: y.tab.c
 	$(CC) -c -g y.tab.c -Wall

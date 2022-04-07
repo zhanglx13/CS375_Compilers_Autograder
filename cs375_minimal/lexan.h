@@ -36,8 +36,8 @@ void printtoken(TOKEN tok);
 
 void skipblanks ();
 void initscanner ();
-int EOFFLG;
-int CHARCLASS[MAXCHARCLASS];
+extern int EOFFLG;
+extern int CHARCLASS[MAXCHARCLASS];
 TOKEN identifier (TOKEN tok);
 TOKEN getstring (TOKEN tok);
 TOKEN special (TOKEN tok);
