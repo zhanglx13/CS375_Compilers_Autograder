@@ -17,6 +17,7 @@ banArray=(
     [pprint.c]=1
     [printtoken.c]=1
     [pprint.h]=1
+    [makefile]=1
 )
 ##
 ## Algorithm:
@@ -64,7 +65,8 @@ do
         fname=$(echo ${submittedFile%.*})
         fname=$(echo ${fname##*/})
         ## Extract the zip package using the rename policy
-        dtrx --one=rename $submittedFile
+        # dtrx --one=rename $submittedFile
+        unzip $submittedFile -d $fname
         ## Copy student's files
         ## cp will automatically ignore folders since we do not
         ## specify -r
@@ -85,7 +87,7 @@ do
         ## into the folder
         ##
         ## the downloaded submitted file has the following form
-        ## 
+        ##
         ## name_LATE_3454987397_397484737_parse-3.y
         ##
         ## The goal is to extract the basename of the file without

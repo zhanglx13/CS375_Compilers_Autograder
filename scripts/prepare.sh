@@ -31,7 +31,7 @@ else
         then
             rm -r submissions_$1
         fi
-        dtrx "$AUTOGRADER/submissions_$1.zip"
+        unzip "$AUTOGRADER/submissions_$1.zip" -d submissions_$1
         ##
         ## We need to go back to the autograder_dir
         ##
