@@ -8,7 +8,6 @@
 
 TOP_DIR=$(pwd)
 AUTOGRADERDIR=$TOP_DIR
-SYMTABCHECKER=$AUTOGRADERDIR/symTable/bin/check_symtab
 
 source $AUTOGRADERDIR/scripts/checksym.sh
 
@@ -176,11 +175,15 @@ checkUnittest()
     ## $1 is the filename (w/out ext) of each unittest
     ##
     pass=0
-    Msg=$($PARSER < $TESTDIR/$1.pas &> tmp_err)
-    ##
+    Msg=$($TIMEOUT 5 $PARSER < $TESTDIR/$1.pas &> tmp_err)
+    status=$?
+    ## Check timeout
+    if [[ $status -eq 124 ]]; then
+        printf "Timeout (5s)!!\n"
+        return;
+    fi
     ## Check seg fault 
-    ##
-    if [[ $? -eq 139 ]];then
+    if [[ $status -eq 139 ]];then
         syntaxErr=$($GREP "syntax error" tmp_err)
         if [[ $syntaxErr ]]; then
             ##
@@ -323,8 +326,15 @@ gradePasrec()
             ##
             ## Check symbol table
             ##
-            Msg=$($PARSER < $TESTDIR/$testN.pas &> output.tmp)
-            if [[ $? -eq 139 ]];then
+            Msg=$($TIMEOUT 5 $PARSER < $TESTDIR/$testN.pas &> output.tmp)
+            status=$?
+            ## check timeout
+            if [[ $status -eq 124 ]]; then
+                printf "Timeout (5s)!!\n"
+                continue;
+            fi
+            ## check seg fault
+            if [[ $status -eq 139 ]];then
                 syntaxErr=$($GREP "syntax error" output.tmp)
                 if [[ $syntaxErr ]]; then
                     ## seg fault caused by syntax error
@@ -456,13 +466,13 @@ symbolTest=(
 if [[ "$OSTYPE" == "darwin"* ]]; then
     echo ">>>>>>>>> Running the autograder on MacOS <<<<<<<<<<"
     ## Check for timeout
-    # if hash gtimeout 2>/dev/null; then
-    #     TIMEOUT=gtimeout
-    # else
-    #     echo "Please install gnu-timeout as follows:"
-    #     echo "  brew install coreutils"
-    #     exit 0
-    # fi
+    if hash gtimeout 2>/dev/null; then
+        TIMEOUT=gtimeout
+    else
+        echo "Please install gnu-timeout as follows:"
+        echo "  brew install coreutils"
+        exit 0
+    fi
     ## Check gnu-grep
     if hash ggrep 2>/dev/null; then
         GREP=ggrep
@@ -496,7 +506,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         exit 0
     fi
 else
-    # TIMEOUT=timeout
+    TIMEOUT=timeout
     GREP=grep
     SED=sed
     AWK=awk
