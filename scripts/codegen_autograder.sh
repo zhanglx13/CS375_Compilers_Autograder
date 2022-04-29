@@ -460,6 +460,9 @@ gradeSingleStudent()
     #if [[ $rerun -eq 0 ]]; then
     #    printName $WHO
     #fi
+    flag=0
+    ## Clean up the working dir before compiling
+    rm -f *.o parser compiler lex.yy.c y.tab.c
     if [[ -f "codegen.c" ]]; then
         if [[ -f "parse.y" ]]; then
             ## disable parser-tracing function
@@ -478,6 +481,7 @@ gradeSingleStudent()
                 fi
             else
                 echo "Compilation error, compiler not found!"
+                flag=1
             fi
         elif [[ -f "parsc.c" ]]; then
             make compc &> dump
@@ -485,6 +489,7 @@ gradeSingleStudent()
                 gradeUnittest ./compc $TEST_DIR $SAMPLE_DIR
             else
                 echo "Compilation error, compc not found!"
+                flag=1
             fi
         else
             echo "Parser file (parse.y or parsc.c) not found!"
@@ -492,7 +497,12 @@ gradeSingleStudent()
     else
         echo "codegen.c not found!"
     fi
-    rm -f result dump
+    if [[ $flag -eq 1 ]]; then
+        echo "Check $(pwd)/dump for error message!!!"
+    else
+        rm -f dump
+    fi
+    rm -f result
 }
 
 
