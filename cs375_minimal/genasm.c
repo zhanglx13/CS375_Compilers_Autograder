@@ -121,7 +121,7 @@ char* bottomcodeb[] = {
   ""};
 
 char* bottomcodec[] = { 
-  "        .ident  \"CS 375 Compiler - Fall 2021\"",
+  "        .ident  \"CS 375 Compiler - Spring 2022\"",
   /* "        .section     .note.GNU-stack,\"\",@progbits", /* need this? */
   ""};
 
