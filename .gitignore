@@ -8,6 +8,7 @@ p*_gradingDir
 
 *.zip
 *.tar.gz
+*.tar.xz
 
 symTable/bin
 symTable/build
