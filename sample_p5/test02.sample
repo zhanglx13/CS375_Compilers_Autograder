@@ -1,20 +1,20 @@
 Symbol table level 1
- 6664272     complex  TYPE   typ 6664176  lvl  1  siz    16  off     0
+ 140444211107376     complex  TYPE   typ 140444211107296  lvl  1  siz    16  off     0
 (RECORD (re real)
         (im real))
- 6664784      person  TYPE   typ 6666640  lvl  1  siz    48  off     0
+ 140444211107856      person  TYPE   typ 140444212152000  lvl  1  siz    48  off     0
 (RECORD (age integer)
         (friend (^ person))
         (location (RECORD (re real)
                           (im real)))
         (salary real))
- 6664880          pp  TYPE   typ 6664688  lvl  1  siz     8  off     0
+ 140444211107936          pp  TYPE   typ 140444211107776  lvl  1  siz     8  off     0
 (^ person)
- 6667888    complexX  TYPE   typ 6667792  lvl  1  siz    32  off     0
+ 140444212153168    complexX  TYPE   typ 140444212153088  lvl  1  siz    32  off     0
 (RECORD (re real)
         (im real)
         (dummy real))
- 6670800     personX  TYPE   typ 6670704  lvl  1  siz    80  off     0
+ 140444211108576     personX  TYPE   typ 140444211108496  lvl  1  siz    80  off     0
 (RECORD (age integer)
         (friend (^ person))
         (location (RECORD (re real)
@@ -24,40 +24,40 @@ Symbol table level 1
         (height integer)
         (weight integer)
         (birthMonth integer))
- 6671344           c  VAR    0 typ 6664176  lvl  1  siz    16  off     0
+ 140444212155632           c  VAR    0 typ 140444211107296  lvl  1  siz    16  off     0
 (RECORD (re real)
         (im real))
- 6671440           d  VAR    0 typ 6664176  lvl  1  siz    16  off    16
+ 140444212155712           d  VAR    0 typ 140444211107296  lvl  1  siz    16  off    16
 (RECORD (re real)
         (im real))
- 6671792           i  VAR    0 typ integer  lvl  1  siz     4  off    32
- 6672528        john  VAR    4 typ 6664688  lvl  1  siz     8  off    40
+ 140444212156048           i  VAR    0 typ integer  lvl  1  siz     4  off    32
+ 140444212156768        john  VAR    4 typ 140444211107776  lvl  1  siz     8  off    40
 (^ person)
- 6672624        mary  VAR    4 typ 6664688  lvl  1  siz     8  off    48
+ 140444212156848        mary  VAR    4 typ 140444211107776  lvl  1  siz     8  off    48
 (^ person)
- 6672720        fred  VAR    4 typ 6664688  lvl  1  siz     8  off    56
+ 140444212156928        fred  VAR    4 typ 140444211107776  lvl  1  siz     8  off    56
 (^ person)
- 6672816         ptr  VAR    4 typ 6664688  lvl  1  siz     8  off    64
+ 140444212157008         ptr  VAR    4 typ 140444211107776  lvl  1  siz     8  off    64
 (^ person)
- 6673552         you  VAR    0 typ 6666640  lvl  1  siz    48  off    80
+ 140444212157728         you  VAR    0 typ 140444212152000  lvl  1  siz    48  off    80
 (RECORD (age integer)
         (friend (^ person))
         (location (RECORD (re real)
                           (im real)))
         (salary real))
- 6673648          he  VAR    0 typ 6666640  lvl  1  siz    48  off   128
+ 140444212157808          he  VAR    0 typ 140444212152000  lvl  1  siz    48  off   128
 (RECORD (age integer)
         (friend (^ person))
         (location (RECORD (re real)
                           (im real)))
         (salary real))
- 6673744         she  VAR    0 typ 6666640  lvl  1  siz    48  off   176
+ 140444212157888         she  VAR    0 typ 140444212152000  lvl  1  siz    48  off   176
 (RECORD (age integer)
         (friend (^ person))
         (location (RECORD (re real)
                           (im real)))
         (salary real))
- 6673840          me  VAR    0 typ 6666640  lvl  1  siz    48  off   224
+ 140444212157968          me  VAR    0 typ 140444212152000  lvl  1  siz    48  off   224
 (RECORD (age integer)
         (friend (^ person))
         (location (RECORD (re real)
