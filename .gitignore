@@ -29,10 +29,15 @@ todo.md
 test.sh
 database
 test_p5_orig
+test_p6_orig
 test_p5_hidden
+test_p6_hidden
 sample_p5_orig
+sample_p6_orig
 sample_p5_hidden
+sample_p6_hidden
 *_hints.sh
 maketest.sh
 addToDatabase.sh
 scripts/gentest.sh
+scripts/change_year.sh
